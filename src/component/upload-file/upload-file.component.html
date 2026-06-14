@@ -1,0 +1,38 @@
+<div class="upload-container">
+  <div class="upload-header">
+    <h2>Upload New PDF Material</h2>
+    <p>Add a new resource to the system.</p>
+  </div>
+
+  <div class="form-wrapper">
+    <div class="form-group">
+      <label>Exam Type</label>
+      <select [(ngModel)]="selectedExamType" [disabled]="isUploading">
+        <option value="FREE">मोफत चाचणी (Free)</option>
+        <option value="FOREST_BHARTI">वनरक्षक भरती (Forest)</option>
+        <option value="POLICE_BHARTI">पोलीस भरती (Police)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>PDF Title</label>
+      <input type="text" [(ngModel)]="pdfTitle" placeholder="e.g. महाराष्ट्र पोलीस भरती २०२६" [disabled]="isUploading" />
+    </div>
+
+    <div class="form-group file-group">
+      <label>Select PDF File</label>
+      <input type="file" accept="application/pdf" (change)="onFileSelected($event)" [disabled]="isUploading" id="fileInput" class="file-input" />
+      <div class="file-status" *ngIf="selectedFile">
+        <span>📄 {{ selectedFile.name }}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="secondary-btn" (click)="cancelUpload()" [disabled]="isUploading">Cancel</button>
+      <button class="primary-btn" [disabled]="isUploading" (click)="onUpload()">
+        <span *ngIf="isUploading" class="spinner-small"></span>
+        {{ isUploading ? 'Uploading to S3...' : 'Upload File' }}
+      </button>
+    </div>
+  </div>
+</div>

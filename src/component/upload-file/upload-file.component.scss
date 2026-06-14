@@ -1,0 +1,181 @@
+$primary-color: #4f46e5;      
+$primary-hover: #4338ca;
+$text-main: #0f172a;         
+$text-muted: #64748b;        
+$border-color: #cbd5e1;      
+$bg-card: #ffffff;
+
+.upload-container {
+  max-width: 600px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: $text-main;
+
+  .upload-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1rem;
+
+    h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
+    p {
+      margin: 0;
+      color: $text-muted;
+      font-size: 0.95rem;
+    }
+  }
+
+  .form-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input[type="text"], select {
+      padding: 0.75rem;
+      font-size: 0.95rem;
+      border: 1px solid $border-color;
+      border-radius: 6px;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+      &:disabled {
+        background-color: #f8fafc;
+        cursor: not-allowed;
+      }
+    }
+
+    &.file-group {
+      .file-input {
+        padding: 0.5rem 0;
+        color: $text-muted;
+        font-size: 0.95rem;
+        cursor: pointer;
+        width: 100%;
+
+        // Target the native "Choose File" button
+        &::file-selector-button {
+          margin-right: 1rem;
+          padding: 0.6rem 1.2rem;
+          border: 1px solid $primary-color;
+          border-radius: 6px;
+          background-color: transparent;
+          color: $primary-color;
+          font-weight: 600;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.2s ease-in-out;
+        }
+
+        // Hover effect for the button
+        &::file-selector-button:hover {
+          background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        // Disabled state styling
+        &:disabled {
+          cursor: not-allowed;
+          color: #94a3b8;
+          
+          &::file-selector-button {
+            border-color: $border-color;
+            color: $text-muted;
+            background-color: #f1f5f9;
+            cursor: not-allowed;
+            opacity: 0.7;
+          }
+        }
+      }
+
+      .file-status {
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+        background-color: #f8fafc;
+        border: 1px dashed $border-color;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: $text-main;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    button {
+      padding: 0.65rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+
+    .primary-btn {
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      &:hover:not(:disabled) { background-color: $primary-hover; }
+    }
+
+    .secondary-btn {
+      background-color: transparent;
+      color: #475569;
+      border: 1px solid $border-color;
+      &:hover:not(:disabled) {
+        background-color: #f1f5f9;
+        color: $text-main;
+      }
+    }
+  }
+
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

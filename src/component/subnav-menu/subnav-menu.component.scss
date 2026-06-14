@@ -1,0 +1,139 @@
+// Cohesive Theme Variables
+$primary-color: #4f46e5;      // Indigo
+$primary-light: #eef2ff;      // Selected block active tint
+$text-main: #0f172a;         // Slate 900
+$text-muted: #64748b;        // Slate 500
+$border-color: #cbd5e1;      // Slate 300
+$bg-hover: #f1f5f9;          // Slate 100
+$error-color: #ef4444;       // Red Accent
+$error-light: #fef2f2;       // Red tint
+
+.sidebar {
+  width: 240px;               // Absolute width scaling works more predictably than 15% for responsive dashboards
+  height: 100vh;              // Span full screen layout height
+  background-color: #ffffff;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; // Anchors wrapper top / footer bottom cleanly
+  padding: 1.5rem 0 0 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+
+  .sidebar-wrapper {
+    flex-grow: 1;             // Fills vertical empty space forcing footer container down
+    overflow-y: auto;
+    padding: 0 1rem;
+    
+    // Custom thin scrollbar for modern appearance
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 4px;
+    }
+  }
+
+  .nav-section {
+    margin-bottom: 2rem;
+
+    .section-title {
+      display: block;
+      color: #94a3b8;         // Slate 400
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+      padding-left: 0.75rem;
+    }
+  }
+
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .nav-item {
+      margin-bottom: 6px;
+
+      a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        color: $text-muted;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        i {
+          font-size: 1.25rem;
+          transition: transform 0.2s ease;
+        }
+
+        &:hover {
+          background-color: $bg-hover;
+          color: $primary-color;
+
+          i {
+            transform: translateX(2px); // Subtle premium interaction shift
+          }
+        }
+
+        &.active {
+          background-color: $primary-light;
+          color: $primary-color;
+          font-weight: 600;
+
+          i {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+
+  // Bottom action container
+  .sidebar-footer {
+    padding: 1.25rem 1rem;
+    border-top: 1px solid #f1f5f9;
+    background-color: #ffffff;
+
+    .logout-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.75rem 1rem;
+      border: 1px solid transparent;
+      background: transparent;
+      color: $error-color;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 1.25rem;
+      }
+
+      &:hover {
+        background-color: $error-light;
+        border-color: rgba(239, 68, 68, 0.15);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+      }
+    }
+  }
+}

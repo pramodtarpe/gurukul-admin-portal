@@ -1,0 +1,59 @@
+<div class="auth-container">
+  <div class="auth-card">
+    
+    <div class="logo-container">
+      <img src="assets/gurukul-logo-round.png" alt="Gurukul Academy Logo" class="app-logo">
+    </div>
+
+    <div class="auth-header">
+      <h2>Gurukul Career Academy</h2>
+      <p>Admin Login</p>
+      <p>Welcome back! Please sign in to your account.</p>
+    </div>
+
+    <div class="error-banner" *ngIf="errorMessage">
+      <i class="ph ph-warning-circle"></i> {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" placeholder="Enter your email" [ngClass]="{'is-invalid': loginForm.get('email')?.touched && loginForm.get('email')?.invalid}" />
+        <div class="invalid-feedback" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+          Please enter a valid email.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        
+        <div class="password-input-wrapper">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password" 
+            formControlName="password" 
+            placeholder="Enter your password" 
+            [ngClass]="{'is-invalid': loginForm.get('password')?.touched && loginForm.get('password')?.invalid}" 
+          />
+          <button type="button" class="toggle-password-btn" (click)="togglePasswordVisibility()">
+            <i class="ph" [ngClass]="showPassword ? 'ph-eye-slash' : 'ph-eye'"></i>
+          </button>
+        </div>
+
+        <div class="invalid-feedback" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          Password is required.
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid || isLoading">
+        <i class="ph ph-spinner ph-spin" *ngIf="isLoading"></i>
+        <span>{{ isLoading ? 'Signing In...' : 'Sign In' }}</span>
+      </button>
+
+    </form>
+    
+    <div class="auth-footer">
+      <p>Powered by Gurukul Academy, Gadchiroli.</p>
+    </div>
+  </div>
+</div>

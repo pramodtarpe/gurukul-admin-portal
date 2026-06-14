@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://nihwpui92b.execute-api.ap-south-1.amazonaws.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

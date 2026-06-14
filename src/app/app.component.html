@@ -1,0 +1,21 @@
+@if (authService.isAuthenticated()) {
+  <div class="top-container">
+    <div class="subnav-container">
+      <ga-subnav-menu></ga-subnav-menu>
+    </div>
+    
+    <div class="main-layout-area">
+      <div class="header-container">
+        <ga-header></ga-header>
+      </div>
+
+      <main class="management-container">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+} @else {
+  <div class="auth-fullscreen-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+}

@@ -1,0 +1,71 @@
+<div class="exam-management-container">
+  
+  <div class="exam-management-header">
+    <div class="header-title-block">
+      <h2>Exam Management</h2>
+      <p>Manage and organize your structural exams here.</p>
+    </div>
+
+    <div class="header-actions-block">
+      <span class="exam-type-selector">
+        <label for="examType">Exam Type:</label>
+        <select id="examType" [(ngModel)]="selectedExamType" (change)="onExamTypeChange()" [disabled]="isLoading">
+          <option *ngFor="let type of examTypes" [value]="type">
+            {{ examTypeTranslations[type] || type }}
+          </option>
+        </select>
+      </span>
+
+      <span class="create-exam-btn">
+        <button class="primary-btn" routerLink="/create-exam">+ Create New Exam</button>
+      </span>
+    </div>
+  </div>
+  
+  <div class="exam-list-container" *ngIf="selectedExamType">
+    <h3>{{ examTypeTranslations[selectedExamType] || selectedExamType }} Exam List</h3>
+    
+    <div class="loader-wrapper" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Exams are being fetched...</p>
+    </div>
+
+    <div class="exam-list-wrapper" *ngIf="!isLoading">
+      <ng-container *ngFor="let exam of examData">
+        <div *ngIf="exam.examType === selectedExamType" class="exam-list-item">
+          <div class="exam-info">
+            <span class="exam-title">{{ exam.title }}</span>
+            <span class="exam-date" *ngIf="exam.examCreatedDate">
+              📅 {{ exam.examCreatedDate * 1000 | date: 'mediumDate' }}
+            </span>
+          </div>
+          
+          <div class="exam-controls">
+            <button class="edit-exam-btn" [routerLink]="['/edit-exam', exam.examId]" title="Edit Exam">
+              <i class="ph ph-pencil-simple"></i>
+              <span>Edit</span>
+            </button>
+            <button class="delete-exam-btn" (click)="deleteExam(exam)" title="Delete Exam">
+              <i class="ph ph-trash"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="no-exams-fallback" *ngIf="!hasExamsOfType(selectedExamType)">
+       <p>No exams available for this structural type.</p>
+      </div>
+
+      <div class="pagination-controls" *ngIf="hasExamsOfType(selectedExamType) || cursorHistory.length > 0">
+        <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading">
+          <i class="ph ph-caret-left"></i> Previous
+        </button>
+        <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">
+          Next <i class="ph ph-caret-right"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

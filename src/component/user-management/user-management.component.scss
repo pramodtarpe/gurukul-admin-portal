@@ -1,0 +1,145 @@
+$border-color: #e2e8f0;
+$primary-color: #4f46e5;
+$primary-light: #eef2ff;
+$text-main: #1e293b;
+$text-muted: #64748b;
+
+.user-management-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .user-management-header {
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.75rem;
+      color: $text-main;
+      margin-bottom: 0.25rem;
+    }
+    p {
+      color: $text-muted;
+      margin: 0;
+    }
+  }
+
+  .table-card {
+    background-color: #ffffff;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  /* --- Table Styling --- */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    margin-bottom: 1rem;
+
+    th {
+      background-color: #f8fafc;
+      color: $text-muted;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 1rem;
+      border-bottom: 2px solid $border-color;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid $border-color;
+      color: $text-main;
+      vertical-align: middle;
+
+      &.fw-bold {
+        font-weight: 600;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+  }
+
+  /* --- Badges & Text Utilities --- */
+  .date-badge {
+    background-color: $primary-light;
+    color: $primary-color;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .muted-text {
+    color: $text-muted;
+    font-style: italic;
+    font-size: 0.85rem;
+  }
+
+  /* --- Loader & Empty States --- */
+  .loader-wrapper, .no-data-fallback {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: $text-muted;
+
+    .spinner {
+      margin: 0 auto 1rem;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid $primary-color;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  /* --- Pagination Controls --- */
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+
+    .pagination-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      background-color: #ffffff;
+      border: 1px solid $border-color;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: $text-muted;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover:not(:disabled) {
+        background-color: $primary-light;
+        border-color: $primary-color;
+        color: $primary-color;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #f8fafc;
+      }
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}

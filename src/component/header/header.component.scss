@@ -1,0 +1,141 @@
+$border-color: #cbd5e1;
+$primary-color: #6366f1;
+
+.admin-header {
+  height: 85px;
+  width: 100%; 
+  background-color: #ffffff;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-sizing: border-box;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      // New image logo styles
+      .app-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .app-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        letter-spacing: -0.025em;
+      }
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .search-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      input {
+        background: #f1f5f9;
+        border: 1px solid transparent;
+        padding: 8px 12px 8px 36px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        width: 200px;
+        color: #0f172a;
+        transition: all 0.25s ease-in-out;
+        box-sizing: border-box;
+
+        &:focus {
+          outline: none;
+          background: #ffffff;
+          border-color: $primary-color;
+          width: 260px;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+      }
+
+      i {
+        position: absolute;
+        left: 14px;
+        color: #94a3b8;
+        font-size: 1rem;
+        pointer-events: none;
+      }
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .notification-bell {
+        position: relative;
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        border-radius: 50%;
+        transition: background 0.2s;
+
+        i {
+          font-size: 1.25rem;
+        }
+
+        &:hover {
+          background-color: #f1f5f9;
+          color: #0f172a;
+        }
+
+        .badge {
+          position: absolute;
+          top: 3px;
+          right: 3px;
+          width: 8px;
+          height: 8px;
+          background: #ef4444;
+          border-radius: 50%;
+          border: 2px solid white;
+        }
+      }
+
+      .divider {
+        width: 1px;
+        height: 20px;
+        background: $border-color;
+      }
+
+      .username {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #475569;
+      }
+
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e2e8f0;
+      }
+    }
+  }
+}

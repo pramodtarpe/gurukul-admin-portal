@@ -1,0 +1,41 @@
+<nav class="sidebar">
+  <div class="sidebar-wrapper">
+    <div class="nav-section">
+      <small class="section-title">Main Menu</small>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="ph ph-house"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/users" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="ph ph-users"></i>
+            <span>User Management</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/file" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="ph ph-folder-open"></i>
+            <span>File Management</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/exam" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="ph ph-graduation-cap"></i>
+            <span>Exam Management</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" (click)="onLogout()" [disabled]="isLoggingOut">
+      <i class="ph ph-sign-out" *ngIf="!isLoggingOut"></i>
+      <i class="ph ph-spinner ph-spin" *ngIf="isLoggingOut"></i> 
+      <span>{{ isLoggingOut ? 'Signing Out...' : 'Sign Out' }}</span>
+    </button>
+  </div>
+</nav>

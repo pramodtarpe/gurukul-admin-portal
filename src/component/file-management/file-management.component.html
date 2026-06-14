@@ -1,0 +1,80 @@
+<div class="file-management-container">
+  
+  <div class="file-management-header">
+    <div class="header-title-block">
+      <h2>PDF Material Management</h2>
+      <p>View and manage PDF resources for users.</p>
+    </div>
+
+    <div class="header-actions-block">
+      <span class="exam-type-selector">
+        <label for="examType">Exam Type:</label>
+        <select id="examType" [(ngModel)]="selectedExamType" (change)="onExamTypeChange()" [disabled]="isLoading">
+          <option *ngFor="let type of examTypes" [value]="type">
+            {{ examTypeTranslations[type] || type }}
+          </option>
+        </select>
+      </span>
+
+      <span class="upload-file-btn">
+        <button class="primary-btn" routerLink="/upload-file">+ Upload New File</button>
+      </span>
+    </div>
+  </div>
+  
+  <div class="pdf-list-container" *ngIf="selectedExamType">
+    <h3>{{ examTypeTranslations[selectedExamType] || selectedExamType }} PDF List</h3>
+    
+    <div class="loader-wrapper" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>PDFs are being fetched...</p>
+    </div>
+
+    <div class="pdf-list-wrapper" *ngIf="!isLoading">
+      <ng-container *ngFor="let pdf of pdfData">
+        <div class="pdf-list-item">
+          
+          <div class="pdf-item-left">
+            <div class="pdf-image">
+              <img src="assets/pdf-icon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/337/337946.png'" alt="PDF Icon">
+            </div>
+
+            <div class="pdf-info">
+              <span class="pdf-title">{{ pdf.title }}</span>
+              <span class="pdf-date" *ngIf="pdf.createdDate">
+                📅 {{ pdf.createdDate * 1000 | date: 'mediumDate' }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="pdf-controls">
+            <a class="view-pdf-btn" *ngIf="pdf.fileUrl" [href]="pdf.fileUrl" target="_blank" title="View PDF">
+              <i class="ph ph-file-pdf"></i>
+              <span>View PDF</span>
+            </a>
+            
+            <button class="delete-pdf-btn" (click)="deletePdf(pdf.pdfId)" title="Delete PDF">
+              <i class="ph ph-trash"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+
+        </div>
+      </ng-container>
+
+      <div class="no-pdfs-fallback" *ngIf="!hasPdfs()">
+       <p>No PDFs available for this category yet.</p>
+      </div>
+
+      <div class="pagination-controls" *ngIf="hasPdfs() || cursorHistory.length > 0">
+        <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading">
+          <i class="ph ph-caret-left"></i> Previous
+        </button>
+        <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">
+          Next <i class="ph ph-caret-right"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
