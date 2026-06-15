@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { switchMap } from 'rxjs/operators';
+import 'mathlive';
 
 @Component({
   selector: 'ga-edit-exam',
@@ -11,7 +12,8 @@ import { switchMap } from 'rxjs/operators';
   imports: [ RouterLink, ReactiveFormsModule, CommonModule ],
   providers: [ CommunicationService ],
   templateUrl: './edit-exam.component.html',
-  styleUrl: './edit-exam.component.scss'
+  styleUrl: './edit-exam.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class EditExamComponent implements OnInit {
   examForm!: FormGroup;
@@ -36,7 +38,6 @@ export class EditExamComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -84,6 +85,10 @@ export class EditExamComponent implements OnInit {
     return this.getQuestions(sectionIndex).at(questionIndex).get('options') as FormArray;
   }
 
+  getCorrectAnswerControl(sectionIndex: number, questionIndex: number): any {
+    return this.getQuestions(sectionIndex).at(questionIndex).get('correctAnswersIndex');
+  }
+
   // --- Helper Methods for Workspace Navigation ---
   setActiveQuestion(sectionIndex: number, questionIndex: number): void {
     this.activeSectionIndex = sectionIndex;
@@ -120,6 +125,7 @@ export class EditExamComponent implements OnInit {
         });
 
         const questionsArray = sectionGroup.get('questions') as FormArray;
+
         if (section.questions) {
           section.questions.forEach((question: any) => {
             const questionGroup = this.fb.group({
@@ -131,11 +137,18 @@ export class EditExamComponent implements OnInit {
             });
 
             const optionsArray = questionGroup.get('options') as FormArray;
+
             if (question.options) {
               question.options.forEach((option: string) => {
-                optionsArray.push(this.fb.control(option, Validators.required));
+                // Strip existing $ wrappers so mathlive parses it as raw content cleanly
+                let cleanOption = option.trim();
+                if (cleanOption.startsWith('$') && cleanOption.endsWith('$')) {
+                  cleanOption = cleanOption.substring(1, cleanOption.length - 1);
+                }
+                optionsArray.push(this.fb.control(cleanOption, Validators.required));
               });
             }
+
             questionsArray.push(questionGroup);
           });
         }
@@ -143,7 +156,6 @@ export class EditExamComponent implements OnInit {
       });
     }
 
-    // Default target active views to the very first question block after data payload maps
     if (this.sections.length > 0 && this.getQuestions(0).length > 0) {
       this.setActiveQuestion(0, 0);
     }
@@ -153,11 +165,30 @@ export class EditExamComponent implements OnInit {
     if (this.examForm.valid && this.examId) {
       this.isSubmitting = true;
       const savedType = this.examForm.get('examType')?.value || 'FREE';
+      const rawFormValue = this.examForm.value;
+
+      // Wrap the parsed MathLive LaTeX variables back into $ string literals for Android compatibility
+      const finalPayload = {
+        ...rawFormValue,
+        sections: rawFormValue.sections.map((section: any) => ({
+          ...section,
+          questions: section.questions.map((question: any) => ({
+            ...question,
+            options: question.options.map((opt: string) => {
+              const trimmed = opt.trim();
+              if (trimmed.startsWith('$') && trimmed.endsWith('$')) {
+                return trimmed;
+              }
+              return `$${trimmed}$`;
+            })
+          }))
+        }))
+      };
       
-      this.communicationService.updateExam(this.examId, this.examForm.value).subscribe({
+      this.communicationService.updateExam(this.examId, finalPayload).subscribe({
         next: (response) => {
           this.isSubmitting = false;
-          alert('🎉 Exam changes have been updated and saved successfully!');
+          alert('Exam changes have been updated and saved successfully!');
           this.router.navigate(['/exam'], { queryParams: { type: savedType } });
         },
         error: (error) => {
@@ -172,6 +203,7 @@ export class EditExamComponent implements OnInit {
     }
   }
 
+  // --- External Input Handlers ---
   onDiagramUpload(event: any, sectionIndex: number, questionIndex: number) {
     const file: File = event.target.files[0];
     if (!file) return;
@@ -194,8 +226,7 @@ export class EditExamComponent implements OnInit {
       .pipe(
         switchMap((response: any) => {
           const uploadUrl = response.uploadUrl || response.presignedUrl; 
-          finalFileUrl = response.fileUrl; 
-          
+          finalFileUrl = response.fileUrl;
           return this.communicationService.uploadFileToS3(uploadUrl, file);
         })
       )
@@ -203,8 +234,7 @@ export class EditExamComponent implements OnInit {
         next: () => {
           const targetControl = this.getQuestions(sectionIndex).at(questionIndex).get('diagramUrl');
           targetControl?.patchValue(finalFileUrl);
-          targetControl?.markAsDirty(); // Forces the "Save" button to enable
-          
+          targetControl?.markAsDirty();
           this.isUploadingDiagram = false;
           this.uploadingQuestionCoords = null;
         },
@@ -221,6 +251,16 @@ export class EditExamComponent implements OnInit {
   removeDiagram(sectionIndex: number, questionIndex: number) {
     const targetControl = this.getQuestions(sectionIndex).at(questionIndex).get('diagramUrl');
     targetControl?.patchValue(null);
-    targetControl?.markAsDirty(); // Forces the "Save" button to enable
+    targetControl?.markAsDirty();
+  }
+
+  getOptionLetter(index: number): string {
+    return String.fromCharCode(65 + index);
+  }
+
+  updateMathOption(sIndex: number, qIndex: number, oIndex: number, event: Event) {
+    const mathField = event.target as any;
+    this.getOptions(sIndex, qIndex).at(oIndex).setValue(mathField.value);
+    this.examForm.markAsDirty();
   }
 }

@@ -48,6 +48,15 @@ export class CommunicationService {
     return this.http.get<any>(apiUrl);
   }
 
+  // --- ADMIN PROFILE APIs ---
+  getAdminProfile(): Observable<any> {
+    return this.http.get<any>('/api/user/profile');
+  }
+
+  updateAdminProfile(payload: { name: string; phoneNumber: string }): Observable<any> {
+    return this.http.patch<any>('/api/user/profile', payload);
+  }
+
   // --- PDF MANAGEMENT APIs ---
   getAllPdfs(examType: string, cursor?: string): Observable<any> {
     let apiUrl = `/api/user/pdf/${examType}`;

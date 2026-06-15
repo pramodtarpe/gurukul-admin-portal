@@ -19,6 +19,9 @@ export class UserManagementComponent implements OnInit {
   nextCursor: string | null = null;
   cursorHistory: string[] = []; // Stack to remember previous pages
 
+  // --- Privacy State ---
+  visiblePhones: Set<string> = new Set<string>(); // Tracks which rows have unblurred phones
+
   constructor(private communicationService: CommunicationService) {}
 
   ngOnInit(): void {
@@ -35,6 +38,8 @@ export class UserManagementComponent implements OnInit {
 
   loadUsers(cursor?: string | null): void {
     this.isLoading = true;
+    this.visiblePhones.clear(); // Re-hide all phone numbers when changing pages
+
     this.communicationService.getAllUsers(cursor || undefined).subscribe({
       next: (response) => {
         this.userData = response?.items || [];
@@ -52,10 +57,22 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
+  // --- Phone Visibility Triggers ---
+  togglePhoneVisibility(email: string): void {
+    if (this.visiblePhones.has(email)) {
+      this.visiblePhones.delete(email);
+    } else {
+      this.visiblePhones.add(email);
+    }
+  }
+
+  isPhoneVisible(email: string): boolean {
+    return this.visiblePhones.has(email);
+  }
+
   // --- Pagination Triggers ---
   loadNextPage(): void {
     if (this.nextCursor) {
-      // Save the current page cursor to history before moving forward
       this.cursorHistory.push(this.currentCursor || '');
       this.loadUsers(this.nextCursor);
     }
@@ -63,7 +80,6 @@ export class UserManagementComponent implements OnInit {
 
   loadPreviousPage(): void {
     if (this.cursorHistory.length > 0) {
-      // Pop the last visited cursor from the history stack
       const prevCursor = this.cursorHistory.pop();
       this.loadUsers(prevCursor === '' ? null : prevCursor);
     }

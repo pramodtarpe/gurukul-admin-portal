@@ -31,11 +31,4 @@
     </div>
   </div>
 
-  <div class="sidebar-footer">
-    <button class="logout-btn" (click)="onLogout()" [disabled]="isLoggingOut">
-      <i class="ph ph-sign-out" *ngIf="!isLoggingOut"></i>
-      <i class="ph ph-spinner ph-spin" *ngIf="isLoggingOut"></i> 
-      <span>{{ isLoggingOut ? 'Signing Out...' : 'Sign Out' }}</span>
-    </button>
-  </div>
 </nav>

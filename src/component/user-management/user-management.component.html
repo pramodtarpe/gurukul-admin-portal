@@ -26,7 +26,18 @@
           <tr *ngFor="let user of userData">
             <td class="fw-bold">{{ user.name || 'Unknown' }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.phoneNumber || 'N/A' }}</td>
+            <td>
+              <div class="phone-cell-wrapper" *ngIf="user.phoneNumber">
+                <span class="phone-text" [class.blurred-text]="!isPhoneVisible(user.email)">
+                  {{ user.phoneNumber }}
+                </span>
+
+                <button class="icon-btn" (click)="togglePhoneVisibility(user.email)" title="Toggle visibility">
+                  <i class="ph" [ngClass]="isPhoneVisible(user.email) ? 'ph-eye-slash' : 'ph-eye'"></i>
+                </button>
+              </div>
+              <span class="muted-text" *ngIf="!user.phoneNumber">N/A</span>
+            </td>
             <td>
               <span class="date-badge" *ngIf="user.accountCreatedDate">
                 {{ user.accountCreatedDate * 1000 | date: 'mediumDate' }}

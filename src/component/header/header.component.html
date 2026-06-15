@@ -7,19 +7,69 @@
   </div>
 
   <div class="header-right">
-    <div class="search-bar">
-      <i class="ph ph-magnifying-glass"></i>
-      <input type="text" placeholder="Search data...">
-    </div>
 
-    <div class="user-profile">
-      <div class="notification-bell">
-        <i class="ph ph-bell"></i>
-        <span class="badge"></span>
-      </div>
+    <div class="user-profile-container">
+      
       <div class="divider"></div>
-      <span class="username">Pushpak Selokar</span>
-      <img src="https://ui-avatars.com/api/?name=Alex+Rivera&background=6366f1&color=fff" alt="User Avatar" class="avatar">
+      
+      <div class="user-profile-trigger" (click)="toggleDropdown()">
+        <span class="username">{{ profileData?.name || 'Loading...' }}</span>
+        <img [src]="profileData?.profilePictureUrl || 'https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff'" alt="User Avatar" class="avatar">
+        <i class="ph ph-caret-down"></i>
+      </div>
+
+      <div class="profile-dropdown" *ngIf="isDropdownOpen">
+        <div class="dropdown-header">
+          <p class="dropdown-name">{{ profileData?.name || 'Admin User' }}</p>
+          <p class="dropdown-email">{{ profileData?.email || 'Loading...' }}</p>
+          <p class="dropdown-phone" *ngIf="profileData?.phoneNumber">{{ profileData?.phoneNumber }}</p>
+        </div>
+        
+        <div class="dropdown-body">
+          <button class="menu-item-btn" (click)="openEditModal()">
+            <i class="ph ph-pencil-simple"></i>
+            <span>Edit Profile</span>
+          </button>
+
+          <button class="logout-btn" (click)="onLogout()" [disabled]="isLoggingOut">
+            <i class="ph ph-sign-out" *ngIf="!isLoggingOut"></i>
+            <i class="ph ph-spinner ph-spin" *ngIf="isLoggingOut"></i>
+            <span>{{ isLoggingOut ? 'Signing Out...' : 'Sign Out' }}</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </header>
+
+<div class="modal-backdrop" *ngIf="isEditModalOpen" (click)="closeEditModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit Profile</h3>
+      <button class="close-btn" (click)="closeEditModal()"><i class="ph ph-x"></i></button>
+    </div>
+    
+    <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" formControlName="name" placeholder="Enter your full name">
+        </div>
+        
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" formControlName="phoneNumber" placeholder="e.g. 9876543210">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn" (click)="closeEditModal()">Cancel</button>
+        <button type="submit" class="save-btn" [disabled]="profileForm.invalid || isUpdatingProfile">
+          <i class="ph ph-spinner ph-spin" *ngIf="isUpdatingProfile"></i>
+          <span>{{ isUpdatingProfile ? 'Saving...' : 'Save Changes' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
