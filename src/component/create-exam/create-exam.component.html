@@ -30,7 +30,9 @@
       <div class="meta-fields-grid">
         <div class="form-group">
           <label>Title:</label>
-          <input type="text" formControlName="title" placeholder="e.g., Maharashtra Police Bharti Sample Paper" />
+          <math-field (input)="updateMathTitle($event)" class="visual-math-input">
+            {{ examForm.get('title')?.value }}
+          </math-field>
         </div>
         <div class="form-group">
           <label>Exam Type:</label>
@@ -121,9 +123,12 @@
 
                   <div class="form-group">
                     <label>Question Target Text Prompt:</label>
-                    <textarea formControlName="text" rows="4"
-                      placeholder="Type the question query challenge structure content here..."></textarea>
+                    <math-field (input)="updateMathQuestionText(sIndex, qIndex, $event)"
+                      class="visual-math-input question-math-field">
+                      {{ getQuestions(sIndex).at(qIndex).get('text')?.value }}
+                    </math-field>
                   </div>
+
                   <!-- <div class="math-preview-box" *ngIf="question.get('text')?.value">
                     <label>Visual Preview:</label>
                     <ga-math-render [content]="question.get('text')?.value"></ga-math-render>
@@ -136,7 +141,7 @@
                         [disabled]="isUploadingDiagram" class="diagram-file-input" />
 
                       <div class="uploading-indicator"
-                        *ngIf="isUploadingDiagram && uploadingQuestionCoords?.s === sIndex && uploadingQuestionCoords?.q === qIndex">
+                        *ngIf="isUploadingDiagram && uploadingQuestionCoords && uploadingQuestionCoords.s === sIndex && uploadingQuestionCoords.q === qIndex">
                         <i class="ph ph-spinner ph-spin"></i> Uploading Image...
                       </div>
                     </div>

@@ -1,5 +1,30 @@
-.tiles-container {
-  margin-top: 20px;
-  width: 81%;
-  float: right;
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1400px; /* Prevents ultra-wide stretching on large monitors */
+  margin: 0 auto;
+
+  .dashboard-header {
+    h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.75rem;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+  }
+
+  .tiles-container {
+    width: 100%;
+    display: grid;
+    /* Auto-fit allows multiple tiles to wrap responsively alongside each other in the future */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
 }

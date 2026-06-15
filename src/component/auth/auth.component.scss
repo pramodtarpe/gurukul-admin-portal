@@ -206,3 +206,16 @@ button[type="submit"] {
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
+
+/* --- LOGIN UI STRUCTURAL OVERRIDES --- */
+.auth-card {
+  max-width: 520px !important; /* Widens the card footprint */
+  width: 100%;
+}
+
+.form-group input {
+  width: 100%; 
+  padding: 0.85rem 1rem; /* Increases internal padding for readability */
+  box-sizing: border-box; /* Ensures padding doesn't break the input width */
+  font-size: 1rem; /* Slightly larger text size for long emails */
+}

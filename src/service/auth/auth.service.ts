@@ -1,4 +1,3 @@
-// auth.service.ts
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, throwError } from 'rxjs';
@@ -16,8 +15,6 @@ export interface LoginResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  
-  // RELATIVE PATHS: The proxy configuration automatically prepends the AWS target domain
   private readonly API_URL = '/api/auth/admin/login';
 
   isAuthenticated = signal<boolean>(this.hasToken());
@@ -30,27 +27,34 @@ export class AuthService {
 
   refreshToken(): Observable<any> {
     const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token available'));
+    const userStr = localStorage.getItem('admin_user'); 
+
+    if (!refreshToken || !userStr) {
+      this.logout();
+      return throwError(() => new Error('Missing token or user data for refresh'));
     }
     
-    // Relative path for token refresh
-    const refreshUrl = '/api/auth/admin/refresh';
-    return this.http.post<any>(refreshUrl, { refreshToken }).pipe(
+    // Extract the email required for the JSON payload
+    const user = JSON.parse(userStr);
+    const email = user.email;
+
+    // Hit the correct refresh endpoint with the required body
+    return this.http.post<any>('/api/auth/refresh', { email, refreshToken }).pipe(
       tap(response => {
         if (response?.accessToken) {
           localStorage.setItem('access_token', response.accessToken);
+        }
+        if (response?.refreshToken) {
+          localStorage.setItem('refresh_token', response.refreshToken);
         }
       })
     );
   }
 
-  // NEW: Call the backend to invalidate the session
   logoutApi(): Observable<any> {
     return this.http.post('/api/auth/logout', {});
   }
 
-  // EXISTING: Purely local cleanup (Used by interceptor and after API success)
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');

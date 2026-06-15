@@ -104,7 +104,7 @@ export class EditExamComponent implements OnInit {
   populateForm(examData: any) {
     this.examForm.patchValue({
       examId: examData.examId,
-      title: examData.title,
+      title: this.unwrapLatex(examData.title),
       totalQuestions: examData.totalQuestions,
       totalMarks: examData.totalMarks,
       timeLimitMinutes: examData.timeLimitMinutes,
@@ -130,22 +130,16 @@ export class EditExamComponent implements OnInit {
           section.questions.forEach((question: any) => {
             const questionGroup = this.fb.group({
               questionId: [question.questionId],
-              text: [question.text, Validators.required],
+              text: [this.unwrapLatex(question.text), Validators.required], // Unwrap Question text
               diagramUrl: [question.diagramUrl],
               correctAnswersIndex: [question.correctAnswersIndex, Validators.required],
               options: this.fb.array([])
             });
 
             const optionsArray = questionGroup.get('options') as FormArray;
-
             if (question.options) {
               question.options.forEach((option: string) => {
-                // Strip existing $ wrappers so mathlive parses it as raw content cleanly
-                let cleanOption = option.trim();
-                if (cleanOption.startsWith('$') && cleanOption.endsWith('$')) {
-                  cleanOption = cleanOption.substring(1, cleanOption.length - 1);
-                }
-                optionsArray.push(this.fb.control(cleanOption, Validators.required));
+                optionsArray.push(this.fb.control(this.unwrapLatex(option), Validators.required)); // Cleaned up Option logic
               });
             }
 
@@ -167,20 +161,15 @@ export class EditExamComponent implements OnInit {
       const savedType = this.examForm.get('examType')?.value || 'FREE';
       const rawFormValue = this.examForm.value;
 
-      // Wrap the parsed MathLive LaTeX variables back into $ string literals for Android compatibility
       const finalPayload = {
         ...rawFormValue,
+        title: this.wrapLatex(rawFormValue.title), // Wrap Title
         sections: rawFormValue.sections.map((section: any) => ({
           ...section,
           questions: section.questions.map((question: any) => ({
             ...question,
-            options: question.options.map((opt: string) => {
-              const trimmed = opt.trim();
-              if (trimmed.startsWith('$') && trimmed.endsWith('$')) {
-                return trimmed;
-              }
-              return `$${trimmed}$`;
-            })
+            text: this.wrapLatex(question.text), // Wrap Question text
+            options: question.options.map((opt: string) => this.wrapLatex(opt))
           }))
         }))
       };
@@ -262,5 +251,36 @@ export class EditExamComponent implements OnInit {
     const mathField = event.target as any;
     this.getOptions(sIndex, qIndex).at(oIndex).setValue(mathField.value);
     this.examForm.markAsDirty();
+  }
+
+  updateMathTitle(event: Event) {
+    const mathField = event.target as any;
+    this.examForm.get('title')?.setValue(mathField.value);
+    this.examForm.markAsDirty();
+  }
+
+  updateMathQuestionText(sIndex: number, qIndex: number, event: Event) {
+    const mathField = event.target as any;
+    this.getQuestions(sIndex).at(qIndex).get('text')?.setValue(mathField.value);
+    this.examForm.markAsDirty();
+  }
+
+  wrapLatex(value: string): string {
+    if (!value) return value;
+    const trimmed = value.trim();
+    if (trimmed.startsWith('$') && trimmed.endsWith('$')) {
+      return trimmed;
+    }
+    return `$${trimmed}$`;
+  }
+
+  // Removes $ tags when loading the exam so the Math Editor is clean
+  unwrapLatex(value: string): string {
+    if (!value) return value;
+    let clean = value.trim();
+    if (clean.startsWith('$') && clean.endsWith('$')) {
+      return clean.substring(1, clean.length - 1);
+    }
+    return clean;
   }
 }

@@ -307,6 +307,10 @@ $error-color: #ef4444;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     outline: none;
   }
+
+  .question-math-field {
+    min-height: 80px;
+  }
 }
 
 // Step Helpers Buttons

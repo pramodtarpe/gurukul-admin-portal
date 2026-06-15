@@ -1,36 +1,49 @@
-// app.component.scss
-
-/* Keep your existing .top-container, .subnav-container, etc., exactly as they are */
+/* --- Main Application Layout --- */
 .top-container {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 260px 1fr; /* Slightly wider sidebar for a premium feel */
   min-height: 100vh;
-  background-color: #f8fafc;        
+  background-color: var(--bg-main);
 }
 
 .subnav-container {
   grid-column: 1;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
 }
 
 .main-layout-area {
   grid-column: 2;
   display: flex;
   flex-direction: column;
-  min-width: 0; 
+  min-width: 0; /* Prevents flexbox blowout on smaller screens */
+}
+
+.header-container {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-shadow: var(--shadow-sm); /* Separates header from scrolling content */
 }
 
 .management-container {
   flex-grow: 1;
-  padding: 0.5rem; 
+  padding: 2rem; /* Consistent, breathable padding for all child routes */
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* NEW CLASS: Centers the login card on a completely blank canvas page */
+/* --- Auth Screen Canvas --- */
 .auth-fullscreen-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   width: 100%;
-  background-color: #f1f5f9; // Optional: light slate background highlighting the card shape
+  background-color: var(--bg-main);
 }

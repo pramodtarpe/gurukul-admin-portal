@@ -707,4 +707,42 @@ select.ng-invalid.ng-touched {
       outline: none;
     }
   }
+
+  .question-math-field {
+    min-height: 80px;
+  }
+}
+
+/* --- Custom MathLive Keyboard Theme --- */
+math-field {
+  --keyboard-zindex: 3000;
+  --keyboard-background: #f8fafc;
+  --keycap-background: #ffffff;
+  --keycap-background-hover: #eef2ff;
+  --keycap-text: #0f172a;
+  --keycap-text-hover: #4f46e5;
+  --keyboard-toolbar-text: #4f46e5;
+  --keyboard-toolbar-text-active: #4338ca;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

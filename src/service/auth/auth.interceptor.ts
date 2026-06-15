@@ -1,20 +1,19 @@
-// auth.interceptor.ts
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
+import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
 import { Router } from '@angular/router';
+
+let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (req.method === 'OPTIONS') {
-    return next(req);
-  }
-
-  // Updated string matching to match the relative path
-  if (req.url.includes('/api/auth/admin/login')) {
+  // CRITICAL FIX: Bypass the interceptor for both login AND refresh endpoints.
+  // This prevents the application from getting stuck in an infinite 401 loop.
+  if (req.method === 'OPTIONS' || req.url.includes('/api/auth/admin/login') || req.url.includes('/api/auth/refresh')) {
     return next(req);
   }
 
@@ -31,23 +30,46 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(clonedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/api/auth/admin/login')) {
-        return authService.refreshToken().pipe(
-          switchMap((res) => {
-            const newToken = res.accessToken || authService.getAccessToken();
-            const retryRequest = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newToken}`
-              }
-            });
-            return next(retryRequest);
-          }),
-          catchError((refreshErr) => {
-            authService.logout();
-            router.navigate(['/login']);
-            return throwError(() => refreshErr);
-          })
-        );
+      // Catch 401 Unauthorized errors for expired tokens
+      if (error.status === 401) {
+        
+        if (!isRefreshing) {
+          isRefreshing = true;
+          refreshTokenSubject.next(null);
+
+          return authService.refreshToken().pipe(
+            switchMap((res: any) => {
+              isRefreshing = false;
+              const newToken = res.accessToken || authService.getAccessToken();
+              refreshTokenSubject.next(newToken);
+              
+              // Retry the original request (like the logout API call) with the new token
+              const retryRequest = req.clone({
+                setHeaders: { Authorization: `Bearer ${newToken}` }
+              });
+              return next(retryRequest);
+            }),
+            catchError((refreshErr) => {
+              isRefreshing = false;
+              // If the refresh endpoint fails, forcefully clear tokens and route to login
+              authService.logout();
+              router.navigate(['/auth']);
+              return throwError(() => refreshErr);
+            })
+          );
+        } else {
+          // If a refresh is already in progress, queue subsequent requests until it finishes
+          return refreshTokenSubject.pipe(
+            filter(token => token !== null),
+            take(1),
+            switchMap(token => {
+              const retryRequest = req.clone({
+                setHeaders: { Authorization: `Bearer ${token}` }
+              });
+              return next(retryRequest);
+            })
+          );
+        }
       }
       return throwError(() => error);
     })
