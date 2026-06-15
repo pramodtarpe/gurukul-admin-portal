@@ -1,3 +1,4 @@
+import { MathRenderComponent } from '../math-render/math-render.component';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -10,7 +11,7 @@ import 'mathlive';
 @Component({
   selector: 'ga-create-exam',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule], 
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, MathRenderComponent],
   providers: [CommunicationService],
   templateUrl: './create-exam.component.html',
   styleUrl: './create-exam.component.scss',
@@ -37,30 +38,19 @@ export class CreateExamComponent implements OnInit {
 
   // --- Math Formula Builder State ---
   isMathBuilderOpen = false;
-  mathBuilderTargetCoords: { s: number, q: number } | null = null;
+  mathBuilderTargetCoords: { s: number, q: number, type: 'question' | 'option', oIndex?: number } | null = null;
   currentMathFormula = '';
 
-  // --- Add these Inline Math Handlers anywhere in your class ---
-  updateMathTitle(event: Event) {
-    const mathField = event.target as any;
-    this.examForm.get('title')?.setValue(mathField.value);
-    this.examForm.markAsDirty();
+  openMathBuilder(sIndex: number, qIndex: number, type: 'question' | 'option', oIndex?: number) {
+    this.mathBuilderTargetCoords = { s: sIndex, q: qIndex, type, oIndex };
+    this.currentMathFormula = ''; // Reset for new formula
+    this.isMathBuilderOpen = true;
   }
 
-  updateMathQuestionText(sIndex: number, qIndex: number, event: Event) {
-    const mathField = event.target as any;
-    this.getQuestions(sIndex).at(qIndex).get('text')?.setValue(mathField.value);
-    this.examForm.markAsDirty();
-  }
-
-  // Helper method to safely wrap LaTeX strings for Android
-  wrapLatex(value: string): string {
-    if (!value) return value;
-    const trimmed = value.trim();
-    if (trimmed.startsWith('$') && trimmed.endsWith('$')) {
-      return trimmed;
-    }
-    return `$${trimmed}$`;
+  closeMathBuilder() {
+    this.isMathBuilderOpen = false;
+    this.mathBuilderTargetCoords = null;
+    this.currentMathFormula = '';
   }
 
   updateMathBuilderContent(event: Event) {
@@ -73,17 +63,24 @@ export class CreateExamComponent implements OnInit {
       return;
     }
 
-    // Wrap the mathlive output securely for the Android App
     const formulaToInsert = `$${this.currentMathFormula}$`;
+    const { s, q, type, oIndex } = this.mathBuilderTargetCoords;
+    
+    let control: AbstractControl | null = null;
 
-    const s = this.mathBuilderTargetCoords.s;
-    const q = this.mathBuilderTargetCoords.q;
-    const control = this.getQuestions(s).at(q).get('text');
+    if (type === 'question') {
+      control = this.getQuestions(s).at(q).get('text');
+    } else if (type === 'option' && oIndex !== undefined) {
+      control = this.getOptions(s, q).at(oIndex);
+    }
 
-    // Append the formula to whatever text is already in the Question box
-    const currentVal = control?.value || '';
-    control?.patchValue(currentVal + (currentVal ? ' ' : '') + formulaToInsert);
-    control?.markAsDirty();
+    if (control) {
+      const currentVal = control.value || '';
+      control.patchValue(currentVal + (currentVal ? ' ' : '') + formulaToInsert);
+      control.markAsDirty();
+    }
+
+    this.closeMathBuilder();
   }
 
   ngOnInit() {
@@ -241,8 +238,8 @@ export class CreateExamComponent implements OnInit {
           ...section,
           questions: section.questions.map((question: any) => ({
             ...question,
-            text: this.wrapLatex(question.text), // Wraps the Question Text
-            options: question.options.map((opt: string) => this.wrapLatex(opt))
+            text: question.text, // REMOVED wrapLatex so standard text works
+            options: question.options // REMOVED wrapLatex so standard text works
           }))
         }))
       };
