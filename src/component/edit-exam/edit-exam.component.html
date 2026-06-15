@@ -16,7 +16,8 @@
       <div class="meta-fields-grid">
         <div class="form-group">
           <label>Title:</label>
-          <input type="text" formControlName="title" placeholder="Enter exam title" style="width: 100%; padding: 8px;" />
+          <input type="text" formControlName="title" placeholder="Enter exam title"
+            style="width: 100%; padding: 8px;" />
         </div>
         <div class="form-group">
           <label>Exam Type:</label>
@@ -97,11 +98,23 @@
 
                   <div class="form-group">
                     <label>Question Target Text Prompt:</label>
-                    <math-field default-mode="text" (input)="updateMathQuestionText(sIndex, qIndex, $event)"
-                      class="visual-math-input question-math-field">
-                      {{ getQuestions(sIndex).at(qIndex).get('text')?.value }}
-                    </math-field>
+                    <div class="hybrid-input-wrapper">
+                      <textarea formControlName="text" class="standard-text-area"
+                        placeholder="Enter question text here... Use the button to insert math"></textarea>
+                      <button type="button" class="insert-math-btn"
+                        (click)="openMathBuilder(sIndex, qIndex, 'question')">
+                        <i class="ph ph-function"></i> Insert Math
+                      </button>
+                    </div>
+
+                    <div class="math-preview-box" *ngIf="question.get('text')?.value">
+                      <span class="preview-label">Live Formatted Preview:</span>
+                      <div class="preview-content-box">
+                        <ga-math-render [content]="question.get('text')?.value"></ga-math-render>
+                      </div>
+                    </div>
                   </div>
+
                   <div class="form-group file-upload-group">
                     <label>Diagram Illustration (Optional):</label>
 
@@ -146,11 +159,20 @@
                       <div class="option-input-cell">
                         <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
 
-                        <math-field default-mode="text" [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
-                          (input)="updateMathOption(sIndex, qIndex, oIndex, $event)" class="visual-math-input"
-                          title="Click the keyboard icon to open the visual math editor">
-                          {{ getOptions(sIndex, qIndex).at(oIndex).value }}
-                        </math-field>
+                        <div class="hybrid-input-wrapper w-100">
+                          <input type="text" [formControlName]="oIndex"
+                            [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex" class="standard-text-input"
+                            placeholder="Option text..." />
+                          <button type="button" class="insert-math-btn icon-only"
+                            (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)" title="Insert Math Equation">
+                            <i class="ph ph-function"></i>
+                          </button>
+                        </div>
+
+                        <div class="math-preview-box option-preview"
+                          *ngIf="getOptions(sIndex, qIndex).at(oIndex).value">
+                          <ga-math-render [content]="getOptions(sIndex, qIndex).at(oIndex).value"></ga-math-render>
+                        </div>
                       </div>
 
                     </div>
@@ -189,4 +211,22 @@
     </div>
 
   </form>
+  <div class="modal-backdrop" *ngIf="isMathBuilderOpen" (click)="closeMathBuilder()">
+    <div class="modal-card math-builder-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Visual Math Builder</h3>
+        <button type="button" class="close-btn" (click)="closeMathBuilder()"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="math-help-text">Type your equation below. Use the virtual keyboard for advanced symbols.</p>
+        <math-field (input)="updateMathBuilderContent($event)" class="visual-math-input math-builder-field">
+          {{ currentMathFormula }}
+        </math-field>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn" (click)="closeMathBuilder()">Cancel</button>
+        <button type="button" class="save-btn" (click)="insertMathFormula()">Insert Formula</button>
+      </div>
+    </div>
+  </div>
 </div>

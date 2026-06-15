@@ -1,3 +1,4 @@
+import { MathRenderComponent } from '../math-render/math-render.component';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -9,8 +10,8 @@ import 'mathlive';
 @Component({
   selector: 'ga-edit-exam',
   standalone: true,
-  imports: [ RouterLink, ReactiveFormsModule, CommonModule ],
-  providers: [ CommunicationService ],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, MathRenderComponent],
+  providers: [CommunicationService],
   templateUrl: './edit-exam.component.html',
   styleUrl: './edit-exam.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -69,7 +70,7 @@ export class EditExamComponent implements OnInit {
       timeLimitMinutes: [0, Validators.required],
       examCreatedDate: [''],
       examType: ['FREE', Validators.required],
-      sections: this.fb.array([]) 
+      sections: this.fb.array([])
     });
   }
 
@@ -130,7 +131,7 @@ export class EditExamComponent implements OnInit {
           section.questions.forEach((question: any) => {
             const questionGroup = this.fb.group({
               questionId: [question.questionId],
-              text: [this.unwrapLatex(question.text), Validators.required], // Unwrap Question text
+              text: [question.text, Validators.required],
               diagramUrl: [question.diagramUrl],
               correctAnswersIndex: [question.correctAnswersIndex, Validators.required],
               options: this.fb.array([])
@@ -139,7 +140,7 @@ export class EditExamComponent implements OnInit {
             const optionsArray = questionGroup.get('options') as FormArray;
             if (question.options) {
               question.options.forEach((option: string) => {
-                optionsArray.push(this.fb.control(this.unwrapLatex(option), Validators.required)); // Cleaned up Option logic
+                optionsArray.push(this.fb.control(option, Validators.required)); // Removed unwrapLatex
               });
             }
 
@@ -163,17 +164,17 @@ export class EditExamComponent implements OnInit {
 
       const finalPayload = {
         ...rawFormValue,
-        title: rawFormValue.title, 
+        title: rawFormValue.title,
         sections: rawFormValue.sections.map((section: any) => ({
           ...section,
           questions: section.questions.map((question: any) => ({
             ...question,
-            text: this.wrapLatex(question.text), // Wrap Question text
-            options: question.options.map((opt: string) => this.wrapLatex(opt))
+            text: question.text, // Removed wrapLatex
+            options: question.options // Removed wrapLatex
           }))
         }))
       };
-      
+
       this.communicationService.updateExam(this.examId, finalPayload).subscribe({
         next: (response) => {
           this.isSubmitting = false;
@@ -204,7 +205,7 @@ export class EditExamComponent implements OnInit {
     }
 
     const examType = this.examForm.get('examType')?.value || 'FREE';
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_'); 
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
 
     this.isUploadingDiagram = true;
     this.uploadingQuestionCoords = { s: sectionIndex, q: questionIndex };
@@ -214,7 +215,7 @@ export class EditExamComponent implements OnInit {
     this.communicationService.generateDiagramPresignedUrl(cleanFileName, examType, file.type)
       .pipe(
         switchMap((response: any) => {
-          const uploadUrl = response.uploadUrl || response.presignedUrl; 
+          const uploadUrl = response.uploadUrl || response.presignedUrl;
           finalFileUrl = response.fileUrl;
           return this.communicationService.uploadFileToS3(uploadUrl, file);
         })
@@ -232,7 +233,7 @@ export class EditExamComponent implements OnInit {
           alert('Failed to upload diagram. Please try again.');
           this.isUploadingDiagram = false;
           this.uploadingQuestionCoords = null;
-          event.target.value = ''; 
+          event.target.value = '';
         }
       });
   }
@@ -247,21 +248,56 @@ export class EditExamComponent implements OnInit {
     return String.fromCharCode(65 + index);
   }
 
-  updateMathOption(sIndex: number, qIndex: number, oIndex: number, event: Event) {
-    const mathField = event.target as any;
-    this.getOptions(sIndex, qIndex).at(oIndex).setValue(mathField.value);
-    this.examForm.markAsDirty();
+  // --- Math Formula Builder State ---
+  isMathBuilderOpen = false;
+  mathBuilderTargetCoords: { s: number, q: number, type: 'question' | 'option', oIndex?: number } | null = null;
+  currentMathFormula = '';
+
+  openMathBuilder(sIndex: number, qIndex: number, type: 'question' | 'option', oIndex?: number) {
+    this.mathBuilderTargetCoords = { s: sIndex, q: qIndex, type, oIndex };
+    this.currentMathFormula = '';
+    this.isMathBuilderOpen = true;
+  }
+
+  closeMathBuilder() {
+    this.isMathBuilderOpen = false;
+    this.mathBuilderTargetCoords = null;
+    this.currentMathFormula = '';
+  }
+
+  updateMathBuilderContent(event: Event) {
+    const mf = event.target as any;
+    this.currentMathFormula = mf.value;
+  }
+
+  insertMathFormula() {
+    if (!this.currentMathFormula || !this.mathBuilderTargetCoords) {
+      return;
+    }
+
+    const formulaToInsert = `$${this.currentMathFormula}$`;
+    const { s, q, type, oIndex } = this.mathBuilderTargetCoords;
+
+    let control: any = null;
+
+    if (type === 'question') {
+      control = this.getQuestions(s).at(q).get('text');
+    } else if (type === 'option' && oIndex !== undefined) {
+      control = this.getOptions(s, q).at(oIndex);
+    }
+
+    if (control) {
+      const currentVal = control.value || '';
+      control.patchValue(currentVal + (currentVal ? ' ' : '') + formulaToInsert);
+      control.markAsDirty();
+    }
+
+    this.closeMathBuilder();
   }
 
   updateMathTitle(event: Event) {
     const mathField = event.target as any;
     this.examForm.get('title')?.setValue(mathField.value);
-    this.examForm.markAsDirty();
-  }
-
-  updateMathQuestionText(sIndex: number, qIndex: number, event: Event) {
-    const mathField = event.target as any;
-    this.getQuestions(sIndex).at(qIndex).get('text')?.setValue(mathField.value);
     this.examForm.markAsDirty();
   }
 

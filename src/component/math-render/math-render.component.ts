@@ -1,8 +1,10 @@
-// math-render.component.ts
 import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 
-// @ts-ignore - Bypasses strict TS checks for the auto-render extension
+// @ts-ignore
 import renderMathInElement from 'katex/contrib/auto-render';
+
+// ADD THIS LINE: Enables \ce{} Chemistry commands
+import 'katex/contrib/mhchem/mhchem';
 
 @Component({
   selector: 'ga-math-render',
@@ -15,18 +17,16 @@ export class MathRenderComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.mathContainer && changes['content']) {
-      // 1. Inject the raw mixed text into the container
       this.mathContainer.nativeElement.innerHTML = this.content || '';
 
-      // 2. Command KaTeX to scan the container and transform the LaTeX segments
       renderMathInElement(this.mathContainer.nativeElement, {
         delimiters: [
           { left: '$$', right: '$$', display: true },
           { left: '\\[', right: '\\]', display: true },
           { left: '$', right: '$', display: false },
-          { left: '\\(', right: '\\)', display: false } // Matches your specific string format
+          { left: '\\(', right: '\\)', display: false } 
         ],
-        throwOnError: false // Prevents the whole app from crashing if a formula has a syntax typo
+        throwOnError: false
       });
     }
   }
