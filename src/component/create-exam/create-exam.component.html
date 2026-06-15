@@ -122,17 +122,19 @@
 
                   <div class="form-group">
                     <label>Question Target Text Prompt:</label>
-                    <div class="hybrid-input-wrapper">
+
+                    <div class="rich-editor-container">
+                      <div class="editor-toolbar">
+                        <button type="button" class="toolbar-btn" (click)="openMathBuilder(sIndex, qIndex, 'question')">
+                          <i class="ph ph-function"></i> <span>Insert Formula</span>
+                        </button>
+                      </div>
                       <textarea formControlName="text" class="standard-text-area"
-                        placeholder="Enter question text here... Use the button to insert math"></textarea>
-                      <button type="button" class="insert-math-btn"
-                        (click)="openMathBuilder(sIndex, qIndex, 'question')">
-                        <i class="ph ph-function"></i> Insert Math
-                      </button>
+                        placeholder="Enter question text here... Use the toolbar to insert math."></textarea>
                     </div>
 
                     <div class="math-preview-box" *ngIf="question.get('text')?.value">
-                      <span class="preview-label">Live Formatted Preview:</span>
+                      <span class="preview-label">Live Preview</span>
                       <div class="preview-content-box">
                         <ga-math-render [content]="question.get('text')?.value"></ga-math-render>
                       </div>
@@ -183,19 +185,24 @@
                       <div class="option-input-cell">
                         <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
 
-                        <div class="hybrid-input-wrapper w-100">
-                          <input type="text" [formControlName]="oIndex"
-                            [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex" class="standard-text-input"
-                            placeholder="Option text..." />
-                          <button type="button" class="insert-math-btn icon-only"
-                            (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)" title="Insert Math Equation">
-                            <i class="ph ph-function"></i>
-                          </button>
-                        </div>
+                        <div class="option-body-col">
 
-                        <div class="math-preview-box option-preview"
-                          *ngIf="getOptions(sIndex, qIndex).at(oIndex).value">
-                          <ga-math-render [content]="getOptions(sIndex, qIndex).at(oIndex).value"></ga-math-render>
+                          <div class="hybrid-input-wrapper">
+                            <input type="text" [formControlName]="oIndex"
+                              [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex" class="standard-text-input"
+                              placeholder="Option text..." />
+                            <button type="button" class="insert-math-btn"
+                              (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)" title="Insert Math Equation">
+                              <i class="ph ph-function"></i>
+                            </button>
+                          </div>
+
+                          <div class="math-preview-box compact-preview"
+                            *ngIf="getOptions(sIndex, qIndex).at(oIndex).value">
+                            <span class="preview-label">Preview:</span>
+                            <ga-math-render [content]="getOptions(sIndex, qIndex).at(oIndex).value"></ga-math-render>
+                          </div>
+
                         </div>
                       </div>
 

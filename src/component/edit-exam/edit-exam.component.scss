@@ -472,90 +472,151 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched {
   }
 }
 
-/* --- Hybrid Editor Styling --- */
-.hybrid-input-wrapper {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+/* --- Professional Rich Editor Styling (For Question Prompts) --- */
+.rich-editor-container {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: border-color 0.2s;
   width: 100%;
+  
+  &:focus-within {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  .editor-toolbar {
+    background: #f8fafc;
+    border-bottom: 1px solid #cbd5e1;
+    padding: 6px 10px;
+    display: flex;
+    gap: 8px;
+    
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: #475569;
+      border: 1px solid transparent;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      
+      i { font-size: 1.1rem; color: #4f46e5; }
+      &:hover { background: #e2e8f0; color: #0f172a; }
+    }
+  }
 
   .standard-text-area {
-    flex: 1;
-    min-height: 80px;
-    padding: 0.75rem;
-    border: 1px solid $border-color;
-    border-radius: 6px;
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: none;
+    resize: vertical;
     font-size: 0.95rem;
     font-family: inherit;
-    resize: vertical;
-    transition: border-color 0.2s;
-    &:focus { outline: none; border-color: $primary-color; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
+    background: transparent;
+    color: #0f172a;
+    
+    &:focus { outline: none; }
+  }
+}
+
+/* --- Hybrid Input Styling (For Single-Line Options) --- */
+.option-body-col {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 6px; /* Space between input line and preview line */
+}
+
+.hybrid-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: border-color 0.2s;
+  
+  &:focus-within {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
   }
 
   .standard-text-input {
     flex: 1;
-    padding: 0.65rem;
-    border: 1px solid $border-color;
-    border-radius: 6px;
+    padding: 8px 12px;
+    border: none;
     font-size: 0.95rem;
-    transition: border-color 0.2s;
-    &:focus { outline: none; border-color: $primary-color; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
+    background: transparent;
+    &:focus { outline: none; }
   }
 
   .insert-math-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
     background: #f1f5f9;
-    color: $primary-color;
-    border: 1px solid $border-color;
-    padding: 0.65rem 1rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
+    color: #4f46e5;
+    border: none;
+    border-left: 1px solid #cbd5e1;
+    padding: 0 12px;
+    align-self: stretch; /* Forces button to exactly match input height */
     cursor: pointer;
     transition: all 0.2s;
-    white-space: nowrap;
+    
+    i { font-size: 1.2rem; }
+    &:hover { background: #e2e8f0; }
+  }
+}
 
-    i { font-size: 1.1rem; }
-    &:hover { background: $primary-light; border-color: $primary-color; }
+/* --- Live Formatted Previews (Sleek & Compact) --- */
+.math-preview-box {
+  background-color: #f8fafc;
+  border-left: 3px solid #4f46e5;
+  border-radius: 0 6px 6px 0;
+  padding: 8px 12px;
+  margin-top: 4px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  width: 100%;
+  display: block;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  
+  .preview-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
 
-    &.icon-only {
-      padding: 0.65rem;
-      i { margin: 0; }
+  &.compact-preview {
+    padding: 6px 10px;
+    margin-top: 0; 
+    border-left: 3px solid #10b981; /* Green accent for options to differentiate */
+    
+    .preview-label {
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 0;
+    }
+    ga-math-render {
+      display: inline-block;
     }
   }
 }
 
 .w-100 { width: 100%; }
-
-/* --- Live Math Preview Box Styling --- */
-.math-preview-box {
-  margin-top: 0.5rem;
-  padding: 0.75rem 1rem;
-  background-color: #f8fafc;
-  border: 1px dashed #94a3b8;
-  border-radius: 6px;
-  font-size: 1rem;
-  color: #0f172a;
-  min-height: 40px;
-
-  .preview-label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748b;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  &.option-preview {
-    margin-top: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.95rem;
-  }
-}
 
 /* --- Force MathLive Keyboard above the Modal --- */
 ::ng-deep {
