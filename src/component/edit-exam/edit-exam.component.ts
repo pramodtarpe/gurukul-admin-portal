@@ -104,7 +104,7 @@ export class EditExamComponent implements OnInit {
   populateForm(examData: any) {
     this.examForm.patchValue({
       examId: examData.examId,
-      title: this.unwrapLatex(examData.title),
+      title: examData.title,
       totalQuestions: examData.totalQuestions,
       totalMarks: examData.totalMarks,
       timeLimitMinutes: examData.timeLimitMinutes,
@@ -163,7 +163,7 @@ export class EditExamComponent implements OnInit {
 
       const finalPayload = {
         ...rawFormValue,
-        title: this.wrapLatex(rawFormValue.title), // Wrap Title
+        title: rawFormValue.title, 
         sections: rawFormValue.sections.map((section: any) => ({
           ...section,
           questions: section.questions.map((question: any) => ({

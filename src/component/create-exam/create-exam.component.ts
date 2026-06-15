@@ -235,7 +235,7 @@ export class CreateExamComponent implements OnInit {
 
       const finalPayload = {
         ...rawFormValue,
-        title: this.wrapLatex(rawFormValue.title), // Wraps the Exam Title
+        title: rawFormValue.title, 
         examCreatedDate: Math.floor(Date.now() / 1000),
         sections: rawFormValue.sections.map((section: any) => ({
           ...section,

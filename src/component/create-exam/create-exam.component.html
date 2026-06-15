@@ -30,9 +30,7 @@
       <div class="meta-fields-grid">
         <div class="form-group">
           <label>Title:</label>
-          <math-field (input)="updateMathTitle($event)" class="visual-math-input">
-            {{ examForm.get('title')?.value }}
-          </math-field>
+          <input type="text" formControlName="title" placeholder="Enter exam title" style="width: 100%; padding: 8px;" />
         </div>
         <div class="form-group">
           <label>Exam Type:</label>
@@ -123,7 +121,7 @@
 
                   <div class="form-group">
                     <label>Question Target Text Prompt:</label>
-                    <math-field (input)="updateMathQuestionText(sIndex, qIndex, $event)"
+                    <math-field default-mode="text" (input)="updateMathQuestionText(sIndex, qIndex, $event)"
                       class="visual-math-input question-math-field">
                       {{ getQuestions(sIndex).at(qIndex).get('text')?.value }}
                     </math-field>
@@ -177,7 +175,7 @@
                       <div class="option-input-cell">
                         <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
 
-                        <math-field [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                        <math-field default-mode="text" [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
                           (input)="updateMathOption(sIndex, qIndex, oIndex, $event)" class="visual-math-input"
                           title="Click the keyboard icon to open the visual math editor">
                           {{ getOptions(sIndex, qIndex).at(oIndex).value }}
