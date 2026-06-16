@@ -4,22 +4,19 @@
     </span>
 
     <div class="edit-exam-header create-header-flex">
-        <div>
+        <div class="header-info">
             <h2>{{ mode === 'create' ? 'Create New Exam' : 'Edit Exam' }}</h2>
-            <span>{{ mode === 'create' ? 'Fill out the core parameters to unlock section building tools' : 'Update the
-                exam fields and structure here' }}</span>
+            <span>{{ mode === 'create' ? 'Fill out the core parameters to unlock section building tools' : 'Update the exam fields and structure here' }}</span>
         </div>
         <button type="button" class="add-section-header-btn" [disabled]="isQuestionLimitReached" (click)="addSection()">
-            <i class="ph ph-plus-circle"></i> Add New Section
+            <i class="ph ph-plus-circle"></i> Add Section
         </button>
     </div>
 
     <div class="question-limit-alert-banner" *ngIf="examForm.errors?.['questionLimitExceeded']">
         <i class="ph ph-warning-circle"></i>
         <div class="banner-text">
-            <strong>Question Limit Overrun:</strong> The collective section questions ({{ currentAllocatedQuestions }})
-            exceeds the maximum parameters specified for this overall exam ({{ examForm.get('totalQuestions')?.value
-            }}).
+            <strong>Question Limit Overrun:</strong> The collective section questions ({{ currentAllocatedQuestions }}) exceeds the maximum parameters specified for this overall exam ({{ examForm.get('totalQuestions')?.value }}).
         </div>
     </div>
 
@@ -30,8 +27,7 @@
             <div class="meta-fields-grid">
                 <div class="form-group">
                     <label>Title:</label>
-                    <input type="text" formControlName="title" placeholder="Enter exam title"
-                        style="width: 100%; padding: 8px;" />
+                    <input type="text" formControlName="title" placeholder="Enter exam title" />
                 </div>
                 <div class="form-group">
                     <label>Exam Type:</label>
@@ -41,8 +37,7 @@
                 </div>
                 <div class="form-group">
                     <label>Total Questions:</label>
-                    <input type="number" formControlName="totalQuestions" placeholder="e.g., 100"
-                        (input)="examForm.updateValueAndValidity()" />
+                    <input type="number" formControlName="totalQuestions" placeholder="e.g., 100" />
                 </div>
                 <div class="form-group">
                     <label>Total Marks:</label>
@@ -88,23 +83,22 @@
                             <div class="section-card-header">
                                 <h3>Section {{ sIndex + 1 }}</h3>
                                 <button type="button" class="remove-btn" *ngIf="mode === 'create'"
-                                    (click)="removeSection(sIndex)">Delete This Section</button>
+                                    (click)="removeSection(sIndex)">Delete Section</button>
                             </div>
 
                             <div class="form-group">
-                                <label>Section Title: </label>
+                                <label>Section Title:</label>
                                 <input type="text" formControlName="sectionTitle" placeholder="e.g., Marathi Grammar" />
                             </div>
                             <div class="form-group-row">
                                 <div class="form-group">
-                                    <label>Allocated Questions:</label>
+                                    <label>Questions:</label>
                                     <input type="number" formControlName="sectionTotalQuestions"
                                         (input)="examForm.updateValueAndValidity()" />
                                 </div>
                                 <div class="form-group">
-                                    <label>Allocated Marks Weight:</label>
-                                    <input type="number" formControlName="sectionTotalMarks"
-                                        placeholder="Cumulative sub score max" />
+                                    <label>Marks:</label>
+                                    <input type="number" formControlName="sectionTotalMarks" placeholder="Cumulative sub score max" />
                                 </div>
                             </div>
                         </div>
@@ -117,7 +111,7 @@
 
                                     <div class="card-header-badge">
                                         <div class="question-card-header-block">
-                                            <h4>Question {{ qIndex + 1 }} Formulation Workspace</h4>
+                                            <h4>Question {{ qIndex + 1 }}</h4>
                                         </div>
                                         <button type="button" class="remove-btn-sub" *ngIf="mode === 'create'"
                                             (click)="removeQuestion(sIndex, qIndex)">
@@ -126,12 +120,12 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Question Target Text Prompt:</label>
+                                        <label>Question Text:</label>
                                         <div class="rich-editor-container">
                                             <div class="editor-toolbar">
                                                 <button type="button" class="toolbar-btn"
                                                     (click)="openMathBuilder(sIndex, qIndex, 'question')">
-                                                    <i class="ph ph-function"></i> <span>Insert Formula</span>
+                                                    <i class="ph ph-function"></i> Insert Formula
                                                 </button>
                                             </div>
                                             <textarea formControlName="text" class="standard-text-area"
@@ -141,14 +135,13 @@
                                         <div class="math-preview-box" *ngIf="containsMath(question.get('text')?.value)">
                                             <span class="preview-label">Live Preview</span>
                                             <div class="preview-content-box">
-                                                <ga-math-render
-                                                    [content]="question.get('text')?.value"></ga-math-render>
+                                                <ga-math-render [content]="question.get('text')?.value"></ga-math-render>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="form-group file-upload-group">
-                                        <label>Diagram Illustration (Optional):</label>
+                                    <div class="form-group file-upload-group" *ngIf="mode === 'create' || question.get('diagramUrl')?.value">
+                                        <label>Diagram (Optional):</label>
 
                                         <div class="upload-controls" *ngIf="!question.get('diagramUrl')?.value">
                                             <input type="file" accept="image/*"
@@ -157,19 +150,18 @@
 
                                             <div class="uploading-indicator"
                                                 *ngIf="isUploadingDiagram && uploadingQuestionCoords && uploadingQuestionCoords.s === sIndex && uploadingQuestionCoords.q === qIndex">
-                                                <i class="ph ph-spinner ph-spin"></i> Uploading Image...
+                                                <i class="ph ph-spinner ph-spin"></i> Uploading...
                                             </div>
                                         </div>
 
                                         <div class="uploaded-file-preview" *ngIf="question.get('diagramUrl')?.value">
                                             <div class="preview-content">
                                                 <i class="ph ph-image"></i>
-                                                <a [href]="question.get('diagramUrl')?.value" target="_blank"
-                                                    class="preview-link">
-                                                    View Uploaded Diagram
+                                                <a [href]="question.get('diagramUrl')?.value" target="_blank" class="preview-link">
+                                                    View Diagram
                                                 </a>
                                             </div>
-                                            <button type="button" class="remove-btn-sub"
+                                            <button type="button" class="remove-diagram-btn"
                                                 (click)="removeDiagram(sIndex, qIndex)" [disabled]="isUploadingDiagram">
                                                 <i class="ph ph-trash"></i> Remove
                                             </button>
@@ -177,7 +169,7 @@
                                     </div>
 
                                     <div formArrayName="options" class="options-container">
-                                        <h5>Multiple Choice Alternatives & Correct Answer Selection:</h5>
+                                        <h5>Multiple Choice Options:</h5>
 
                                         <div *ngFor="let option of getOptions(sIndex, qIndex).controls; let oIndex = index"
                                             class="option-group-wrapper"
@@ -187,12 +179,11 @@
                                                 <input type="radio" [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
                                                     [name]="'correctAnswer_s' + sIndex + '_q' + qIndex" [value]="oIndex"
                                                     [formControl]="getCorrectAnswerControl(sIndex, qIndex)"
-                                                    title="Select as the correct answer for this question" />
+                                                    title="Select as the correct answer" />
                                             </div>
 
                                             <div class="option-input-cell">
-                                                <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{
-                                                    getOptionLetter(oIndex) }}:</label>
+                                                <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
 
                                                 <div class="option-body-col">
                                                     <div class="hybrid-input-wrapper">
@@ -208,8 +199,7 @@
                                                     <div class="math-preview-box compact-preview"
                                                         *ngIf="containsMath(getOptions(sIndex, qIndex).at(oIndex).value)">
                                                         <span class="preview-label">Preview:</span>
-                                                        <ga-math-render
-                                                            [content]="getOptions(sIndex, qIndex).at(oIndex).value"></ga-math-render>
+                                                        <ga-math-render [content]="getOptions(sIndex, qIndex).at(oIndex).value"></ga-math-render>
                                                     </div>
                                                 </div>
                                             </div>
@@ -220,8 +210,7 @@
                                     <div class="workspace-action-footer-row">
                                         <button type="button" class="add-question-inline-btn" *ngIf="mode === 'create'"
                                             [disabled]="isQuestionLimitReached" (click)="addQuestion(sIndex)">
-                                            <i class="ph ph-plus"></i> Add Question {{ getQuestions(sIndex).length + 1
-                                            }} to Section
+                                            + Add Question {{ getQuestions(sIndex).length + 1 }}
                                         </button>
 
                                         <div class="card-pagination-controls">
@@ -249,8 +238,7 @@
 
         <div class="no-sections-fallback" *ngIf="sections.length === 0">
             <i class="ph ph-folder-open"></i>
-            <p>No questions mapped out yet. Provide structural configurations at the top, then hit <strong>Add
-                    Section</strong> to initiate your workspace.</p>
+            <p>No questions mapped out yet. Provide structural configurations at the top, then hit <strong>Add Section</strong> to begin.</p>
         </div>
 
         <div class="submit-action" *ngIf="sections.length > 0">
@@ -258,8 +246,7 @@
                 [disabled]="examForm.invalid || isSubmitting || (mode === 'create' && totalAddedQuestionsCount !== examForm.get('totalQuestions')?.value)"
                 class="submit-btn">
                 <i [class]="isSubmitting ? 'ph ph-circle-notch spinning' : 'ph ph-cloud-arrow-up'"></i>
-                <span>{{ isSubmitting ? (mode === 'create' ? 'Publishing...' : 'Saving...') : (mode === 'create' ?
-                    'Create & Publish Exam' : 'Save Exam Changes') }}</span>
+                <span>{{ isSubmitting ? (mode === 'create' ? 'Publishing...' : 'Saving...') : (mode === 'create' ? 'Create & Publish Exam' : 'Save Changes') }}</span>
             </button>
         </div>
 

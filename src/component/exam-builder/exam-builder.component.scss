@@ -1,38 +1,41 @@
-/* --- Shared Container & Global Exam Form Styles --- */
+/* ===== Responsive Exam Builder Styles ===== */
+
 .edit-exam-container {
-    padding: 2rem;
-    max-width: 1200px;
+    padding: clamp(1rem, 3vw, 2rem);
+    max-width: 1400px;
     margin: 0 auto;
     font-family: var(--font-family, sans-serif);
 }
 
+/* ---- Back Button ---- */
 .go-back-button button {
     background: none;
     border: none;
     color: #4f46e5;
     font-weight: 600;
     cursor: pointer;
-    padding: 0;
+    padding: 0.5rem;
     margin-bottom: 1rem;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
 
     &:hover {
         text-decoration: underline;
     }
 }
 
+/* ---- Header ---- */
 .edit-exam-header {
-    margin-bottom: 2rem;
+    margin-bottom: clamp(1rem, 3vh, 2rem);
 
     h2 {
         margin: 0 0 0.5rem 0;
-        font-size: 1.8rem;
+        font-size: clamp(1.4rem, 4vw, 1.8rem);
         color: #0f172a;
     }
 
     span {
         color: #64748b;
-        font-size: 0.95rem;
+        font-size: clamp(0.8rem, 2vw, 0.95rem);
     }
 }
 
@@ -40,20 +43,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-info {
+    min-width: 200px;
 }
 
 .add-section-header-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     background-color: #10b981;
     color: white;
     border: none;
-    padding: 0.75rem 1.25rem;
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.25rem);
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
+    white-space: nowrap;
 
     &:hover:not(:disabled) {
         background-color: #059669;
@@ -66,15 +76,16 @@
     }
 
     i {
-        font-size: 1.2rem;
+        font-size: clamp(1rem, 2vw, 1.2rem);
     }
 }
 
+/* ---- Alert Banner ---- */
 .question-limit-alert-banner {
     background-color: #fffbeb;
     border-left: 4px solid #f59e0b;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
     border-radius: 4px;
     display: flex;
     align-items: flex-start;
@@ -82,56 +93,58 @@
 
     i {
         color: #f59e0b;
-        font-size: 1.25rem;
+        font-size: clamp(1rem, 2vw, 1.25rem);
         margin-top: 2px;
+        flex-shrink: 0;
     }
 
     .banner-text {
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
         color: #92400e;
     }
 }
 
-/* --- Fieldsets and Grids --- */
+/* ---- Meta Details Fieldset ---- */
 .meta-details-fieldset {
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    border-radius: clamp(6px, 1vw, 8px);
+    padding: clamp(1rem, 3vh, 1.5rem);
+    margin-bottom: clamp(1rem, 3vh, 2rem);
     background: white;
 
     legend {
         font-weight: 700;
         color: #334155;
         padding: 0 0.5rem;
-        font-size: 1.1rem;
+        font-size: clamp(1rem, 3vw, 1.1rem);
     }
 }
 
 .meta-fields-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(140px, 20vw, 200px), 1fr));
+    gap: clamp(0.75rem, 2vh, 1.5rem);
 }
 
+/* ---- Form Groups ---- */
 .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: clamp(0.6rem, 1.5vh, 1.25rem);
 
     label {
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
         font-weight: 600;
         color: #475569;
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
     }
 
     input,
     select {
         width: 100%;
-        padding: 0.65rem;
+        padding: clamp(0.5rem, 1.5vh, 0.65rem) clamp(0.5rem, 1.5vw, 0.75rem);
         border: 1px solid #cbd5e1;
         border-radius: 6px;
-        font-size: 0.95rem;
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
 
         &:focus {
             outline: none;
@@ -143,42 +156,58 @@
 
 .form-group-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: clamp(0.5rem, 1vw, 1rem);
+
+    @media (min-width: 640px) {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
-/* --- Workspace Split Layout --- */
+/* ---- Workspace Split Layout ---- */
 .workspace-split-layout {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 2rem;
+    gap: clamp(1rem, 2vw, 2rem);
     align-items: start;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: 260px 1fr;
+    }
+
+    @media (max-width: 1023px) {
+        grid-template-columns: 1fr;
+    }
 }
 
+/* ---- Sidebar Nav ---- */
 .workspace-sidebar-nav {
     background: white;
-    border-radius: 12px;
+    border-radius: clamp(8px, 1.5vw, 12px);
     border: 1px solid #e2e8f0;
-    padding: 1.25rem;
-    position: sticky;
-    top: 20px;
+    padding: clamp(0.75rem, 2vw, 1.25rem);
 
     h4 {
-        margin: 0 0 1.25rem 0;
+        margin: 0 0 1rem 0;
         color: #0f172a;
-        font-size: 1.1rem;
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
         border-bottom: 2px solid #f1f5f9;
         padding-bottom: 0.5rem;
     }
 }
 
+/* On mobile, sidebar stacks above content */
+@media (max-width: 1023px) {
+    .workspace-sidebar-nav {
+        position: static;
+    }
+}
+
 .sidebar-section-block {
-    margin-bottom: 1.5rem;
+    margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
 }
 
 .sidebar-section-header {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
     color: #334155;
     margin-bottom: 0.75rem;
     display: flex;
@@ -197,8 +226,15 @@
 
 .sidebar-questions-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    gap: clamp(3px, 0.8vw, 6px);
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+    }
+
+    @media (min-width: 769px) {
+        grid-template-columns: repeat(5, 1fr);
+    }
 
     button {
         aspect-ratio: 1;
@@ -206,7 +242,7 @@
         background: #f8fafc;
         border-radius: 4px;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: clamp(0.7rem, 1.5vw, 0.85rem);
         color: #475569;
         cursor: pointer;
         transition: all 0.2s;
@@ -219,7 +255,6 @@
             background: #4f46e5;
             color: white;
             border-color: #4f46e5;
-            transform: scale(1.05);
         }
 
         &.invalid-node {
@@ -239,34 +274,37 @@
     min-width: 0;
 }
 
-/* --- Cards --- */
+/* ---- Cards ---- */
 .section-meta-card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    border-radius: clamp(6px, 1vw, 8px);
+    padding: clamp(1rem, 3vh, 1.5rem);
+    margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
 
     .section-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.25rem;
+        gap: 1rem;
+        margin-bottom: clamp(0.75rem, 2vh, 1.25rem);
+        flex-wrap: wrap;
 
         h3 {
             margin: 0;
             color: #0f172a;
-            font-size: 1.25rem;
+            font-size: clamp(1.1rem, 3vw, 1.25rem);
         }
 
         .remove-btn {
             color: #ef4444;
             background: transparent;
             border: 1px dashed #ef4444;
-            padding: 4px 12px;
+            padding: 0.3rem clamp(0.75rem, 2vw, 1rem);
             border-radius: 4px;
-            font-size: 0.85rem;
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
             cursor: pointer;
+            white-space: nowrap;
 
             &:hover {
                 background: #fef2f2;
@@ -278,8 +316,8 @@
 .focused-question-card {
     background: white;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 2rem;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    padding: clamp(1rem, 4vh, 2rem);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
@@ -287,15 +325,17 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    padding-bottom: clamp(0.5rem, 2vh, 1rem);
+    margin-bottom: clamp(1rem, 3vh, 1.5rem);
+    flex-wrap: wrap;
 
     .question-card-header-block {
         h4 {
             margin: 0;
             color: #4f46e5;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
         }
     }
 
@@ -303,10 +343,10 @@
         background: transparent;
         color: #ef4444;
         border: none;
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
         font-weight: 600;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 4px;
 
@@ -316,74 +356,79 @@
     }
 }
 
-/* --- Options Container --- */
+/* ---- Options Container ---- */
 .options-container {
     background: #f8fafc;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-top: 2rem;
+    border-radius: clamp(6px, 1vw, 8px);
+    padding: clamp(0.75rem, 2vh, 1.5rem);
+    margin-top: clamp(1rem, 3vh, 2rem);
     border: 1px solid #e2e8f0;
 
     h5 {
         margin: 0 0 1rem 0;
         color: #334155;
-        font-size: 1rem;
+        font-size: clamp(0.9rem, 2.2vw, 1rem);
     }
 }
 
 .option-group-wrapper {
     display: flex;
-    gap: 1rem;
+    gap: clamp(0.5rem, 1.5vw, 1rem);
     align-items: flex-start;
-    /* Changed to start so radio stays top */
-    padding: 1rem;
+    padding: clamp(0.75rem, 2vh, 1rem);
     background: white;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     margin-bottom: 0.75rem;
     transition: all 0.2s;
 
+    @media (max-width: 640px) {
+        flex-wrap: wrap;
+    }
+
     &.is-correct-answer {
         border-color: #10b981;
         background-color: #f0fdf4;
         box-shadow: 0 0 0 1px #10b981;
     }
+}
 
-    .radio-selection-cell {
-        padding-top: 10px;
+.option-group-wrapper .radio-selection-cell {
+    padding-top: clamp(6px, 2vh, 10px);
 
-        /* Aligns radio with the input center */
-        input[type="radio"] {
-            width: 1.2rem;
-            height: 1.2rem;
-            cursor: pointer;
-            accent-color: #10b981;
-        }
-    }
-
-    .option-input-cell {
-        flex: 1;
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .option-input-cell label {
-        font-weight: 700;
-        color: #475569;
-        font-size: 1.1rem;
-        padding-top: 8px;
+    input[type="radio"] {
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+        accent-color: #10b981;
     }
 }
 
-/* --- Footers & Buttons --- */
+.option-group-wrapper .option-input-cell {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.option-group-wrapper .option-input-cell label {
+    font-weight: 700;
+    color: #475569;
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    padding-top: clamp(6px, 2vh, 8px);
+}
+
+/* ---- Action Footer ---- */
 .workspace-action-footer-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
+    gap: 1rem;
+    margin-top: clamp(1rem, 3vh, 2rem);
+    padding-top: clamp(0.75rem, 2vh, 1.5rem);
     border-top: 2px solid #f1f5f9;
+    flex-wrap: wrap;
 }
 
 .add-question-inline-btn {
@@ -391,10 +436,10 @@
     border: 2px dashed #4f46e5;
     color: #4f46e5;
     font-weight: 600;
-    padding: 0.65rem 1rem;
+    padding: clamp(0.5rem, 1.5vh, 0.65rem) clamp(0.75rem, 2vw, 1rem);
     border-radius: 6px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
 
@@ -411,12 +456,12 @@
 
 .card-pagination-controls {
     display: flex;
-    gap: 0.75rem;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
 
     .control-nav-btn {
         background: #f1f5f9;
         border: 1px solid #cbd5e1;
-        padding: 0.5rem 1rem;
+        padding: clamp(0.4rem, 1vh, 0.5rem) clamp(0.75rem, 2vw, 1rem);
         border-radius: 6px;
         color: #334155;
         font-weight: 600;
@@ -433,23 +478,24 @@
     }
 }
 
+/* ---- Submit Action ---- */
 .submit-action {
-    margin-top: 3rem;
+    margin-top: clamp(1.5rem, 4vh, 3rem);
     display: flex;
     justify-content: flex-end;
-    padding-top: 2rem;
+    padding-top: clamp(1rem, 2vh, 2rem);
     border-top: 1px solid #e2e8f0;
 
     .submit-btn {
         background-color: #4f46e5;
         color: white;
         border: none;
-        padding: 1rem 2rem;
+        padding: clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2rem);
         border-radius: 8px;
-        font-size: 1.1rem;
+        font-size: clamp(0.95rem, 2.5vw, 1.1rem);
         font-weight: 600;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
         transition: background-color 0.2s;
@@ -475,28 +521,29 @@
     }
 }
 
-/* --- File Upload Custom Styling --- */
+/* ---- File Upload Styling ---- */
 .file-upload-group {
-    margin-top: 1.5rem;
+    margin-top: clamp(0.75rem, 2vh, 1.5rem);
     background: #f8fafc;
-    padding: 1rem;
+    padding: clamp(0.75rem, 2vh, 1rem);
     border-radius: 8px;
     border: 1px dashed #cbd5e1;
 
     .upload-controls {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: clamp(0.5rem, 2vw, 1rem);
+        flex-wrap: wrap;
     }
 
     .diagram-file-input {
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
         color: #475569;
 
         &::file-selector-button {
             background: white;
             border: 1px solid #cbd5e1;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem clamp(0.75rem, 2vw, 1rem);
             border-radius: 4px;
             color: #334155;
             cursor: pointer;
@@ -511,9 +558,9 @@
 
     .uploading-indicator {
         color: #f59e0b;
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
         font-weight: 600;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
     }
@@ -523,26 +570,29 @@
         align-items: center;
         justify-content: space-between;
         background: white;
-        padding: 0.75rem 1rem;
+        padding: clamp(0.5rem, 1.5vh, 0.75rem) clamp(0.75rem, 2vw, 1rem);
         border: 1px solid #10b981;
         border-radius: 6px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        gap: clamp(0.5rem, 2vw, 1rem);
 
         .preview-content {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: clamp(0.5rem, 2vw, 0.75rem);
+            min-width: 0;
 
             i {
                 color: #10b981;
-                font-size: 1.5rem;
+                font-size: clamp(1.2rem, 3vw, 1.5rem);
+                flex-shrink: 0;
             }
 
             .preview-link {
                 color: #0f172a;
                 text-decoration: none;
                 font-weight: 600;
-                font-size: 0.95rem;
+                font-size: clamp(0.85rem, 2vw, 0.95rem);
 
                 &:hover {
                     text-decoration: underline;
@@ -550,13 +600,29 @@
                 }
             }
         }
+
+        .remove-diagram-btn {
+            background: transparent;
+            color: #ef4444;
+            border: none;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 
-/* --- Professional Rich Editor Styling (For Question Prompts) --- */
+/* ---- Rich Editor ---- */
 .rich-editor-container {
     border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    border-radius: clamp(4px, 0.8vw, 6px);
     overflow: hidden;
     background: #ffffff;
     transition: border-color 0.2s;
@@ -570,26 +636,26 @@
     .editor-toolbar {
         background: #f8fafc;
         border-bottom: 1px solid #cbd5e1;
-        padding: 6px 10px;
+        padding: clamp(4px, 1vh, 6px) clamp(8px, 2vw, 10px);
         display: flex;
-        gap: 8px;
+        gap: clamp(4px, 1vw, 8px);
 
         .toolbar-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: clamp(4px, 1vw, 6px);
             background: transparent;
             color: #475569;
             border: 1px solid transparent;
-            padding: 4px 8px;
+            padding: clamp(3px, 0.8vh, 4px) clamp(6px, 1.5vw, 8px);
             border-radius: 4px;
-            font-size: 0.85rem;
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
 
             i {
-                font-size: 1.1rem;
+                font-size: clamp(0.95rem, 2.5vw, 1.1rem);
                 color: #4f46e5;
             }
 
@@ -602,11 +668,11 @@
 
     .standard-text-area {
         width: 100%;
-        min-height: 100px;
-        padding: 12px;
+        min-height: clamp(60px, 15vh, 100px);
+        padding: clamp(8px, 2vw, 12px);
         border: none;
         resize: vertical;
-        font-size: 0.95rem;
+        font-size: clamp(0.9rem, 2vw, 0.95rem);
         font-family: inherit;
         background: transparent;
         color: #0f172a;
@@ -617,12 +683,12 @@
     }
 }
 
-/* --- Hybrid Input Styling (For Single-Line Options) --- */
+/* ---- Hybrid Input (Options) ---- */
 .option-body-col {
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 6px;
+    gap: clamp(4px, 1vh, 6px);
 }
 
 .hybrid-input-wrapper {
@@ -642,9 +708,9 @@
 
     .standard-text-input {
         flex: 1;
-        padding: 8px 12px;
+        padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
         border: none;
-        font-size: 0.95rem;
+        font-size: clamp(0.9rem, 2vw, 0.95rem);
         background: transparent;
 
         &:focus {
@@ -660,13 +726,13 @@
         color: #4f46e5;
         border: none;
         border-left: 1px solid #cbd5e1;
-        padding: 0 12px;
+        padding: clamp(4px, 1vh, 8px) clamp(8px, 2vw, 12px);
         align-self: stretch;
         cursor: pointer;
         transition: all 0.2s;
 
         i {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
         }
 
         &:hover {
@@ -675,18 +741,15 @@
     }
 }
 
-/* --- Live Formatted Previews --- */
+/* ---- Math Preview ---- */
 .math-preview-box {
     background-color: #f8fafc;
-    border-left: 3px solid #4f46e5;
-    border-radius: 0 6px 6px 0;
-    padding: 8px 12px;
-    margin-top: 4px;
-    font-size: 0.95rem;
+    border-left: clamp(2px, 0.5vw, 3px) solid #4f46e5;
+    border-radius: 0 clamp(4px, 1vw, 6px) clamp(4px, 1vw, 6px) 0;
+    padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
+    margin-top: clamp(4px, 1vh, 6px);
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
     color: #1e293b;
-    width: 100%;
-    display: block;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
     .preview-label {
         display: block;
@@ -695,17 +758,17 @@
         color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 6px;
+        margin-bottom: clamp(4px, 1vh, 6px);
     }
 
     &.compact-preview {
-        padding: 6px 10px;
+        padding: clamp(5px, 1.2vh, 6px) clamp(7px, 1.8vw, 10px);
         margin-top: 0;
-        border-left: 3px solid #10b981;
+        border-left-color: #10b981;
 
         .preview-label {
             display: inline-block;
-            margin-right: 8px;
+            margin-right: clamp(4px, 2vw, 8px);
             margin-bottom: 0;
         }
 
@@ -715,19 +778,28 @@
     }
 }
 
-/* --- Force MathLive Keyboard above the Modal --- */
-::ng-deep {
-    body {
-        --keyboard-zindex: 3000 !important;
+/* ---- Fallback No Sections ---- */
+.no-sections-fallback {
+    text-align: center;
+    padding: clamp(3rem, 8vh, 6rem) 1rem;
+
+    i {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        color: #cbd5e1;
+        margin-bottom: 1rem;
     }
 
-    mathlive-keyboard-panel,
-    .ML__keyboard {
-        z-index: 3000 !important;
+    p {
+        color: #64748b;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+
+        strong {
+            color: #334155;
+        }
     }
 }
 
-/* --- Math Modal Specific Styles --- */
+/* ---- Math Modal ---- */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -744,25 +816,23 @@
 
     .math-builder-card {
         background: #ffffff;
-        border-radius: 12px;
-        width: 100%;
+        border-radius: clamp(8px, 1.5vw, 12px);
+        width: calc(min(90%, 600px));
         max-width: 600px !important;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         animation: slideUp 0.3s ease-out;
         overflow: hidden;
-        position: absolute;
-        top: 100px;
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.25rem 1.5rem;
+            padding: clamp(1rem, 3vh, 1.25rem) clamp(1rem, 3vw, 1.5rem);
             border-bottom: 1px solid #cbd5e1;
 
             h3 {
                 margin: 0;
-                font-size: 1.15rem;
+                font-size: clamp(1rem, 2.5vw, 1.15rem);
                 color: #0f172a;
             }
 
@@ -771,7 +841,7 @@
                 border: none;
                 color: #64748b;
                 cursor: pointer;
-                font-size: 1.25rem;
+                font-size: clamp(1.1rem, 3vw, 1.25rem);
                 padding: 4px;
                 border-radius: 4px;
                 transition: background 0.2s;
@@ -784,38 +854,37 @@
         }
 
         .modal-body {
-            padding: 1.5rem;
+            padding: clamp(1rem, 3vh, 1.5rem);
 
             .math-help-text {
-                margin: 0 0 1rem 0;
+                margin: 0 0 clamp(0.5rem, 2vh, 1rem) 0;
                 color: #64748b;
-                font-size: 0.9rem;
+                font-size: clamp(0.8rem, 2vw, 0.9rem);
             }
 
             .math-builder-field {
                 width: 100%;
-                font-size: 1.5rem;
-                padding: 1rem;
+                font-size: clamp(1.2rem, 4vw, 1.5rem);
+                padding: clamp(0.75rem, 2vh, 1rem);
                 border: 2px solid #e0e7ff;
                 border-radius: 8px;
                 background: #fafafa;
-                min-height: 100px;
             }
         }
 
         .modal-footer {
-            padding: 1.25rem 1.5rem;
+            padding: clamp(0.75rem, 2vh, 1.25rem) clamp(1rem, 3vw, 1.5rem);
             background: #f8fafc;
             border-top: 1px solid #cbd5e1;
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
+            gap: clamp(0.5rem, 2vw, 1rem);
 
             button {
-                padding: 0.65rem 1.25rem;
+                padding: clamp(0.5rem, 1.5vh, 0.65rem) clamp(1rem, 3vw, 1.25rem);
                 border-radius: 6px;
                 font-weight: 600;
-                font-size: 0.95rem;
+                font-size: clamp(0.85rem, 2vw, 0.95rem);
                 cursor: pointer;
                 transition: all 0.2s;
             }
@@ -840,5 +909,131 @@
                 }
             }
         }
+    }
+}
+
+/* ---- Animations ---- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ---- Mobile Responsive (<640px) ---- */
+@media (max-width: 639px) {
+    .edit-exam-container {
+        padding: 0.75rem;
+    }
+
+    .create-header-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .meta-fields-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .workspace-split-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    .workspace-sidebar-nav {
+        padding: 0.75rem;
+    }
+
+    .sidebar-questions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+    }
+
+    .option-group-wrapper {
+        flex-direction: column;
+    }
+
+    .workspace-action-footer-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .add-question-inline-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .card-pagination-controls {
+        width: 100%;
+
+        .control-nav-btn {
+            flex: 1;
+        }
+    }
+
+    .submit-action {
+        padding-top: 1rem;
+
+        .submit-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    .math-preview-box.compact-preview {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .uploading-indicator {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* ---- Tablet (640px - 1023px) ---- */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .meta-fields-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sidebar-questions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+    }
+}
+
+/* ---- Desktop (1024px+) ---- */
+@media (min-width: 1024px) {
+    .workspace-sidebar-nav {
+        position: sticky;
+        top: clamp(1rem, 3vh, 20px);
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+
+    /* Hide vertical scrollbar but allow scroll */
+    .workspace-sidebar-nav::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .workspace-sidebar-nav::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 2px;
     }
 }
