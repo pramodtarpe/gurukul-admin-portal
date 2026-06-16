@@ -55,7 +55,12 @@ export class EditExamComponent implements OnInit {
     if (!this.examId) return;
     this.isSubmitting = true;
 
-    this.communicationService.updateExam(this.examId, formPayload).subscribe({
+    const finalPayload = {
+      ...this.examData, 
+      ...formPayload
+    };
+
+    this.communicationService.updateExam(this.examId, finalPayload).subscribe({
       next: () => {
         this.isSubmitting = false;
         alert('Exam changes saved successfully!');

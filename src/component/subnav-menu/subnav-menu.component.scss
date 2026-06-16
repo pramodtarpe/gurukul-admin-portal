@@ -12,7 +12,6 @@ $error-light: #fef2f2;       // Red tint
   width: 240px;               // Absolute width scaling works more predictably than 15% for responsive dashboards
   height: 100vh;              // Span full screen layout height
   background-color: #ffffff;
-  border-right: 1px solid $border-color;
   display: flex;
   flex-direction: column;
   justify-content: space-between; // Anchors wrapper top / footer bottom cleanly
