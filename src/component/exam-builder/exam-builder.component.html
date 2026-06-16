@@ -26,7 +26,7 @@
     <form [formGroup]="examForm" (ngSubmit)="triggerSubmit()" class="exam-form-wrapper">
 
         <fieldset class="meta-details-fieldset">
-            <legend>Exam Baseline Settings</legend>
+            <legend>Set Exam</legend>
             <div class="meta-fields-grid">
                 <div class="form-group">
                     <label>Title:</label>
@@ -86,13 +86,13 @@
 
                         <div class="section-meta-card">
                             <div class="section-card-header">
-                                <h3>Section {{ sIndex + 1 }} Configurations</h3>
+                                <h3>Section {{ sIndex + 1 }}</h3>
                                 <button type="button" class="remove-btn" *ngIf="mode === 'create'"
                                     (click)="removeSection(sIndex)">Delete This Section</button>
                             </div>
 
                             <div class="form-group">
-                                <label>Section Title Text:</label>
+                                <label>Section Title: </label>
                                 <input type="text" formControlName="sectionTitle" placeholder="e.g., Marathi Grammar" />
                             </div>
                             <div class="form-group-row">
