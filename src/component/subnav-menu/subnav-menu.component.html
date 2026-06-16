@@ -1,4 +1,14 @@
-<nav class="sidebar">
+<nav class="sidebar" [class.collapsed]="collapsed">
+  <div class="sidebar-header">
+    <button class="collapse-toggle" (click)="toggleCollapse()" type="button" aria-label="Toggle sidebar">
+      @if (!collapsed) {
+        <i class="ph ph-caret-left"></i>
+      } @else {
+        <i class="ph ph-caret-right"></i>
+      }
+    </button>
+  </div>
+
   <div class="sidebar-wrapper">
     <div class="nav-section">
       <small class="section-title">Main Menu</small>
