@@ -6,7 +6,8 @@
     <div class="edit-exam-header create-header-flex">
         <div class="header-info">
             <h2>{{ mode === 'create' ? 'Create New Exam' : 'Edit Exam' }}</h2>
-            <span>{{ mode === 'create' ? 'Fill out the core parameters to unlock section building tools' : 'Update the exam fields and structure here' }}</span>
+            <span>{{ mode === 'create' ? 'Fill out the core parameters to unlock section building tools' : 'Update the
+                exam fields and structure here' }}</span>
         </div>
         <button type="button" class="add-section-header-btn" [disabled]="isQuestionLimitReached" (click)="addSection()">
             <i class="ph ph-plus-circle"></i> Add Section
@@ -16,7 +17,9 @@
     <div class="question-limit-alert-banner" *ngIf="examForm.errors?.['questionLimitExceeded']">
         <i class="ph ph-warning-circle"></i>
         <div class="banner-text">
-            <strong>Question Limit Overrun:</strong> The collective section questions ({{ currentAllocatedQuestions }}) exceeds the maximum parameters specified for this overall exam ({{ examForm.get('totalQuestions')?.value }}).
+            <strong>Question Limit Overrun:</strong> The collective section questions ({{ currentAllocatedQuestions }})
+            exceeds the maximum parameters specified for this overall exam ({{ examForm.get('totalQuestions')?.value
+            }}).
         </div>
     </div>
 
@@ -98,7 +101,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Marks:</label>
-                                    <input type="number" formControlName="sectionTotalMarks" placeholder="Cumulative sub score max" />
+                                    <input type="number" formControlName="sectionTotalMarks"
+                                        placeholder="Cumulative sub score max" />
                                 </div>
                             </div>
                         </div>
@@ -135,18 +139,20 @@
                                         <div class="math-preview-box" *ngIf="containsMath(question.get('text')?.value)">
                                             <span class="preview-label">Live Preview</span>
                                             <div class="preview-content-box">
-                                                <ga-math-render [content]="question.get('text')?.value"></ga-math-render>
+                                                <ga-math-render
+                                                    [content]="question.get('text')?.value"></ga-math-render>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="form-group file-upload-group" *ngIf="mode === 'create' || question.get('diagramUrl')?.value">
+                                    <div class="form-group file-upload-group">
                                         <label>Diagram (Optional):</label>
 
                                         <div class="upload-controls" *ngIf="!question.get('diagramUrl')?.value">
                                             <input type="file" accept="image/*"
                                                 (change)="onDiagramUpload($event, sIndex, qIndex)"
-                                                [disabled]="isUploadingDiagram" class="diagram-file-input" />
+                                                (cancel)="$event.stopPropagation()" [disabled]="isUploadingDiagram"
+                                                class="diagram-file-input" />
 
                                             <div class="uploading-indicator"
                                                 *ngIf="isUploadingDiagram && uploadingQuestionCoords && uploadingQuestionCoords.s === sIndex && uploadingQuestionCoords.q === qIndex">
@@ -157,7 +163,8 @@
                                         <div class="uploaded-file-preview" *ngIf="question.get('diagramUrl')?.value">
                                             <div class="preview-content">
                                                 <i class="ph ph-image"></i>
-                                                <a [href]="question.get('diagramUrl')?.value" target="_blank" class="preview-link">
+                                                <a [href]="question.get('diagramUrl')?.value" target="_blank"
+                                                    class="preview-link">
                                                     View Diagram
                                                 </a>
                                             </div>
@@ -171,25 +178,30 @@
                                     <div formArrayName="options" class="options-container">
                                         <h5>Multiple Choice Options:</h5>
 
-                                        <ng-container *ngFor="let option of getOptions(sIndex, qIndex).controls; let oIndex = index">
+                                        <ng-container
+                                            *ngFor="let option of getOptions(sIndex, qIndex).controls; let oIndex = index">
                                             <div class="option-group-wrapper"
                                                 [class.is-correct-answer]="getCorrectAnswerControl(sIndex, qIndex).value === oIndex">
 
                                                 <div class="radio-selection-cell">
-                                                    <input type="radio" [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
-                                                        [name]="'correctAnswer_s' + sIndex + '_q' + qIndex" [value]="oIndex"
+                                                    <input type="radio"
+                                                        [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                                                        [name]="'correctAnswer_s' + sIndex + '_q' + qIndex"
+                                                        [value]="oIndex"
                                                         [formControl]="getCorrectAnswerControl(sIndex, qIndex)"
                                                         title="Select as the correct answer" />
                                                 </div>
 
                                                 <div class="option-input-cell">
-                                                    <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
+                                                    <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{
+                                                        getOptionLetter(oIndex) }}:</label>
 
                                                     <div class="option-body-col">
                                                         <div class="hybrid-input-wrapper">
                                                             <input type="text" [formControlName]="oIndex"
                                                                 [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
-                                                                class="standard-text-input" placeholder="Option text..." />
+                                                                class="standard-text-input"
+                                                                placeholder="Option text..." />
                                                             <button type="button" class="insert-math-btn"
                                                                 (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)"
                                                                 title="Insert Math Equation">
@@ -200,10 +212,10 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Compact preview rendered directly below its respective option-group-wrapper -->
                                             <div class="math-preview-box compact-preview"
                                                 *ngIf="containsMath(option.value)">
-                                                <span class="preview-label">{{ getOptionLetter(oIndex) }} Preview:</span>
+                                                <span class="preview-label">{{ getOptionLetter(oIndex) }}
+                                                    Preview:</span>
                                                 <ga-math-render [content]="option.value"></ga-math-render>
                                             </div>
                                         </ng-container>
@@ -241,7 +253,8 @@
 
         <div class="no-sections-fallback" *ngIf="sections.length === 0">
             <i class="ph ph-folder-open"></i>
-            <p>No questions mapped out yet. Provide structural configurations at the top, then hit <strong>Add Section</strong> to begin.</p>
+            <p>No questions mapped out yet. Provide structural configurations at the top, then hit <strong>Add
+                    Section</strong> to begin.</p>
         </div>
 
         <div class="submit-action" *ngIf="sections.length > 0">
@@ -249,7 +262,8 @@
                 [disabled]="examForm.invalid || isSubmitting || (mode === 'create' && totalAddedQuestionsCount !== examForm.get('totalQuestions')?.value)"
                 class="submit-btn">
                 <i [class]="isSubmitting ? 'ph ph-circle-notch spinning' : 'ph ph-cloud-arrow-up'"></i>
-                <span>{{ isSubmitting ? (mode === 'create' ? 'Publishing...' : 'Saving...') : (mode === 'create' ? 'Create & Publish Exam' : 'Save Changes') }}</span>
+                <span>{{ isSubmitting ? (mode === 'create' ? 'Publishing...' : 'Saving...') : (mode === 'create' ?
+                    'Create & Publish Exam' : 'Save Changes') }}</span>
             </button>
         </div>
 
@@ -263,7 +277,8 @@
             </div>
             <div class="modal-body">
                 <p class="math-help-text">Type your equation below. Use the virtual keyboard for advanced symbols.</p>
-                <math-field (input)="updateMathBuilderContent($event)" class="visual-math-input math-builder-field">
+                <math-field (input)="updateMathBuilderContent($event)" class="visual-math-input math-builder-field"
+                    style="--keyboard-zindex: 10005;">
                     {{ currentMathFormula }}
                 </math-field>
             </div>

@@ -12,7 +12,8 @@
 }
 
 /* --- CSS Reset & Base Typography --- */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -23,22 +24,42 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
 }
 
 /* --- Professional Custom Scrollbar --- */
-::-webkit-scrollbar { 
-  width: 8px; 
-  height: 8px; 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-::-webkit-scrollbar-track { 
-  background: transparent; 
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-::-webkit-scrollbar-thumb { 
-  background: #cbd5e1; 
-  border-radius: 4px; 
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover { 
-  background: #94a3b8; 
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* =========================================================
+   MATHLIVE VIRTUAL KEYBOARD GLOBAL OVERRIDES
+   ========================================================= */
+:root {
+  /* MathLive natively uses this variable for the keyboard container */
+  --keyboard-zindex: 10005 !important;
+}
+
+/* Force the keyboard elements to sit above the modal backdrop (z-index: 1000) */
+math-virtual-keyboard,
+.ML__keyboard {
+  z-index: 10005 !important;
+  position: fixed !important;
 }

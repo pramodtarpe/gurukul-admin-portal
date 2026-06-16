@@ -207,8 +207,13 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   }
 
   onDiagramUpload(event: any, sIndex: number, qIndex: number) {
-    const file: File = event.target.files[0];
-    if (!file || !file.type.startsWith('image/')) return alert('Please select a valid image.');
+    const file: File = event.target.files?.[0];
+
+    // Silently return if the user closed the file explorer without selecting anything
+    if (!file) return;
+
+    // Throw an alert only if they selected a file but it's not an image
+    if (!file.type.startsWith('image/')) return alert('Please select a valid image file.');
 
     this.isUploadingDiagram = true;
     this.uploadingQuestionCoords = { s: sIndex, q: qIndex };

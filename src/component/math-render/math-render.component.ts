@@ -1,10 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-
-// @ts-ignore
 import renderMathInElement from 'katex/contrib/auto-render';
-
-// ADD THIS LINE: Enables \ce{} Chemistry commands
-import 'katex/contrib/mhchem/mhchem';
+import 'katex/contrib/mhchem/mhchem.js';
 
 @Component({
   selector: 'ga-math-render',

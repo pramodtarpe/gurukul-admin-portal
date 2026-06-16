@@ -11,7 +11,7 @@ $error-color: #ef4444;
   border-bottom: 1px solid $border-color;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   padding: 0 2rem;
   position: sticky;
   top: 0;
@@ -21,6 +21,7 @@ $error-color: #ef4444;
   .header-left {
     display: flex;
     align-items: center;
+    margin: auto;
 
     .logo-container {
       display: flex;

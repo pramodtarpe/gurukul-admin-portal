@@ -208,7 +208,7 @@ button[type="submit"] {
 
 /* --- LOGIN UI STRUCTURAL OVERRIDES --- */
 .auth-card {
-  max-width: 520px !important; /* Widens the card footprint */
+  min-width: 520px !important; /* Widens the card footprint */
   width: 100%;
 }
 
