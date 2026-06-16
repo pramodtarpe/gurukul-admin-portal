@@ -1,0 +1,16 @@
+# 🧠 Local Reasoning Model Rules (Qwen 35B Distilled)
+
+## 1. The Thinking Phase (CRITICAL)
+- **Tool Calling:** NEVER place tool calls (file edits, terminal commands, browser actions) inside your `<think>...</think>` block. Your think block is strictly for internal logical planning. Tool calls must happen in the main output space.
+- **Error Analysis:** If a terminal command or test fails, you must open a `<think>` block to analyze the `stderr` output before you attempt a fix. Do not blindly guess or instantly retry.
+- **Architectural Planning:** Before writing a single line of code, read the relevant existing files. Use the `<think>` block to map out data flow, time/space complexity, and edge cases.
+
+## 2. Code Generation Guidelines
+- **No Placeholders:** You are running locally; we do not care about API token costs. NEVER use lazy placeholders like `// ... existing code ...` or `# rest of the file here`. Always output complete, production-ready code.
+- **Defensive Programming:** Enforce strict type safety (TypeScript, Python type hints, etc.). Never swallow exceptions—always handle errors gracefully and provide contextual logging.
+- **Incremental Execution:** Do not attempt to rewrite 1000-line monolithic files in one go. Break your work into small, testable chunks. 
+
+## 3. Agentic Workflow
+- **Verify Before Proceeding:** After creating or editing a file, run the linter, compiler, or relevant unit tests via the terminal tool to verify your work.
+- **Context Management:** Your context window is 64k tokens. To avoid overwhelming your memory, use targeted file reading (reading specific files) rather than running massive `grep` or `find` commands that dump thousands of lines into the terminal.
+- **Cleanup:** Remove any temporary debugging `console.log()` or `print()` statements before marking the task as complete.

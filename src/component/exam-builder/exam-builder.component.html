@@ -171,40 +171,43 @@
                                     <div formArrayName="options" class="options-container">
                                         <h5>Multiple Choice Options:</h5>
 
-                                        <div *ngFor="let option of getOptions(sIndex, qIndex).controls; let oIndex = index"
-                                            class="option-group-wrapper"
-                                            [class.is-correct-answer]="getCorrectAnswerControl(sIndex, qIndex).value === oIndex">
+                                        <ng-container *ngFor="let option of getOptions(sIndex, qIndex).controls; let oIndex = index">
+                                            <div class="option-group-wrapper"
+                                                [class.is-correct-answer]="getCorrectAnswerControl(sIndex, qIndex).value === oIndex">
 
-                                            <div class="radio-selection-cell">
-                                                <input type="radio" [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
-                                                    [name]="'correctAnswer_s' + sIndex + '_q' + qIndex" [value]="oIndex"
-                                                    [formControl]="getCorrectAnswerControl(sIndex, qIndex)"
-                                                    title="Select as the correct answer" />
-                                            </div>
+                                                <div class="radio-selection-cell">
+                                                    <input type="radio" [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                                                        [name]="'correctAnswer_s' + sIndex + '_q' + qIndex" [value]="oIndex"
+                                                        [formControl]="getCorrectAnswerControl(sIndex, qIndex)"
+                                                        title="Select as the correct answer" />
+                                                </div>
 
-                                            <div class="option-input-cell">
-                                                <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
+                                                <div class="option-input-cell">
+                                                    <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{ getOptionLetter(oIndex) }}:</label>
 
-                                                <div class="option-body-col">
-                                                    <div class="hybrid-input-wrapper">
-                                                        <input type="text" [formControlName]="oIndex"
-                                                            [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
-                                                            class="standard-text-input" placeholder="Option text..." />
-                                                        <button type="button" class="insert-math-btn"
-                                                            (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)"
-                                                            title="Insert Math Equation">
-                                                            <i class="ph ph-function"></i>
-                                                        </button>
-                                                    </div>
-                                                    <div class="math-preview-box compact-preview"
-                                                        *ngIf="containsMath(getOptions(sIndex, qIndex).at(oIndex).value)">
-                                                        <span class="preview-label">Preview:</span>
-                                                        <ga-math-render [content]="getOptions(sIndex, qIndex).at(oIndex).value"></ga-math-render>
+                                                    <div class="option-body-col">
+                                                        <div class="hybrid-input-wrapper">
+                                                            <input type="text" [formControlName]="oIndex"
+                                                                [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                                                                class="standard-text-input" placeholder="Option text..." />
+                                                            <button type="button" class="insert-math-btn"
+                                                                (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)"
+                                                                title="Insert Math Equation">
+                                                                <i class="ph ph-function"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                        </div>
+                                            <!-- Compact preview rendered directly below its respective option-group-wrapper -->
+                                            <div class="math-preview-box compact-preview"
+                                                *ngIf="containsMath(option.value)">
+                                                <span class="preview-label">{{ getOptionLetter(oIndex) }} Preview:</span>
+                                                <ga-math-render [content]="option.value"></ga-math-render>
+                                            </div>
+                                        </ng-container>
+
                                     </div>
 
                                     <div class="workspace-action-footer-row">
