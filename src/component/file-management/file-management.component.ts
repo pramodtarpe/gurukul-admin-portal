@@ -1,19 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { NotificationBannerComponent } from '../notification-banner/notification-banner.component';
 
 @Component({
   selector: 'ga-file-management',
   standalone: true,
-  imports: [ FormsModule, CommonModule, RouterLink, ConfirmDialogComponent ],
+  imports: [ FormsModule, CommonModule, RouterLink, ConfirmDialogComponent, NotificationBannerComponent ],
   providers: [ CommunicationService ],
   templateUrl: './file-management.component.html',
   styleUrl: './file-management.component.scss'
 })
 export class FileManagementComponent implements OnInit {
+  @ViewChild(NotificationBannerComponent) banner!: NotificationBannerComponent;
+
   examTypes: string[] = ['FREE', 'FOREST_BHARTI', 'POLICE_BHARTI'];
   selectedExamType: string = 'FREE'; 
 
@@ -109,7 +112,7 @@ export class FileManagementComponent implements OnInit {
 
   deletePdf(pdfId: string): void {
     if (!pdfId) {
-      alert('Error: Missing PDF ID.');
+      this.banner.showError('Missing PDF ID. Please refresh and try again.', 3000);
       return;
     }
 
@@ -128,14 +131,14 @@ export class FileManagementComponent implements OnInit {
 
     this.communicationService.deletePdf(id).subscribe({
       next: () => {
-        alert('PDF deleted successfully!');
         // Refresh the current page view cleanly
         this.loadPdfs(this.selectedExamType, this.currentCursor); 
+        this.banner.show('PDF deleted successfully!', 3000);
       },
       error: (error) => {
         console.error('Error deleting PDF:', error);
-        alert('Failed to delete the PDF. Check the console for details.');
         this.isLoading = false;
+        this.banner.showError('Failed to delete the PDF. Please try again.', 4000);
       }
     });
 
@@ -145,5 +148,9 @@ export class FileManagementComponent implements OnInit {
   onCancelDelete(): void {
     this.showConfirmDialog = false;
     this.pdfToDelete = null;
+  }
+
+  onBannerClosed(): void {
+    // Banner dismissed - no additional action needed
   }
 }

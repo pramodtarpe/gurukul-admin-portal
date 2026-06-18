@@ -1,18 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { NotificationBannerComponent } from '../notification-banner/notification-banner.component';
 
 @Component({
   selector: 'ga-upload-file',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, NotificationBannerComponent],
   templateUrl: './upload-file.component.html',
   styleUrls: ['./upload-file.component.scss']
 })
 export class UploadFileComponent {
+  @ViewChild(NotificationBannerComponent) banner!: NotificationBannerComponent;
+
   selectedFile: File | null = null;
   selectedExamType: string = 'FREE'; 
   pdfTitle: string = '';
@@ -28,14 +31,14 @@ export class UploadFileComponent {
     if (file && file.type === 'application/pdf') {
       this.selectedFile = file;
     } else {
-      alert('Please select a valid PDF file.');
+      this.banner.showError('Please select a valid PDF file.', 3000);
       this.selectedFile = null;
     }
   }
 
   onUpload() {
     if (!this.selectedFile || !this.pdfTitle) {
-      alert('Please fill all required fields and select a file.');
+      this.banner.showError('Please fill all required fields and select a file.', 3000);
       return;
     }
 
@@ -53,7 +56,6 @@ export class UploadFileComponent {
     this.communicationService.generatePdfPresignedUrl(urlPayload)
       .pipe(
         switchMap((urlResponse: any) => {
-          // Verify these keys match your API response exactly!
           const s3UploadUrl = urlResponse.uploadUrl || urlResponse.url || urlResponse.presignedUrl; 
           currentFileKey = urlResponse.fileKey;
 
@@ -71,18 +73,22 @@ export class UploadFileComponent {
       .subscribe({
         next: () => {
           this.isUploading = false;
-          alert('File uploaded successfully!');
-          this.router.navigate(['/file']); 
+          this.banner.show('File uploaded successfully!', 3000);
+          setTimeout(() => this.router.navigate(['/file']), 1500);
         },
         error: (error) => {
           this.isUploading = false;
           console.error('Upload sequence failed', error);
-          alert('Upload failed. Check the console for details.');
+          this.banner.showError('Upload failed. Please try again.', 4000);
         }
       });
   }
 
   cancelUpload() {
     this.router.navigate(['/file']);
+  }
+
+  onBannerClosed(): void {
+    // Banner dismissed - no additional action needed
   }
 }

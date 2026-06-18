@@ -1,0 +1,9 @@
+<div class="notification-overlay" [class.hidden]="!visible">
+  <div class="notification-banner" [class.visible]="visible" [class.success]="type === 'success'" [class.error]="type === 'error'">
+    <i class="banner-icon" [class]="icon"></i>
+    <span class="banner-message">{{ message }}</span>
+    <button class="close-btn" (click)="close()" title="Dismiss">
+      <i class="ph ph-x"></i>
+    </button>
+  </div>
+</div>
