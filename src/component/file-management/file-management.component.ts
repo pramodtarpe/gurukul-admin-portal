@@ -3,11 +3,12 @@ import { CommunicationService } from '../../service/communication/communication.
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'ga-file-management',
   standalone: true,
-  imports: [ FormsModule, CommonModule, RouterLink ],
+  imports: [ FormsModule, CommonModule, RouterLink, ConfirmDialogComponent ],
   providers: [ CommunicationService ],
   templateUrl: './file-management.component.html',
   styleUrl: './file-management.component.scss'
@@ -102,29 +103,47 @@ export class FileManagementComponent implements OnInit {
     return this.pdfData && this.pdfData.length > 0;
   }
 
-  deletePdf(pdfId: string) {
+  // --- Delete Confirmation Dialog State ---
+  showConfirmDialog = false;
+  pdfToDelete: any = null;
+
+  deletePdf(pdfId: string): void {
     if (!pdfId) {
       alert('Error: Missing PDF ID.');
       return;
     }
 
-    const confirmDelete = confirm('Are you sure you want to delete this PDF? This action cannot be undone.');
+    const pdf = this.pdfData.find(p => p.pdfId === pdfId);
+    this.pdfToDelete = pdf || { title: 'Unknown File', pdfId };
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmDelete(): void {
+    if (!this.pdfToDelete) return;
+
+    const id = this.pdfToDelete.pdfId;
+    this.showConfirmDialog = false;
     
-    if (confirmDelete) {
-      this.isLoading = true; 
-      
-      this.communicationService.deletePdf(pdfId).subscribe({
-        next: () => {
-          alert('PDF deleted successfully!');
-          // Refresh the current page view cleanly
-          this.loadPdfs(this.selectedExamType, this.currentCursor); 
-        },
-        error: (error) => {
-          console.error('Error deleting PDF:', error);
-          alert('Failed to delete the PDF. Check the console for details.');
-          this.isLoading = false;
-        }
-      });
-    }
+    this.isLoading = true; 
+
+    this.communicationService.deletePdf(id).subscribe({
+      next: () => {
+        alert('PDF deleted successfully!');
+        // Refresh the current page view cleanly
+        this.loadPdfs(this.selectedExamType, this.currentCursor); 
+      },
+      error: (error) => {
+        console.error('Error deleting PDF:', error);
+        alert('Failed to delete the PDF. Check the console for details.');
+        this.isLoading = false;
+      }
+    });
+
+    this.pdfToDelete = null;
+  }
+
+  onCancelDelete(): void {
+    this.showConfirmDialog = false;
+    this.pdfToDelete = null;
   }
 }

@@ -3,11 +3,12 @@ import { CommunicationService } from '../../service/communication/communication.
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'ga-exam-management',
   standalone: true,
-  imports: [ FormsModule, CommonModule, RouterLink ],
+  imports: [ FormsModule, CommonModule, RouterLink, ConfirmDialogComponent ],
   providers: [ CommunicationService ],
   templateUrl: './exam-management.component.html',
   styleUrl: './exam-management.component.scss'
@@ -103,24 +104,41 @@ export class ExamManagementComponent implements OnInit {
     return this.examData.some(exam => exam.examType === type);
   }
 
-  deleteExam(exam: any) {
-    const isConfirmed = window.confirm(`Are you sure you want to delete the exam: "${exam.title}"?`);
+  // --- Delete Confirmation Dialog State ---
+  showConfirmDialog = false;
+  examToDelete: any = null;
 
-    if (isConfirmed) {
-      this.isLoading = true; 
-      
-      this.communicationService.deleteExam(exam.examId).subscribe({
-        next: () => {
-          alert(`Successfully deleted the exam: ${exam.title}`);
-          // Refresh the current page view cleanly
-          this.loadExams(this.selectedExamType, this.currentCursor); 
-        },
-        error: (error) => {
-          console.error('Error deleting exam:', error);
-          alert(`Failed to delete the exam: ${exam.title}. Please try again later.`);
-          this.isLoading = false;
-        }
-      });
-    }
+  deleteExam(exam: any): void {
+    this.examToDelete = exam;
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmDelete(): void {
+    if (!this.examToDelete) return;
+
+    const title = this.examToDelete.title;
+    const id = this.examToDelete.examId;
+    this.showConfirmDialog = false;
+    
+    this.isLoading = true; 
+
+    this.communicationService.deleteExam(id).subscribe({
+      next: () => {
+        alert(`Successfully deleted the exam: ${title}`);
+        this.loadExams(this.selectedExamType, this.currentCursor); 
+      },
+      error: (error) => {
+        console.error('Error deleting exam:', error);
+        alert(`Failed to delete the exam: ${title}. Please try again later.`);
+        this.isLoading = false;
+      }
+    });
+
+    this.examToDelete = null;
+  }
+
+  onCancelDelete(): void {
+    this.showConfirmDialog = false;
+    this.examToDelete = null;
   }
 }

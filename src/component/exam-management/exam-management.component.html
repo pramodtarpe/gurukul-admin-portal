@@ -57,6 +57,19 @@
        <p>No exams available for this structural type.</p>
       </div>
 
+      <!-- Confirmation Dialog -->
+      @if (showConfirmDialog && examToDelete) {
+        <ga-confirm-dialog
+          title="Delete Exam?"
+          [message]="'Are you sure you want to delete the exam: ' + examToDelete.title + '? This action cannot be undone.'"
+          confirmText="Delete"
+          cancelText="Cancel"
+          [isConfirmDangerous]="true"
+          (confirmed)="onConfirmDelete()"
+          (cancelled)="onCancelDelete()">
+        </ga-confirm-dialog>
+      }
+
       <div class="pagination-controls" *ngIf="hasExamsOfType(selectedExamType) || cursorHistory.length > 0">
         <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading">
           <i class="ph ph-caret-left"></i> Previous

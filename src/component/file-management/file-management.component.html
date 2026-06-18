@@ -30,7 +30,7 @@
       <p>PDFs are being fetched...</p>
     </div>
 
-    <div class="pdf-list-wrapper" *ngIf="!isLoading">
+    <div class="pdf-list-wrapper" *ngIf="!isLoading && hasPdfs()">
       <ng-container *ngFor="let pdf of pdfData">
         <div class="pdf-list-item">
           
@@ -62,9 +62,18 @@
         </div>
       </ng-container>
 
-      <div class="no-pdfs-fallback" *ngIf="!hasPdfs()">
-       <p>No PDFs available for this category yet.</p>
-      </div>
+      <!-- Confirmation Dialog -->
+      @if (showConfirmDialog && pdfToDelete) {
+        <ga-confirm-dialog
+          title="Delete PDF?"
+          [message]="'Are you sure you want to delete the file: ' + pdfToDelete.title + '? This action cannot be undone.'"
+          confirmText="Delete"
+          cancelText="Cancel"
+          [isConfirmDangerous]="true"
+          (confirmed)="onConfirmDelete()"
+          (cancelled)="onCancelDelete()">
+        </ga-confirm-dialog>
+      }
 
       <div class="pagination-controls" *ngIf="hasPdfs() || cursorHistory.length > 0">
         <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading">
@@ -74,7 +83,12 @@
           Next <i class="ph ph-caret-right"></i>
         </button>
       </div>
-
     </div>
+    
+    <!-- Fallback message when no PDFs exist -->
+    <div class="no-pdfs-fallback" *ngIf="!hasPdfs()">
+      <p>No PDFs available for this category yet.</p>
+    </div>
+
   </div>
 </div>
