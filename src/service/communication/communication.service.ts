@@ -103,4 +103,9 @@ export class CommunicationService {
   confirmPdfUpload(payload: { title: string, examType: string, fileKey: string }): Observable<any> {
     return this.http.post<any>('/api/admin/pdf/confirm', payload);
   }
+
+  // --- DASHBOARD STATS API ---
+  getDashboardStats(): Observable<{ totalUsers: number; totalExams: number; totalPdfs: number }> {
+    return this.http.get<any>('/api/admin/dashboard/stats');
+  }
 }

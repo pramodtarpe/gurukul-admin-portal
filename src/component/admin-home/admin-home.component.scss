@@ -2,20 +2,20 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  max-width: 1400px; /* Prevents ultra-wide stretching on large monitors */
+  max-width: 1400px;
   margin: 0 auto;
 
   .dashboard-header {
     h2 {
       margin: 0 0 0.5rem 0;
       font-size: 1.75rem;
-      color: var(--text-main);
+      color: #1e293b;
       font-weight: 700;
     }
 
     p {
       margin: 0;
-      color: var(--text-muted);
+      color: #64748b;
       font-size: 1rem;
     }
   }
@@ -23,8 +23,61 @@
   .tiles-container {
     width: 100%;
     display: grid;
-    /* Auto-fit allows multiple tiles to wrap responsively alongside each other in the future */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1.5rem;
   }
+}
+
+.skeleton-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+
+  .skeleton-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f1f5f9;
+
+    .skeleton-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .skeleton-content {
+      flex: 1;
+
+      .skeleton-label,
+      .skeleton-value {
+        height: 1rem;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      .skeleton-label {
+        width: 60%;
+        margin-bottom: 0.75rem;
+      }
+
+      .skeleton-value {
+        width: 40%;
+        height: 2rem;
+      }
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

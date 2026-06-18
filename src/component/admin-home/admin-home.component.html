@@ -3,8 +3,16 @@
     <h2>Dashboard Overview</h2>
     <p>Welcome back! Here is what's happening with your platform today.</p>
   </div>
-  
-  <div class="tiles-container">
-    <ga-stat-tile></ga-stat-tile>
-  </div>
+
+  @if (loading) {
+    <div class="skeleton-loading">
+      <div class="skeleton-card" *ngFor="let _ of [1, 2, 3]"></div>
+    </div>
+  } @else {
+    <div class="tiles-container">
+      @for (tile of tiles; track tile.title) {
+        <ga-stat-tile [data]="tile"></ga-stat-tile>
+      }
+    </div>
+  }
 </div>
