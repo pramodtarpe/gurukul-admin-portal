@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CommunicationService } from '../../service/communication/communication.service';
 
 @Component({
   selector: 'ga-maintenance-status',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmDialogComponent],
   templateUrl: './maintenance-status.component.html',
-  styleUrls: ['./maintenance-status.component.scss']
+  styleUrl: './maintenance-status.component.scss'
 })
 export class MaintenanceStatusComponent implements OnInit {
   isMaintenanceModeEnabled: boolean = false;
@@ -15,6 +16,9 @@ export class MaintenanceStatusComponent implements OnInit {
   toggling: boolean = false;
   toggleSuccess: boolean = false;
   toggleError: string = '';
+
+  showConfirmDialog: boolean = false;
+  confirmAction: 'enable' | 'disable' = 'enable';
 
   constructor(private communicationService: CommunicationService) {}
 
@@ -43,13 +47,21 @@ export class MaintenanceStatusComponent implements OnInit {
   onToggle(): void {
     if (this.toggling || this.loading) return;
 
+    // Open confirmation dialog instead of directly toggling
+    this.confirmAction = !this.isMaintenanceModeEnabled ? 'enable' : 'disable';
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmToggle(): void {
+    this.showConfirmDialog = false;
     this.toggleSuccess = false;
     this.toggleError = '';
     this.toggling = true;
 
-    this.communicationService.toggleMaintenance(!this.isMaintenanceModeEnabled).subscribe({
+    const shouldEnable = this.confirmAction === 'enable';
+    this.communicationService.toggleMaintenance(shouldEnable).subscribe({
       next: () => {
-        this.isMaintenanceModeEnabled = !this.isMaintenanceModeEnabled;
+        this.isMaintenanceModeEnabled = shouldEnable;
         this.toggleSuccess = true;
         this.toggling = false;
 
@@ -69,5 +81,9 @@ export class MaintenanceStatusComponent implements OnInit {
         }, 5000);
       }
     });
+  }
+
+  onCancelToggle(): void {
+    this.showConfirmDialog = false;
   }
 }

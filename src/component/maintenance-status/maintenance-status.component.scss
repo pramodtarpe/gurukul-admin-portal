@@ -114,9 +114,24 @@ $error-text: #dc2626;
     padding: 1.25rem;
     background-color: #f8fafc;
     border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+
+    &.glow-red {
+      &:hover:not(.disabled) {
+        box-shadow: 0 0 20px rgba(220, 38, 38, 0.3), 0 0 40px rgba(220, 38, 38, 0.1);
+      }
+    }
+
+    &.glow-green {
+      &:hover:not(.disabled) {
+        box-shadow: 0 0 20px rgba(21, 128, 61, 0.3), 0 0 40px rgba(21, 128, 61, 0.1);
+      }
+    }
 
     &.disabled {
       opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .switch-label {

@@ -27,21 +27,13 @@
       </p>
     </div>
 
-    <div class="toggle-control-wrapper" [class.disabled]="loading || toggling">
-      <label class="switch-label" (click)="onToggle()">
+    <div class="toggle-control-wrapper" [class.disabled]="loading || toggling" [class.glow-red]="!isMaintenanceModeEnabled && !loading" [class.glow-green]="isMaintenanceModeEnabled && !loading" (click)="onToggle()">
+      <label class="switch-label">
         <span>{{ isMaintenanceModeEnabled ? 'ON' : 'OFF' }}</span>
       </label>
-      <input type="checkbox" role="switch" #toggleInput (change)="onToggle()" [checked]="isMaintenanceModeEnabled"
-             [disabled]="loading || toggling">
+      <input type="checkbox" #toggleInput [checked]="isMaintenanceModeEnabled"
+             [disabled]="loading || toggling" readonly>
     </div>
-
-    <!-- Loading overlay for toggle action -->
-    @if (toggling) {
-      <div class="action-overlay">
-        <i class="ph ph-spinner ph-spin"></i>
-        <span>{{ isMaintenanceModeEnabled ? 'Enabling...' : 'Disabling...' }}</span>
-      </div>
-    }
 
     <!-- Success/Error feedback -->
     @if (toggleSuccess) {
@@ -59,3 +51,18 @@
     }
   </div>
 </div>
+
+<!-- Confirmation Dialog -->
+@if (showConfirmDialog) {
+  <ga-confirm-dialog
+    [title]="confirmAction === 'enable' ? 'Enable Maintenance Mode?' : 'Disable Maintenance Mode?'"
+    [message]="confirmAction === 'enable' 
+      ? 'This will put the Android app into maintenance mode. All users on Android will be unable to interact with the app until you disable this.'
+      : 'Disabling maintenance mode will allow all Android users to access the app again.'"
+    [confirmText]="confirmAction === 'enable' ? 'Enable Maintenance' : 'Disable Maintenance'"
+    [cancelText]="'Cancel'"
+    [isConfirmDangerous]="confirmAction === 'enable'"
+    (confirmed)="onConfirmToggle()"
+    (cancelled)="onCancelToggle()">
+  </ga-confirm-dialog>
+}
