@@ -28,60 +28,6 @@
   }
 }
 
-.skeleton-loading {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-
-  .skeleton-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #f1f5f9;
-
-    .skeleton-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    .skeleton-content {
-      flex: 1;
-
-      .skeleton-label,
-      .skeleton-value {
-        height: 1rem;
-        border-radius: 4px;
-        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-      }
-
-      .skeleton-label {
-        width: 60%;
-        margin-bottom: 0.75rem;
-      }
-
-      .skeleton-value {
-        width: 40%;
-        height: 2rem;
-      }
-    }
-  }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 .disclaimer {
   text-align: center;
   color: #94a3b8;

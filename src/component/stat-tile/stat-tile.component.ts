@@ -22,6 +22,7 @@ export interface StatTileData {
 })
 export class StatTileComponent {
   @Input() data!: StatTileData;
+  @Input() isLoading = false;
 
   formatNumber(value: number | string | undefined | null): string {
     if (!value && value !== 0) return '0';

@@ -12,6 +12,7 @@ import { StatTileComponent, StatTileData } from '../stat-tile/stat-tile.componen
 })
 export class AdminHomeComponent implements OnInit {
   tiles: StatTileData[] = [];
+  loadingStates: boolean[] = [];
   loading = true;
 
   constructor(
@@ -25,39 +26,65 @@ export class AdminHomeComponent implements OnInit {
   fetchDashboardStats(): void {
     this.loading = true;
 
+    // Create placeholder tiles with spinner state
+    const placeholders: StatTileData[] = [
+      { title: 'Total Users', value: '', icon: '\uD83D\uDC65', bgColor: '#e0f2fe' },
+      { title: 'Total Exams', value: '', icon: '\uD83D\uDCD6', bgColor: '#fef3c7' },
+      { title: 'Total PDFs', value: '', icon: '\uD83D\uDCC4', bgColor: '#fce7f3' }
+    ];
+
+    this.tiles = placeholders;
+    this.loadingStates = [true, true, true];
+
+    const startTime = Date.now();
+    const minLoadingMs = 1000; // Minimum 1 second loading time
+
     this.communicationService.getDashboardStats().subscribe({
       next: (response) => {
-        this.tiles = [
-          {
-            title: 'Total Users',
-            value: response.totalUsers ?? 0,
-            icon: '\uD83D\uDC65', // 👥
-            bgColor: '#e0f2fe'
-          },
-          {
-            title: 'Total Exams',
-            value: response.totalExams ?? 0,
-            icon: '\uD83D\uDCD6', // 📖
-            bgColor: '#fef3c7'
-          },
-          {
-            title: 'Total PDFs',
-            value: response.totalPdfs ?? 0,
-            icon: '\uD83D\uDCC4', // 📄
-            bgColor: '#fce7f3'
-          }
-        ];
+        const elapsed = Date.now() - startTime;
+        const remainingTime = Math.max(0, minLoadingMs - elapsed);
 
-        this.loading = false;
+        setTimeout(() => {
+          this.tiles = [
+            {
+              title: 'Total Users',
+              value: response.totalUsers ?? 0,
+              icon: '\uD83D\uDC65', // 👥
+              bgColor: '#e0f2fe'
+            },
+            {
+              title: 'Total Exams',
+              value: response.totalExams ?? 0,
+              icon: '\uD83D\uDCD6', // 📖
+              bgColor: '#fef3c7'
+            },
+            {
+              title: 'Total PDFs',
+              value: response.totalPdfs ?? 0,
+              icon: '\uD83D\uDCC4', // 📄
+              bgColor: '#fce7f3'
+            }
+          ];
+
+          this.loadingStates = [false, false, false];
+          this.loading = false;
+        }, remainingTime);
       },
       error: (error) => {
         console.error('Failed to fetch dashboard stats:', error);
-        this.tiles = [
-          { title: 'Total Users', value: 0, icon: '\uD83D\uDC65', bgColor: '#e0f2fe' },
-          { title: 'Total Exams', value: 0, icon: '\uD83D\uDCD6', bgColor: '#fef3c7' },
-          { title: 'Total PDFs', value: 0, icon: '\uD83D\uDCC4', bgColor: '#fce7f3' }
-        ];
-        this.loading = false;
+
+        const elapsed = Date.now() - startTime;
+        const remainingTime = Math.max(0, minLoadingMs - elapsed);
+
+        setTimeout(() => {
+          this.tiles = [
+            { title: 'Total Users', value: 0, icon: '\uD83D\uDC65', bgColor: '#e0f2fe' },
+            { title: 'Total Exams', value: 0, icon: '\uD83D\uDCD6', bgColor: '#fef3c7' },
+            { title: 'Total PDFs', value: 0, icon: '\uD83D\uDCC4', bgColor: '#fce7f3' }
+          ];
+          this.loadingStates = [false, false, false];
+          this.loading = false;
+        }, remainingTime);
       }
     });
   }

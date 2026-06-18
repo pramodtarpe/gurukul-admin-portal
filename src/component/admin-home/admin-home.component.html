@@ -4,17 +4,11 @@
     <p>Welcome back! Here is what's happening with your platform today.</p>
   </div>
 
-  @if (loading) {
-    <div class="skeleton-loading">
-      <div class="skeleton-card" *ngFor="let _ of [1, 2, 3]"></div>
-    </div>
-  } @else {
-    <div class="tiles-container">
-      @for (tile of tiles; track tile.title) {
-        <ga-stat-tile [data]="tile"></ga-stat-tile>
-      }
-    </div>
+  <div class="tiles-container">
+    @for (tile of tiles; track tile.title) {
+      <ga-stat-tile [data]="tile" [isLoading]="loadingStates[$index]"></ga-stat-tile>
+    }
+  </div>
 
-    <p class="disclaimer">This data is updated every 6 hours and is not real-time.</p>
-  }
+  <p class="disclaimer">This data is updated every 6 hours and is not real-time.</p>
 </div>

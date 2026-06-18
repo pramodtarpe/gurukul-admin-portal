@@ -4,8 +4,14 @@
   </div>
   <div class="stat-content">
     <p class="stat-label">{{ data.title }}</p>
-    <h3 class="stat-value">{{ formatNumber(data.value) || '0' }}</h3>
-    @if (data.trend) {
+    @if (isLoading) {
+      <div class="loading-value">
+        <div class="shimmer-bar" style="width: 60%;"></div>
+      </div>
+    } @else {
+      <h3 class="stat-value">{{ formatNumber(data.value) || '0' }}</h3>
+    }
+    @if (!isLoading && data.trend) {
       <p class="stat-trend">
         <span [class]="getTrendClass()">
           {{ data.trend.value }}
