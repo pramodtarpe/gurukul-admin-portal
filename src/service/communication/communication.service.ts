@@ -104,6 +104,16 @@ export class CommunicationService {
     return this.http.post<any>('/api/admin/pdf/confirm', payload);
   }
 
+  // --- MAINTENANCE MODE APIs ---
+  toggleMaintenance(enable: boolean): Observable<any> {
+    const apiUrl = `/api/admin/system/maintenance?enable=${enable}`;
+    return this.http.post<any>(apiUrl, {});
+  }
+
+  getMaintenanceStatus(): Observable<{ maintenanceMode: boolean }> {
+    return this.http.get<any>('/api/public/config/status');
+  }
+
   // --- DASHBOARD STATS API ---
   getDashboardStats(): Observable<{ totalUsers: number; totalExams: number; totalPdfs: number }> {
     return this.http.get<any>('/api/admin/dashboard/stats');

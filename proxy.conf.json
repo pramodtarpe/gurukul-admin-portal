@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://nihwpui92b.execute-api.ap-south-1.amazonaws.com",
+    "target": "https://api.gurukulapi.online",
     "secure": true,
     "changeOrigin": true
   }

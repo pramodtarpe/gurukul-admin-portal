@@ -2,9 +2,9 @@
   <div class="sidebar-header">
     <button class="collapse-toggle" (click)="toggleCollapse()" type="button" aria-label="Toggle sidebar">
       @if (!collapsed) {
-        <i class="ph ph-caret-left"></i>
+      <i class="ph ph-caret-left"></i>
       } @else {
-        <i class="ph ph-caret-right"></i>
+      <i class="ph ph-caret-right"></i>
       }
     </button>
   </div>
@@ -26,15 +26,21 @@
           </a>
         </li>
         <li class="nav-item">
+          <a routerLink="/exam" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="ph ph-graduation-cap"></i>
+            <span>Exam Management</span>
+          </a>
+        </li>
+        <li class="nav-item">
           <a routerLink="/file" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
             <i class="ph ph-folder-open"></i>
             <span>File Management</span>
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/exam" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-graduation-cap"></i>
-            <span>Exam Management</span>
+          <a routerLink="/maintenance" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="ph ph-wrench"></i>
+            <span>Maintenance Mode</span>
           </a>
         </li>
       </ul>

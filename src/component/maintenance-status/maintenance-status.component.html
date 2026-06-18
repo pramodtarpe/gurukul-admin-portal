@@ -1,0 +1,61 @@
+<div class="maintenance-container">
+  <div class="maintenance-header">
+    <h2>Maintenance Mode</h2>
+    <p>Toggle or check maintenance status for the platform APIs.</p>
+  </div>
+
+  <!-- Status Card -->
+  <div class="card">
+    <div class="status-indicator">
+      <span class="indicator-label">Current Status:</span>
+      @if (loading) {
+        <span class="status-badge loading"><i class="ph ph-spinner ph-spin"></i> Loading...</span>
+      } @else if (isMaintenanceModeEnabled) {
+        <span class="status-badge active">Maintenance Mode is ON</span>
+      } @else {
+        <span class="status-badge inactive">Normal Operation</span>
+      }
+    </div>
+  </div>
+
+  <!-- Toggle Card -->
+  <div class="card toggle-card">
+    <div class="toggle-header">
+      <h3>Toggle Maintenance Mode</h3>
+      <p class="toggle-description" *ngIf="!loading">
+        When enabled, the Android app will go under maintenance. Enable if you want to stop user interaction through the app.
+      </p>
+    </div>
+
+    <div class="toggle-control-wrapper" [class.disabled]="loading || toggling">
+      <label class="switch-label" (click)="onToggle()">
+        <span>{{ isMaintenanceModeEnabled ? 'ON' : 'OFF' }}</span>
+      </label>
+      <input type="checkbox" role="switch" #toggleInput (change)="onToggle()" [checked]="isMaintenanceModeEnabled"
+             [disabled]="loading || toggling">
+    </div>
+
+    <!-- Loading overlay for toggle action -->
+    @if (toggling) {
+      <div class="action-overlay">
+        <i class="ph ph-spinner ph-spin"></i>
+        <span>{{ isMaintenanceModeEnabled ? 'Enabling...' : 'Disabling...' }}</span>
+      </div>
+    }
+
+    <!-- Success/Error feedback -->
+    @if (toggleSuccess) {
+      <div class="feedback success">
+        <i class="ph ph-check-circle"></i>
+        <span>Maintenance mode {{ isMaintenanceModeEnabled ? 'enabled' : 'disabled' }} successfully.</span>
+      </div>
+    }
+
+    @if (toggleError) {
+      <div class="feedback error">
+        <i class="ph ph-warning-circle"></i>
+        <span>{{ toggleError }}</span>
+      </div>
+    }
+  </div>
+</div>
