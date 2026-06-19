@@ -11,7 +11,6 @@
 
   <div class="sidebar-wrapper">
     <div class="nav-section">
-      <small class="section-title">Main Menu</small>
       <ul class="nav-list">
         <li class="nav-item">
           <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -37,14 +36,21 @@
             <span>File Management</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a routerLink="/maintenance" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-wrench"></i>
-            <span>Maintenance Mode</span>
-          </a>
-        </li>
       </ul>
     </div>
+  </div>
+
+  <!-- Maintenance Mode - fixed at bottom of sidebar -->
+  <div class="maintenance-footer">
+    <hr class="divider" />
+    <ul class="nav-list maintenance-section">
+      <li class="nav-item">
+        <a routerLink="/maintenance" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="maintenance-nav-link">
+          <i class="ph ph-wrench"></i>
+          <span>Maintenance Mode</span>
+        </a>
+      </li>
+    </ul>
   </div>
 
 </nav>

@@ -10,16 +10,15 @@ $error-color: #ef4444;        // Red Accent
 $error-light: #fef2f2;        // Red tint
 
 .sidebar {
-  min-height: 100vh;
-  height: 100%;
+  height: 100vh;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 1.5rem 0 0 0;
-  position: relative;
-  left: auto;
-  top: auto;
+  position: fixed;
+  left: 0;
+  top: 0;
   z-index: 100;
   box-sizing: border-box;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
@@ -33,13 +32,6 @@ $error-light: #fef2f2;        // Red tint
       justify-content: center;
       padding: 0.5rem;
     }
-
-    .nav-section {
-      .section-title {
-        display: none !important;
-      }
-    }
-
     .nav-list {
       .nav-item {
         a {
@@ -54,6 +46,18 @@ $error-light: #fef2f2;        // Red tint
             margin-right: 0;
           }
         }
+      }
+    }
+
+    .maintenance-footer {
+      padding: 0 0.75rem;
+
+      hr.divider {
+        display: none;
+      }
+
+      .nav-list {
+        justify-content: center;
       }
     }
   }
@@ -105,18 +109,6 @@ $error-light: #fef2f2;        // Red tint
 
   .nav-section {
     margin-bottom: 1rem;
-
-    .section-title {
-      display: block;
-      color: $text-subtle;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.75rem;
-      padding-left: 1rem;
-      white-space: nowrap;
-    }
   }
 
   .nav-list {
@@ -169,6 +161,77 @@ $error-light: #fef2f2;        // Red tint
 
           i {
             color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* --- Maintenance Mode footer (stuck to bottom via space-between) --- */
+.maintenance-footer {
+  padding: 1rem 0.75rem 1.25rem;
+
+  hr.divider {
+    margin: 0 0 0.75rem;
+    border: none;
+    border-bottom: 1px solid $border-color;
+  }
+
+  .nav-list.maintenance-section {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .nav-item {
+      a.maintenance-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.7rem 0.85rem;
+        text-decoration: none;
+        color: $text-muted;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+
+        i {
+          font-size: 1.2rem;
+          flex-shrink: 0;
+          min-width: 24px;
+          text-align: center;
+          color: $text-muted;
+          transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        &:hover,
+        &.active {
+          border-color: $error-color;
+          background-color: $error-light;
+          color: $error-color;
+          box-shadow: 
+            0 0 8px rgba($error-color, 0.4),
+            0 0 16px rgba($error-color, 0.2);
+
+          i {
+            color: $error-color;
+          }
+        }
+
+        &:hover {
+          box-shadow: 
+            0 0 12px rgba($error-color, 0.5),
+            0 0 24px rgba($error-color, 0.3);
+
+          i:first-child {
+            transform: translateX(2px) scale(1.05);
           }
         }
       }
