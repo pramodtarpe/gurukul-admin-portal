@@ -21,8 +21,14 @@
       <div class="profile-dropdown" *ngIf="isDropdownOpen">
         <div class="dropdown-header">
           <p class="dropdown-name">{{ profileData?.name || 'Admin User' }}</p>
-          <p class="dropdown-email">{{ profileData?.email || 'Loading...' }}</p>
-          <p class="dropdown-phone" *ngIf="profileData?.phoneNumber">{{ profileData?.phoneNumber }}</p>
+          <p class="dropdown-email">
+            <i class="ph ph-envelope-simple"></i>
+            {{ profileData?.email || 'Loading...' }}
+          </p>
+          <p class="dropdown-phone" *ngIf="profileData?.phoneNumber">
+            <i class="ph ph-phone"></i>
+            {{ profileData?.phoneNumber }}
+          </p>
         </div>
         
         <div class="dropdown-body">
