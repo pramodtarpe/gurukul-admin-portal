@@ -65,6 +65,9 @@ export class MaintenanceStatusComponent implements OnInit {
         this.toggleSuccess = true;
         this.toggling = false;
 
+        // Notify other components (e.g., maintenance banner) that mode changed
+        window.dispatchEvent(new CustomEvent('maintenance-mode-changed'));
+
         // Reset feedback after 3 seconds
         setTimeout(() => {
           this.toggleSuccess = false;

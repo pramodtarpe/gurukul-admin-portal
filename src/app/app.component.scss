@@ -29,6 +29,7 @@
 .management-container {
   flex-grow: 1;
   padding: 2rem; /* Consistent, breathable padding for all child routes */
+  padding-bottom: calc(2rem + 48px); /* Account for fixed maintenance banner */
   box-sizing: border-box;
   overflow-x: hidden;
 }
