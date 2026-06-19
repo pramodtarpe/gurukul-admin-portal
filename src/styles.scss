@@ -1,3 +1,10 @@
+/* ============================================
+   GURUKUL ADMIN PORTAL - GLOBAL STYLES
+   Centralized Typography + Theme Configuration
+   ============================================ */
+
+@import './styles/typography';
+
 /* --- Global Theme Variables --- */
 :root {
   --primary: #4f46e5;
@@ -11,17 +18,14 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* --- CSS Reset & Base Typography --- */
+/* --- CSS Reset & Base Typography (inherited from typography.scss) --- */
 html,
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-main);
   color: var(--text-main);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 *,
@@ -53,11 +57,9 @@ body {
    MATHLIVE VIRTUAL KEYBOARD GLOBAL OVERRIDES
    ========================================================= */
 :root {
-  /* MathLive natively uses this variable for the keyboard container */
   --keyboard-zindex: 10005 !important;
 }
 
-/* Force the keyboard elements to sit above the modal backdrop (z-index: 1000) */
 math-virtual-keyboard,
 .ML__keyboard {
   z-index: 10005 !important;
