@@ -157,6 +157,8 @@ $error-text: #dc2626;
       transition: background-color 0.2s ease, box-shadow 0.2s ease;
       outline: none;
       flex-shrink: 0;
+      /* Disable direct clicks on the slider - use row click instead */
+      pointer-events: none;
 
       &::before {
         content: '';
