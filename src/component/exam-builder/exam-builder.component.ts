@@ -25,6 +25,12 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   examForm!: FormGroup;
   examTypes: string[] = ['FREE', 'FOREST_BHARTI', 'POLICE_BHARTI'];
 
+  examTypeTranslations: { [key: string]: string } = {
+    'FREE': 'मोफत चाचणी',
+    'FOREST_BHARTI': 'वनरक्षक भरती',
+    'POLICE_BHARTI': 'पोलीस भरती'
+  };
+  
   activeSectionIndex: number = 0;
   activeQuestionIndex: number = 0;
 
