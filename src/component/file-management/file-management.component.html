@@ -1,7 +1,6 @@
 <div class="file-management-container">
   <ga-notification-banner (closed)="onBannerClosed()"></ga-notification-banner>
 
-  
   <div class="file-management-header">
     <div class="header-title-block">
       <h2>PDF Material Management</h2>
@@ -19,77 +18,62 @@
       </span>
 
       <span class="upload-file-btn">
-        <button class="primary-btn" routerLink="/upload-file">+ Upload New File</button>
+        <button class="primary-btn" routerLink="/upload-file"><i class="ph ph-upload-simple"></i> Upload New File</button>
       </span>
     </div>
   </div>
-  
+
   <div class="pdf-list-container" *ngIf="selectedExamType">
     <h3>{{ examTypeTranslations[selectedExamType] || selectedExamType }} PDF List</h3>
-    
+
     <div class="loader-wrapper" *ngIf="isLoading">
       <div class="spinner"></div>
-      <p>PDFs are being fetched...</p>
+      <p>Loading PDFs...</p>
     </div>
 
     <div class="pdf-list-wrapper" *ngIf="!isLoading && hasPdfs()">
       <ng-container *ngFor="let pdf of pdfData">
         <div class="pdf-list-item">
-          
           <div class="pdf-item-left">
-            <div class="pdf-image">
-              <img src="assets/pdf-icon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/337/337946.png'" alt="PDF Icon">
-            </div>
+            <div class="pdf-icon-badge"><i class="ph ph-file-pdf"></i></div>
 
             <div class="pdf-info">
               <span class="pdf-title">{{ pdf.title }}</span>
-              <span class="pdf-date" *ngIf="pdf.createdDate">
-                📅 {{ pdf.createdDate * 1000 | date: 'mediumDate' }}
-              </span>
+              <span *ngIf="pdf.createdDate" class="pdf-date"><i class="ph ph-clock"></i>{{ pdf.createdDate * 1000 | date: 'mediumDate' }}</span>
             </div>
           </div>
-          
-          <div class="pdf-controls">
-            <a class="view-pdf-btn" *ngIf="pdf.fileUrl" [href]="pdf.fileUrl" target="_blank" title="View PDF">
-              <i class="ph ph-file-pdf"></i>
-              <span>View PDF</span>
-            </a>
-            
-            <button class="delete-pdf-btn" (click)="deletePdf(pdf.pdfId)" title="Delete PDF">
-              <i class="ph ph-trash"></i>
-              <span>Delete</span>
-            </button>
-          </div>
 
+          <div class="pdf-controls">
+            <a *ngIf="pdf.fileUrl" [href]="pdf.fileUrl" target="_blank" class="view-pdf-btn" title="View PDF"><i class="ph ph-file-pdf"></i></a>
+            <button (click)="deletePdf(pdf.pdfId)" class="delete-btn" title="Delete PDF"><i class="ph ph-trash"></i></button>
+          </div>
         </div>
       </ng-container>
-
-      <!-- Confirmation Dialog -->
-      @if (showConfirmDialog && pdfToDelete) {
-        <ga-confirm-dialog
-          title="Delete PDF?"
-          [message]="'Are you sure you want to delete the file: ' + pdfToDelete.title + '? This action cannot be undone.'"
-          confirmText="Delete"
-          cancelText="Cancel"
-          [isConfirmDangerous]="true"
-          (confirmed)="onConfirmDelete()"
-          (cancelled)="onCancelDelete()">
-        </ga-confirm-dialog>
-      }
-
-      <div class="pagination-controls" *ngIf="hasPdfs() || cursorHistory.length > 0">
-        <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading">
-          <i class="ph ph-caret-left"></i> Previous
-        </button>
-        <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">
-          Next <i class="ph ph-caret-right"></i>
-        </button>
-      </div>
     </div>
-    
-    <!-- Fallback message when no PDFs exist -->
-    <div class="no-pdfs-fallback" *ngIf="!hasPdfs()">
+
+    <!-- Confirmation Dialog -->
+    @if (showConfirmDialog && pdfToDelete) {
+      <ga-confirm-dialog
+        title="Delete PDF?"
+        [message]="'Are you sure you want to delete the file: ' + pdfToDelete.title + '? This action cannot be undone.'"
+        confirmText="Delete"
+        cancelText="Cancel"
+        [isConfirmDangerous]="true"
+        (confirmed)="onConfirmDelete()"
+        (cancelled)="onCancelDelete()">
+      </ga-confirm-dialog>
+    }
+
+    <!-- Empty State -->
+    <div class="no-pdfs-fallback" *ngIf="!isLoading && !hasPdfs()">
+      <div class="empty-icon"><i class="ph ph-files"></i></div>
       <p>No PDFs available for this category yet.</p>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls" *ngIf="(hasPdfs() || cursorHistory.length > 0)">
+      <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading"><i class="ph ph-caret-left"></i> Previous</button>
+      <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">Next <i class="ph ph-caret-right"></i></button>
     </div>
 
   </div>
