@@ -59,7 +59,7 @@ export class CommunicationService {
 
   // --- PDF MANAGEMENT APIs ---
   getAllPdfs(examType: string, cursor?: string): Observable<any> {
-    let apiUrl = `/api/user/pdf/${examType}`;
+    let apiUrl = `/api/admin/pdf/${examType}`;
     if (cursor) {
       apiUrl += `?cursor=${encodeURIComponent(cursor)}`;
     }
