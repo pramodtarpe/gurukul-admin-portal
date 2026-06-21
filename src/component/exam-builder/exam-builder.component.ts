@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Va
 import { CommonModule } from '@angular/common';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { MathRenderComponent } from '../math-render/math-render.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { switchMap } from 'rxjs';
 import 'mathlive';
 import { NotificationService } from '../../service/notification.service';
@@ -10,7 +11,7 @@ import { NotificationService } from '../../service/notification.service';
 @Component({
   selector: 'ga-exam-builder',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MathRenderComponent],
+  imports: [ReactiveFormsModule, CommonModule, MathRenderComponent, ConfirmDialogComponent],
   templateUrl: './exam-builder.component.html',
   styleUrl: './exam-builder.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -41,6 +42,16 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   isMathBuilderOpen = false;
   mathBuilderTargetCoords: { s: number, q: number, type: 'question' | 'option', oIndex?: number } | null = null;
   currentMathFormula = '';
+
+  // Confirm dialog state
+  confirmDialogConfig: {
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    isDangerous?: boolean;
+    action: () => void;
+  } | null = null;
 
   constructor(private fb: FormBuilder, private communicationService: CommunicationService, private notificationService: NotificationService) { }
 
@@ -173,10 +184,19 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   }
 
   removeSection(sIndex: number) {
-    if (confirm(`Delete Section ${sIndex + 1}?`)) {
-      this.sections.removeAt(sIndex);
-      this.setActiveQuestion(0, 0);
-    }
+    const sectionTitle = this.sections.at(sIndex).get('sectionTitle')?.value || `Section ${sIndex + 1}`;
+    this.confirmDialogConfig = {
+      title: 'Delete Section',
+      message: `Are you sure you want to delete "${sectionTitle}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDangerous: true,
+      action: () => {
+        this.sections.removeAt(sIndex);
+        this.setActiveQuestion(0, 0);
+        this.confirmDialogConfig = null;
+      }
+    };
   }
 
   addQuestion(sIndex: number) {
@@ -246,9 +266,28 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   }
 
   removeDiagram(sIndex: number, qIndex: number) {
-    if (confirm(`Remove the diagram from this question?`)) {
-      this.getQuestions(sIndex).at(qIndex).patchValue({ diagramUrl: null });
+    const questionText = this.getQuestions(sIndex).at(qIndex).get('text')?.value || `Question ${qIndex + 1}`;
+    this.confirmDialogConfig = {
+      title: 'Remove Diagram',
+      message: `Are you sure you want to remove the diagram from "${questionText}"?`,
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      isDangerous: true,
+      action: () => {
+        this.getQuestions(sIndex).at(qIndex).patchValue({ diagramUrl: null });
+        this.confirmDialogConfig = null;
+      }
+    };
+  }
+
+  handleConfirm(): void {
+    if (this.confirmDialogConfig?.action) {
+      this.confirmDialogConfig.action();
     }
+  }
+
+  handleCancel(): void {
+    this.confirmDialogConfig = null;
   }
 
   openMathBuilder(s: number, q: number, type: 'question' | 'option', oIndex?: number) {

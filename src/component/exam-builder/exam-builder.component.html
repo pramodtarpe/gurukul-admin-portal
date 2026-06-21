@@ -269,6 +269,18 @@
 
     </form>
 
+    <!-- Confirm Dialog -->
+    <ga-confirm-dialog *ngIf="confirmDialogConfig"
+        [title]="confirmDialogConfig.title"
+        [message]="confirmDialogConfig.message"
+        [confirmText]="confirmDialogConfig.confirmText || 'Confirm'"
+        [cancelText]="confirmDialogConfig.cancelText || 'Cancel'"
+        [isConfirmDangerous]="confirmDialogConfig.isDangerous || false"
+        (confirmed)="handleConfirm()"
+        (cancelled)="handleCancel()">
+    </ga-confirm-dialog>
+
+    <!-- Math Builder Modal -->
     <div class="modal-backdrop" *ngIf="isMathBuilderOpen" (click)="closeMathBuilder()">
         <div class="modal-card math-builder-card" (click)="$event.stopPropagation()">
             <div class="modal-header">
