@@ -8,7 +8,7 @@ export type NotificationType = 'success' | 'error';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './notification-banner.component.html',
-  styleUrls: ['./notification-banner.component.scss']
+  styleUrl: './notification-banner.component.scss'
 })
 export class NotificationBannerComponent implements OnDestroy {
   @Input() message: string = '';
@@ -17,60 +17,57 @@ export class NotificationBannerComponent implements OnDestroy {
 
   visible = false;
   private hideTimeout: any;
-  private showTimeout: any;
+  private showAnimationFrameId: number | null = null;
+  private isDestroyed = false;
 
   get icon(): string {
     return this.type === 'success' ? 'ph ph-check-circle' : 'ph ph-warning-circle';
   }
 
-  show(message?: string, durationMs: number = 3000): void {
-    if (message) this.message = message;
-    this.type = 'success';
+  trigger(message: string, type: NotificationType, durationMs?: number): void {
+    if (this.isDestroyed) return;
+    
+    this.message = message;
+    this.type = type;
     clearTimeout(this.hideTimeout);
-    cancelAnimationFrame(this.showTimeout);
+    if (this.showAnimationFrameId !== null) {
+      cancelAnimationFrame(this.showAnimationFrameId);
+    }
 
     // Force reflow so the animation restarts cleanly
     this.visible = false;
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.visible = true;
-      });
+      this.visible = true;
     });
 
-    if (durationMs > 0) {
+    if (durationMs && durationMs > 0) {
       this.hideTimeout = setTimeout(() => this.close(), durationMs);
     }
   }
 
-  showError(message?: string, durationMs: number = 4000): void {
-    if (message) this.message = message;
-    this.type = 'error';
-    clearTimeout(this.hideTimeout);
-    cancelAnimationFrame(this.showTimeout);
+  show(message: string, durationMs?: number): void {
+    this.trigger(message, 'success', durationMs);
+  }
 
-    // Force reflow so the animation restarts cleanly
-    this.visible = false;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.visible = true;
-      });
-    });
-
-    if (durationMs > 0) {
-      this.hideTimeout = setTimeout(() => this.close(), durationMs);
-    }
+  showError(message: string, durationMs?: number): void {
+    this.trigger(message, 'error', durationMs);
   }
 
   close(): void {
     clearTimeout(this.hideTimeout);
-    cancelAnimationFrame(this.showTimeout);
+    if (this.showAnimationFrameId !== null) {
+      cancelAnimationFrame(this.showAnimationFrameId);
+    }
     this.visible = false;
     // Emit after the CSS transition finishes (~300ms)
-    setTimeout(() => this.closed.emit(), 300);
+    setTimeout(() => this.closed.emit(), 350);
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     clearTimeout(this.hideTimeout);
-    cancelAnimationFrame(this.showTimeout);
+    if (this.showAnimationFrameId !== null) {
+      cancelAnimationFrame(this.showAnimationFrameId);
+    }
   }
 }

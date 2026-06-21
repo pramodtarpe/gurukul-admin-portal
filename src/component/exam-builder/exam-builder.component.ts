@@ -5,6 +5,7 @@ import { CommunicationService } from '../../service/communication/communication.
 import { MathRenderComponent } from '../math-render/math-render.component';
 import { switchMap } from 'rxjs';
 import 'mathlive';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'ga-exam-builder',
@@ -41,7 +42,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   mathBuilderTargetCoords: { s: number, q: number, type: 'question' | 'option', oIndex?: number } | null = null;
   currentMathFormula = '';
 
-  constructor(private fb: FormBuilder, private communicationService: CommunicationService) { }
+  constructor(private fb: FormBuilder, private communicationService: CommunicationService, private notificationService: NotificationService) { }
 
   ngOnInit() {
     if (!this.examForm) {
@@ -161,7 +162,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   addSection() {
     this.sections.push(this.fb.group({
-      sectionId: [null], // <-- Added this so the backend knows it's a new section
+      sectionId: [null],
       sectionTitle: ['', Validators.required],
       sectionTotalQuestions: [null, [Validators.required, Validators.min(1)]],
       sectionTotalMarks: [null, [Validators.required, Validators.min(1)]],
@@ -180,7 +181,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   addQuestion(sIndex: number) {
     this.getQuestions(sIndex).push(this.fb.group({
-      questionId: [null], // <-- Added this so the backend knows it's a new question
+      questionId: [null],
       text: ['', Validators.required],
       diagramUrl: [null],
       correctAnswersIndex: [null, [Validators.required, Validators.min(0), Validators.max(3)]],
@@ -191,7 +192,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   removeQuestion(sIndex: number, qIndex: number) {
     const questions = this.getQuestions(sIndex);
-    if (questions.length <= 1) return alert("Sections must have at least one question.");
+    if (questions.length <= 1) return;
     questions.removeAt(qIndex);
     this.setActiveQuestion(sIndex, Math.max(0, qIndex - 1));
   }
@@ -204,7 +205,6 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   containsMath(text: string | null | undefined): boolean {
     if (!text) return false;
 
-    // Checks if the string contains at least two '$' signs, or LaTeX bracket/parentheses delimiters
     const hasDollarMath = (text.match(/\$/g) || []).length >= 2;
     const hasBracketMath = text.includes('\\[') && text.includes('\\]');
     const hasParenMath = text.includes('\\(') && text.includes('\\)');
@@ -215,11 +215,12 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   onDiagramUpload(event: any, sIndex: number, qIndex: number) {
     const file: File = event.target.files?.[0];
 
-    // Silently return if the user closed the file explorer without selecting anything
     if (!file) return;
 
-    // Throw an alert only if they selected a file but it's not an image
-    if (!file.type.startsWith('image/')) return alert('Please select a valid image file.');
+    if (!file.type.startsWith('image/')) {
+      this.notificationService.showError('Please select a valid image file.');
+      return;
+    }
 
     this.isUploadingDiagram = true;
     this.uploadingQuestionCoords = { s: sIndex, q: qIndex };
@@ -237,14 +238,17 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
         this.uploadingQuestionCoords = null;
       },
       error: () => {
-        alert('Upload failed.');
+        this.notificationService.showError('Failed to upload diagram. Please try again.');
         this.isUploadingDiagram = false;
+        this.uploadingQuestionCoords = null;
       }
     });
   }
 
   removeDiagram(sIndex: number, qIndex: number) {
-    this.getQuestions(sIndex).at(qIndex).patchValue({ diagramUrl: null });
+    if (confirm(`Remove the diagram from this question?`)) {
+      this.getQuestions(sIndex).at(qIndex).patchValue({ diagramUrl: null });
+    }
   }
 
   openMathBuilder(s: number, q: number, type: 'question' | 'option', oIndex?: number) {

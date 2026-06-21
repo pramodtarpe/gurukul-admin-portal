@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { ExamBuilderComponent } from '../exam-builder/exam-builder.component';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'ga-edit-exam',
@@ -31,11 +32,11 @@ export class EditExamComponent implements OnInit {
   constructor(
     private communicationService: CommunicationService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
-    // When page loads, fetch the exam ID from the URL
     this.route.paramMap.subscribe(params => {
       this.examId = params.get('id');
       if (this.examId) {
@@ -63,13 +64,15 @@ export class EditExamComponent implements OnInit {
     this.communicationService.updateExam(this.examId, finalPayload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        alert('Exam changes saved successfully!');
-        this.router.navigate(['/exam'], { queryParams: { type: formPayload.examType } });
+        this.notificationService.showSuccess('Exam changes saved successfully!');
+        setTimeout(() => {
+          this.router.navigate(['/exam'], { queryParams: { type: formPayload.examType } });
+        }, 250);
       },
       error: (err) => {
         console.error(err);
         this.isSubmitting = false;
-        alert('Failed to update the exam.');
+        this.notificationService.showError('Failed to update the exam.');
       }
     });
   }

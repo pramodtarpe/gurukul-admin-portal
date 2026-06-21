@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'ga-exam-management',
@@ -26,14 +27,14 @@ export class ExamManagementComponent implements OnInit {
   examData: any[] = [];
   isLoading: boolean = false;
 
-  // --- Pagination State Architecture ---
   currentCursor: string | null = null;
   nextCursor: string | null = null;
-  cursorHistory: string[] = []; // Stack to remember previous pages
+  cursorHistory: string[] = [];
 
   constructor(
     private communicationService: CommunicationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
@@ -50,12 +51,10 @@ export class ExamManagementComponent implements OnInit {
     });
   }
 
-  // Triggered when dropdown changes
   onExamTypeChange() {
     this.resetPaginationAndLoad();
   }
 
-  // Resets all tokens before loading a fresh category
   resetPaginationAndLoad() {
     this.cursorHistory = [];
     this.currentCursor = null;
@@ -69,7 +68,6 @@ export class ExamManagementComponent implements OnInit {
       next: (response) => {
         this.examData = response?.items || response || [];
         
-        // Capture the token for the next page
         this.nextCursor = response?.lastEvaluatedKey || null;
         this.currentCursor = cursor || null;
         
@@ -78,14 +76,13 @@ export class ExamManagementComponent implements OnInit {
       error: (error) => {
         console.error('Error fetching exam data:', error);
         this.isLoading = false;
+        this.notificationService.showError('Failed to load exams. Please try again.');
       }
     });
   }
 
-  // --- Pagination Triggers ---
   loadNextPage() {
     if (this.nextCursor) {
-      // Save the current page cursor to history before moving forward
       this.cursorHistory.push(this.currentCursor || '');
       this.loadExams(this.selectedExamType, this.nextCursor);
     }
@@ -93,7 +90,6 @@ export class ExamManagementComponent implements OnInit {
 
   loadPreviousPage() {
     if (this.cursorHistory.length > 0) {
-      // Pop the last visited cursor from the history stack
       const prevCursor = this.cursorHistory.pop();
       this.loadExams(this.selectedExamType, prevCursor === '' ? null : prevCursor);
     }
@@ -104,7 +100,6 @@ export class ExamManagementComponent implements OnInit {
     return this.examData.some(exam => exam.examType === type);
   }
 
-  // --- Delete Confirmation Dialog State ---
   showConfirmDialog = false;
   examToDelete: any = null;
 
@@ -124,12 +119,12 @@ export class ExamManagementComponent implements OnInit {
 
     this.communicationService.deleteExam(id).subscribe({
       next: () => {
-        alert(`Successfully deleted the exam: ${title}`);
+        this.notificationService.showSuccess(`Successfully deleted the exam: ${title}`);
         this.loadExams(this.selectedExamType, this.currentCursor); 
       },
       error: (error) => {
         console.error('Error deleting exam:', error);
-        alert(`Failed to delete the exam: ${title}. Please try again later.`);
+        this.notificationService.showError(`Failed to delete the exam: ${title}. Please try again later.`);
         this.isLoading = false;
       }
     });
