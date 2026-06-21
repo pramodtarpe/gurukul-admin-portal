@@ -25,6 +25,16 @@ export class AuthService {
     );
   }
 
+  // --- NEW METHODS ADDED HERE ---
+  forgotPassword(payload: { email: string }): Observable<any> {
+    return this.http.post('/api/auth/forgot-password', payload);
+  }
+
+  resetPassword(payload: { email: string; otp: string; newPassword: string }): Observable<any> {
+    return this.http.post('/api/auth/reset-password', payload);
+  }
+  // ------------------------------
+
   refreshToken(): Observable<any> {
     const refreshToken = this.getRefreshToken();
     const userStr = localStorage.getItem('admin_user'); 

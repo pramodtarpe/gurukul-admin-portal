@@ -218,3 +218,111 @@ button[type="submit"] {
   box-sizing: border-box; /* Ensures padding doesn't break the input width */
   font-size: 1rem; /* Slightly larger text size for long emails */
 }
+
+.forgot-password-link {
+  align-self: flex-end;
+  color: $primary-color;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: -0.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary-hover;
+    text-decoration: underline;
+  }
+}
+
+/* Back Link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $text-muted;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+/* OTP Input Container */
+.otp-input-container {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+
+  input {
+    width: 48px;
+    height: 56px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: 2px solid $border-color;
+    border-radius: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    &::placeholder {
+      font-size: 1.5rem;
+      color: #d1d5db;
+    }
+  }
+}
+
+/* Success Message */
+.success-message {
+  background-color: #f0fdf4;
+  color: #16a34a; /* green-600 */
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #86efac;
+  margin-bottom: 1.25rem;
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+/* Success View */
+.auth-header.success-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .success-icon {
+    margin-bottom: 0.75rem;
+
+    i {
+      font-size: 4rem;
+      color: #16a34a; /* green-600 */
+    }
+  }
+
+  h2 {
+    color: #16a34a;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    max-width: 360px;
+    line-height: 1.6;
+  }
+}
