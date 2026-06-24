@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../service/notification.service';
+import { UserAttemptsComponent } from '../user-attempts/user-attempts.component';
 
 @Component({
   selector: 'ga-exam-management',
   standalone: true,
-  imports: [ FormsModule, CommonModule, RouterLink, ConfirmDialogComponent ],
+  imports: [ FormsModule, CommonModule, RouterLink, ConfirmDialogComponent, UserAttemptsComponent],
   providers: [ CommunicationService ],
   templateUrl: './exam-management.component.html',
   styleUrl: './exam-management.component.scss'
@@ -30,6 +31,9 @@ export class ExamManagementComponent implements OnInit {
   currentCursor: string | null = null;
   nextCursor: string | null = null;
   cursorHistory: string[] = [];
+
+  showAttemptsModal = false;
+  selectedExamForAttempts: any = null;
 
   constructor(
     private communicationService: CommunicationService,
@@ -103,6 +107,16 @@ export class ExamManagementComponent implements OnInit {
   showConfirmDialog = false;
   examToDelete: any = null;
 
+  viewAttempts(exam: any): void {
+    this.selectedExamForAttempts = exam;
+    this.showAttemptsModal = true;
+  }
+
+  closeAttemptsModal(): void {
+    this.showAttemptsModal = false;
+    this.selectedExamForAttempts = null;
+  }
+  
   deleteExam(exam: any): void {
     this.examToDelete = exam;
     this.showConfirmDialog = true;

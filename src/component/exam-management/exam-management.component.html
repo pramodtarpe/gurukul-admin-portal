@@ -1,5 +1,5 @@
 <div class="exam-management-container">
-  
+
   <div class="exam-management-header">
     <div class="header-title-block">
       <h2>Exam Management</h2>
@@ -21,10 +21,10 @@
       </span>
     </div>
   </div>
-  
+
   <div class="exam-list-container" *ngIf="selectedExamType">
     <h3>{{ examTypeTranslations[selectedExamType] || selectedExamType }} Exam List</h3>
-    
+
     <div class="loader-wrapper" *ngIf="isLoading">
       <div class="spinner"></div>
       <p>Loading exams...</p>
@@ -37,13 +37,19 @@
             <div class="exam-date-badge"><i class="ph ph-calendar-blank"></i></div>
             <div class="exam-title-group">
               <span class="exam-title">{{ exam.title }}</span>
-              <span *ngIf="exam.examCreatedDate" class="exam-date"><i class="ph ph-clock"></i>{{ exam.examCreatedDate * 1000 | date: 'mediumDate' }}</span>
+              <span *ngIf="exam.examCreatedDate" class="exam-date"><i class="ph ph-clock"></i>{{ exam.examCreatedDate *
+                1000 | date: 'mediumDate' }}</span>
             </div>
           </div>
-          
+
           <div class="exam-controls">
-            <button class="edit-exam-btn" [routerLink]="['/edit-exam', exam.examId]" title="Edit Exam"><i class="ph ph-pencil-simple"></i></button>
-            <button class="delete-exam-btn" (click)="deleteExam(exam)" title="Delete Exam"><i class="ph ph-trash"></i></button>
+            <button class="view-attempts-btn" (click)="viewAttempts(exam)" title="View Attempts">
+              <i class="ph ph-users"></i>
+            </button>
+            <button class="edit-exam-btn" [routerLink]="['/edit-exam', exam.examId]" title="Edit Exam"><i
+                class="ph ph-pencil-simple"></i></button>
+            <button class="delete-exam-btn" (click)="deleteExam(exam)" title="Delete Exam"><i
+                class="ph ph-trash"></i></button>
           </div>
         </div>
       </ng-container>
@@ -51,15 +57,11 @@
 
     <!-- Confirmation Dialog -->
     @if (showConfirmDialog && examToDelete) {
-      <ga-confirm-dialog
-        title="Delete Exam?"
-        [message]="'Are you sure you want to delete the exam: ' + examToDelete.title + '? This action cannot be undone.'"
-        confirmText="Delete"
-        cancelText="Cancel"
-        [isConfirmDangerous]="true"
-        (confirmed)="onConfirmDelete()"
-        (cancelled)="onCancelDelete()">
-      </ga-confirm-dialog>
+    <ga-confirm-dialog title="Delete Exam?"
+      [message]="'Are you sure you want to delete the exam: ' + examToDelete.title + '? This action cannot be undone.'"
+      confirmText="Delete" cancelText="Cancel" [isConfirmDangerous]="true" (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()">
+    </ga-confirm-dialog>
     }
 
     <!-- Empty State -->
@@ -70,9 +72,15 @@
 
     <!-- Pagination Controls -->
     <div class="pagination-controls" *ngIf="(hasExamsOfType(selectedExamType) || cursorHistory.length > 0)">
-      <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading"><i class="ph ph-caret-left"></i> Previous</button>
-      <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">Next <i class="ph ph-caret-right"></i></button>
+      <button class="pagination-btn" (click)="loadPreviousPage()"
+        [disabled]="cursorHistory.length === 0 || isLoading"><i class="ph ph-caret-left"></i> Previous</button>
+      <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">Next <i
+          class="ph ph-caret-right"></i></button>
     </div>
+
+    <ga-user-attempts *ngIf="showAttemptsModal && selectedExamForAttempts" [examId]="selectedExamForAttempts.examId"
+      [examTitle]="selectedExamForAttempts.title" (close)="closeAttemptsModal()">
+    </ga-user-attempts>
 
   </div>
 </div>

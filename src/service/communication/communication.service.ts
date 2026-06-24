@@ -34,6 +34,14 @@ export class CommunicationService {
     return this.http.put<any>(apiUrl, examData);
   }
 
+  getExamAttempts(examId: string, cursor?: string): Observable<any> {
+    let apiUrl = `/api/admin/exam/attempts/${examId}`;
+    if (cursor) {
+      apiUrl += `?cursor=${encodeURIComponent(cursor)}`;
+    }
+    return this.http.get<any>(apiUrl);
+  }
+
   deleteExam(examId: string): Observable<any> {
     const apiUrl = `/api/admin/exam/${examId}`;
     return this.http.delete<any>(apiUrl);

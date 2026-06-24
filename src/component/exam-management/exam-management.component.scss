@@ -284,6 +284,18 @@ $bg-card: #ffffff;
   }
 }
 
+.view-attempts-btn {
+  background: #f3f4f6;
+  color: #4f46e5; // Indigo color to distinguish from edit/delete
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover { background: #e0e7ff; }
+}
+
 // Loader
 .loader-wrapper {
   display: flex;
