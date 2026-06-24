@@ -64,21 +64,44 @@
       <div class="mini-spinner"></div>
       <span>Loading details...</span>
     </div>
+
     <div *ngIf="!isProfileLoading && profileCache[hoveredEmail] && !profileCache[hoveredEmail].error"
       class="tooltip-content">
-      <div class="info-row">
-        <i class="ph ph-user"></i>
-        <span>{{ profileCache[hoveredEmail].name || 'Unknown User' }}</span>
+
+      <div class="profile-header">
+
+        <div *ngIf="profileCache[hoveredEmail].profilePictureUrl" class="profile-avatar-container">
+          <img [src]="profileCache[hoveredEmail].profilePictureUrl" (error)="onImageError(hoveredEmail)"
+            alt="Profile Picture" class="avatar-img">
+        </div>
+
+        <div class="header-text">
+          <div class="name-wrapper">
+            <i class="ph ph-user-circle"></i>
+            <span class="profile-name">{{ profileCache[hoveredEmail].name || 'Unknown User' }}</span>
+          </div>
+
+          <div class="email-wrapper">
+            <i class="ph ph-envelope-simple"></i>
+            <span class="profile-email">{{ profileCache[hoveredEmail].email || hoveredEmail }}</span>
+          </div>
+        </div>
+
       </div>
-      <div class="info-row">
-        <i class="ph ph-phone"></i>
-        <span>{{ profileCache[hoveredEmail].phoneNumber || 'No phone number' }}</span>
+
+      <div class="profile-details">
+        <div class="info-row">
+          <i class="ph ph-phone"></i>
+          <span>{{ profileCache[hoveredEmail].phoneNumber || 'No phone number' }}</span>
+        </div>
+        <div class="info-row">
+          <i class="ph ph-calendar-blank"></i>
+          <span>Joined: {{ profileCache[hoveredEmail].accountCreatedDate * 1000 | date: 'mediumDate' }}</span>
+        </div>
       </div>
-      <div class="info-row">
-        <i class="ph ph-calendar-blank"></i>
-        <span>Joined: {{ profileCache[hoveredEmail].accountCreatedDate * 1000 | date: 'mediumDate' }}</span>
-      </div>
+
     </div>
+
     <div *ngIf="!isProfileLoading && profileCache[hoveredEmail]?.error" class="tooltip-error">
       <i class="ph ph-warning-circle"></i>
       <span>Unable to load user details.</span>

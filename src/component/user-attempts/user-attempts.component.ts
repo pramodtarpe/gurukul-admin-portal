@@ -109,6 +109,13 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
     }, 400);
   }
 
+  onImageError(email: string | null) {
+    if (email && this.profileCache[email]) {
+      // If the image fails to load, remove the URL so it falls back to the placeholder safely
+      this.profileCache[email].profilePictureUrl = null;
+    }
+  }
+
   onMouseMove(event: MouseEvent) {
     this.mouseX = event.clientX;
     this.mouseY = event.clientY;
