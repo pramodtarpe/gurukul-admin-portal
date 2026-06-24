@@ -24,8 +24,15 @@
   animation: slideUp 0.3s ease-out;
 
   @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 }
 
@@ -37,8 +44,17 @@
   align-items: flex-start;
 
   .title-block {
-    h3 { margin: 0 0 4px 0; font-size: 1.25rem; color: #111827; }
-    .subtitle { margin: 0; font-size: 0.875rem; color: #6b7280; }
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 1.25rem;
+      color: #111827;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
   }
 
   .close-btn {
@@ -53,7 +69,10 @@
     align-items: center;
     justify-content: center;
 
-    &:hover { background: #f3f4f6; color: #111827; }
+    &:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
   }
 }
 
@@ -74,7 +93,8 @@
     width: 100%;
     border-collapse: collapse;
 
-    th, td {
+    th,
+    td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #e5e7eb;
@@ -90,9 +110,15 @@
     td {
       color: #4b5563;
       font-size: 0.875rem;
-      
-      &.email-cell { font-weight: 500; color: #111827; }
-      &.score-cell strong { color: #059669; }
+
+      &.email-cell {
+        font-weight: 500;
+        color: #111827;
+      }
+
+      &.score-cell strong {
+        color: #059669;
+      }
     }
   }
 
@@ -100,9 +126,16 @@
     text-align: center;
     padding: 60px 0;
     color: #9ca3af;
-    
-    i { font-size: 3rem; margin-bottom: 12px; }
-    p { margin: 0; font-size: 1rem; }
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+    }
   }
 }
 
@@ -131,8 +164,105 @@
       font-size: 0.875rem;
       color: #374151;
 
-      &:hover:not(:disabled) { background: #f3f4f6; }
-      &:disabled { opacity: 0.5; cursor: not-allowed; }
+      &:hover:not(:disabled) {
+        background: #f3f4f6;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+/* --- Enhance the Email Cell --- */
+.attempts-table {
+  td.email-cell {
+    font-weight: 500;
+    color: #4f46e5; // Distinctive color
+    cursor: pointer;
+    text-decoration: underline transparent;
+    transition: text-decoration 0.2s ease-in-out;
+
+    &:hover {
+      text-decoration-color: #4f46e5; // Underline on hover
+    }
+  }
+}
+
+/* --- Tooltip Styles --- */
+.user-profile-tooltip {
+  position: fixed;
+  z-index: 9999;
+  /* Ensure it stays above the modal overlay */
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 14px 16px;
+  min-width: 240px;
+  pointer-events: none;
+  /* Allows the mouse to pass through it, preventing jitter */
+  color: #374151;
+  font-size: 0.875rem;
+
+  .tooltip-loader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #6b7280;
+
+    .mini-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #e5e7eb;
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+
+  .tooltip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      i {
+        color: #9ca3af;
+        font-size: 1.1rem;
+      }
+
+      span {
+        font-weight: 500;
+        color: #111827;
+      }
+    }
+  }
+
+  .tooltip-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #dc2626;
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
     }
   }
 }
