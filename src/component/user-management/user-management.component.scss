@@ -9,6 +9,11 @@ $text-muted: #64748b;
   max-width: 1200px;
   margin: 0 auto;
 
+  /* Prevent text highlighting while actively dragging columns */
+  &.is-resizing {
+    user-select: none;
+  }
+
   .user-management-header {
     margin-bottom: 2rem;
 
@@ -35,12 +40,13 @@ $text-muted: #64748b;
     overflow-x: auto;
   }
 
-  /* --- Table Styling --- */
+  /* --- Table & Resizable Columns Styling --- */
   .data-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
     margin-bottom: 1rem;
+    table-layout: fixed; /* Crucial: Allows precise column width manipulation */
 
     th {
       background-color: #f8fafc;
@@ -50,6 +56,36 @@ $text-muted: #64748b;
       padding: 1rem;
       border-bottom: 2px solid $border-color;
       white-space: nowrap;
+      position: relative; /* Required for absolute positioning of the resizer */
+
+      .resizer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px; /* Wide invisible hit area for easy grabbing */
+        height: 100%;
+        cursor: col-resize;
+        user-select: none;
+        z-index: 10;
+        &::after {
+          content: '';
+          position: absolute;
+          top: 20%; /* Inset slightly from top and bottom for a cleaner look */
+          bottom: 20%;
+          right: 0;
+          width: 2px;
+          background-color: $border-color; 
+          transition: all 0.2s ease-in-out;
+          border-radius: 2px;
+        }
+        &:hover::after, 
+        &:active::after {
+          background-color: $primary-color;
+          width: 4px;
+          top: 0; /* Expands to full height */
+          bottom: 0;
+        }
+      }
     }
 
     td {
@@ -57,6 +93,7 @@ $text-muted: #64748b;
       border-bottom: 1px solid $border-color;
       color: $text-main;
       vertical-align: middle;
+      overflow: hidden; /* Ensures content doesn't break out of resized columns */
 
       &.fw-bold {
         font-weight: 600;
@@ -66,6 +103,58 @@ $text-muted: #64748b;
     tbody tr:hover {
       background-color: #f8fafc;
     }
+  }
+
+  /* --- Profile Picture Block --- */
+  .user-profile-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    
+    .avatar-container {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid #e5e7eb;
+      background-color: #f9fafb;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+      .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+    }
+
+    .avatar-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      color: $primary-color;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  }
+
+  /* --- Text Truncation Utility --- */
+  .truncate-text {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 
   /* --- Badges & Text Utilities --- */
@@ -167,7 +256,7 @@ $text-muted: #64748b;
     border: none;
     padding: 4px;
     cursor: pointer;
-    color: $text-muted;
+    color: #64748b;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,7 +265,7 @@ $text-muted: #64748b;
 
     &:hover {
       background-color: #f1f5f9;
-      color: $primary-color;
+      color: #4f46e5;
     }
 
     i {

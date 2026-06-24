@@ -1,4 +1,4 @@
-<div class="user-management-container">
+<div class="user-management-container" [class.is-resizing]="isResizing">
   <div class="user-management-header">
     <div class="header-title-block">
       <h2>User Management</h2>
@@ -16,34 +16,64 @@
       <table class="data-table" *ngIf="hasUsers()">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email Address</th>
-            <th>Phone Number</th>
-            <th>Joined Date</th>
+            <th #thName>
+              Name 
+              <div class="resizer" (mousedown)="onResizeStart($event, thName)"></div>
+            </th>
+            <th #thEmail>
+              Email Address 
+              <div class="resizer" (mousedown)="onResizeStart($event, thEmail)"></div>
+            </th>
+            <th #thPhone>
+              Phone Number 
+              <div class="resizer" (mousedown)="onResizeStart($event, thPhone)"></div>
+            </th>
+            <th #thDate>
+              Joined Date 
+              </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let user of userData">
-            <td class="fw-bold">{{ user.name || 'Unknown' }}</td>
-            <td>{{ user.email }}</td>
+            
+            <td class="name-cell">
+              <div class="user-profile-block">
+                
+                <div *ngIf="user.profilePictureUrl && user.profilePictureUrl !== 'null'" class="avatar-container">
+                  <img [src]="user.profilePictureUrl" (error)="onImageError(user)" alt="Profile" class="avatar-img">
+                </div>
+                
+                <div *ngIf="!user.profilePictureUrl || user.profilePictureUrl === 'null'" class="avatar-placeholder">
+                  {{ getInitials(user.name, user.email) }}
+                </div>
+                
+                <span class="fw-bold truncate-text" [title]="user.name">{{ user.name || 'Unknown' }}</span>
+              </div>
+            </td>
+
+            <td>
+              <span class="truncate-text" [title]="user.email">{{ user.email }}</span>
+            </td>
+            
             <td>
               <div class="phone-cell-wrapper" *ngIf="user.phoneNumber">
                 <span class="phone-text" [class.blurred-text]="!isPhoneVisible(user.email)">
                   {{ user.phoneNumber }}
                 </span>
-
                 <button class="icon-btn" (click)="togglePhoneVisibility(user.email)" title="Toggle visibility">
                   <i class="ph" [ngClass]="isPhoneVisible(user.email) ? 'ph-eye-slash' : 'ph-eye'"></i>
                 </button>
               </div>
               <span class="muted-text" *ngIf="!user.phoneNumber">N/A</span>
             </td>
+            
             <td>
               <span class="date-badge" *ngIf="user.accountCreatedDate">
                 {{ user.accountCreatedDate * 1000 | date: 'mediumDate' }}
               </span>
               <span class="muted-text" *ngIf="!user.accountCreatedDate">N/A</span>
             </td>
+
           </tr>
         </tbody>
       </table>
