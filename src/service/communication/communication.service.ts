@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class CommunicationService {
 
   // --- EXAM MANAGEMENT APIs ---
   getAllExams(type: string, cursor?: string): Observable<any> {
-    let apiUrl = `/api/admin/exam/all?type=${type}`;
+    let apiUrl = `${environment.apiBase}/api/admin/exam/all?type=${type}`;
     if (cursor) {
       apiUrl += `&cursor=${encodeURIComponent(cursor)}`;
     }
@@ -20,22 +21,22 @@ export class CommunicationService {
   }
 
   getExamById(examId: string): Observable<any> {
-    const apiUrl = `/api/admin/exam/${examId}`;
+    const apiUrl = `${environment.apiBase}/api/admin/exam/${examId}`;
     return this.http.get<any>(apiUrl);
   }
 
   createExam(examData: any): Observable<any> {
-    const apiUrl = '/api/admin/exam/create';
+    const apiUrl = `${environment.apiBase}/api/admin/exam/create`;
     return this.http.post<any>(apiUrl, examData);
   }
 
   updateExam(examId: string, examData: any): Observable<any> {
-    const apiUrl = `/api/admin/exam/update`;
+    const apiUrl = `${environment.apiBase}/api/admin/exam/update`;
     return this.http.put<any>(apiUrl, examData);
   }
 
   getExamAttempts(examId: string, cursor?: string): Observable<any> {
-    let apiUrl = `/api/admin/exam/attempts/${examId}`;
+    let apiUrl = `${environment.apiBase}/api/admin/exam/attempts/${examId}`;
     if (cursor) {
       apiUrl += `?cursor=${encodeURIComponent(cursor)}`;
     }
@@ -43,18 +44,18 @@ export class CommunicationService {
   }
 
   getUserProfileByEmail(email: string): Observable<any> {
-    const apiUrl = `/api/admin/profile?email=${encodeURIComponent(email)}`;
+    const apiUrl = `${environment.apiBase}/api/admin/profile?email=${encodeURIComponent(email)}`;
     return this.http.get<any>(apiUrl);
   }
 
   deleteExam(examId: string): Observable<any> {
-    const apiUrl = `/api/admin/exam/${examId}`;
+    const apiUrl = `${environment.apiBase}/api/admin/exam/${examId}`;
     return this.http.delete<any>(apiUrl);
   }
 
   // --- USER MANAGEMENT APIs ---
   getAllUsers(cursor?: string): Observable<any> {
-    let apiUrl = `/api/admin/profiles`;
+    let apiUrl = `${environment.apiBase}/api/admin/profiles`;
     if (cursor) {
       apiUrl += `?cursor=${encodeURIComponent(cursor)}`;
     }
@@ -63,16 +64,16 @@ export class CommunicationService {
 
   // --- ADMIN PROFILE APIs ---
   getAdminProfile(): Observable<any> {
-    return this.http.get<any>('/api/user/profile');
+    return this.http.get<any>(`${environment.apiBase}/api/user/profile`);
   }
 
   updateAdminProfile(payload: { name: string; phoneNumber: string }): Observable<any> {
-    return this.http.patch<any>('/api/user/profile', payload);
+    return this.http.patch<any>(`${environment.apiBase}/api/user/profile`, payload);
   }
 
   // --- PDF MANAGEMENT APIs ---
   getAllPdfs(examType: string, cursor?: string): Observable<any> {
-    let apiUrl = `/api/admin/pdf/${examType}`;
+    let apiUrl = `${environment.apiBase}/api/admin/pdf/${examType}`;
     if (cursor) {
       apiUrl += `?cursor=${encodeURIComponent(cursor)}`;
     }
@@ -80,20 +81,20 @@ export class CommunicationService {
   }
 
   deletePdf(pdfId: string): Observable<any> {
-    const apiUrl = `/api/admin/pdf/${pdfId}`;
+    const apiUrl = `${environment.apiBase}/api/admin/pdf/${pdfId}`;
     return this.http.delete<any>(apiUrl);
   }
 
   // S3 UPLOAD STEP 1: Get Presigned URL
   generatePdfPresignedUrl(payload: { fileName: string, examType: string, contentType: string }): Observable<any> {
-    return this.http.post<any>('/api/admin/pdf/generate-url', payload);
+    return this.http.post<any>(`${environment.apiBase}/api/admin/pdf/generate-url`, payload);
   }
 
   // --- DIAGRAM MANAGEMENT APIs ---
   
   // S3 UPLOAD STEP 1: Get Diagram Presigned URL
   generateDiagramPresignedUrl(fileName: string, examType: string, fileType: string): Observable<any> {
-    const apiUrl = `/api/admin/exam/diagram/generate-url?fileName=${fileName}&examType=${examType}`;
+    const apiUrl = `${environment.apiBase}/api/admin/exam/diagram/generate-url?fileName=${fileName}&examType=${examType}`;
     return this.http.post<any>(apiUrl, {}, {
       headers: {
         'X-File-Type': fileType
@@ -102,7 +103,6 @@ export class CommunicationService {
   }
 
   // S3 UPLOAD STEP 2: Upload directly to S3 (Bypasses Auth Interceptor)
-  // Note: We rename this from uploadPdfToS3 to a generic uploadFileToS3 so both PDF and Images can use it
   uploadFileToS3(uploadUrl: string, file: File): Observable<any> {
     const bypassHttp = new HttpClient(this.httpBackend);
     return bypassHttp.put(uploadUrl, file, {
@@ -114,29 +114,29 @@ export class CommunicationService {
 
   // S3 UPLOAD STEP 3: Confirm the Upload
   confirmPdfUpload(payload: { title: string, examType: string, fileKey: string }): Observable<any> {
-    return this.http.post<any>('/api/admin/pdf/confirm', payload);
+    return this.http.post<any>(`${environment.apiBase}/api/admin/pdf/confirm`, payload);
   }
 
   // --- MAINTENANCE MODE APIs ---
   toggleMaintenance(enable: boolean): Observable<any> {
-    const apiUrl = `/api/admin/system/maintenance?enable=${enable}`;
+    const apiUrl = `${environment.apiBase}/api/admin/system/maintenance?enable=${enable}`;
     return this.http.post<any>(apiUrl, {});
   }
 
   getMaintenanceStatus(): Observable<{ maintenanceMode: boolean }> {
-    return this.http.get<any>('/api/public/config/status');
+    return this.http.get<any>(`${environment.apiBase}/api/public/config/status`);
   }
 
   // --- DASHBOARD STATS API ---
   getDashboardStats(): Observable<{ totalUsers: number; totalExams: number; totalPdfs: number }> {
-    return this.http.get<any>('/api/admin/dashboard/stats');
+    return this.http.get<any>(`${environment.apiBase}/api/admin/dashboard/stats`);
   }
 
   // --- NEWS MANAGEMENT APIs ---
 
   // Generate presigned URL for news image upload to S3
   generateNewsImagePresignedUrl(fileName: string): Observable<any> {
-    const apiUrl = `/api/admin/news/image-url?fileName=${encodeURIComponent(fileName)}`;
+    const apiUrl = `${environment.apiBase}/api/admin/news/image-url?fileName=${encodeURIComponent(fileName)}`;
     return this.http.post<any>(apiUrl, {});
   }
 
@@ -152,13 +152,13 @@ export class CommunicationService {
 
   // Create a new news item
   createNews(payload: any): Observable<any> {
-    const apiUrl = '/api/admin/news';
+    const apiUrl = `${environment.apiBase}/api/admin/news`;
     return this.http.post<any>(apiUrl, payload);
   }
 
   // Fetch all public news with pagination (cursor-based)
   getAllPublicNews(limit: number, cursor?: string): Observable<any> {
-    let apiUrl = `/api/public/news?limit=${limit}`;
+    let apiUrl = `${environment.apiBase}/api/public/news?limit=${limit}`;
     if (cursor) {
       apiUrl += `&cursor=${encodeURIComponent(cursor)}`;
     }
@@ -167,7 +167,7 @@ export class CommunicationService {
 
   // Delete a news item
   deleteNews(newsId: string): Observable<any> {
-    const apiUrl = `/api/admin/news/${newsId}`;
+    const apiUrl = `${environment.apiBase}/api/admin/news/${newsId}`;
     return this.http.delete<any>(apiUrl);
   }
 }

@@ -2,6 +2,7 @@
   "/api": {
     "target": "https://api.gurukulapi.online",
     "secure": true,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "logLevel": "info"
   }
 }

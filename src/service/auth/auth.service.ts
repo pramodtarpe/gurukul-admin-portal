@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface LoginResponse {
   message: string;
@@ -15,7 +16,7 @@ export interface LoginResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly API_URL = '/api/auth/admin/login';
+  private readonly API_URL: string = `${environment.apiBase}/api/auth/admin/login`;
 
   isAuthenticated = signal<boolean>(this.hasToken());
 
@@ -25,15 +26,13 @@ export class AuthService {
     );
   }
 
-  // --- NEW METHODS ADDED HERE ---
   forgotPassword(payload: { email: string }): Observable<any> {
-    return this.http.post('/api/auth/forgot-password', payload);
+    return this.http.post<any>(`${environment.apiBase}/api/auth/forgot-password`, payload);
   }
 
   resetPassword(payload: { email: string; otp: string; newPassword: string }): Observable<any> {
-    return this.http.post('/api/auth/reset-password', payload);
+    return this.http.post<any>(`${environment.apiBase}/api/auth/reset-password`, payload);
   }
-  // ------------------------------
 
   refreshToken(): Observable<any> {
     const refreshToken = this.getRefreshToken();
@@ -44,13 +43,11 @@ export class AuthService {
       return throwError(() => new Error('Missing token or user data for refresh'));
     }
     
-    // Extract the email required for the JSON payload
     const user = JSON.parse(userStr);
     const email = user.email;
 
-    // Hit the correct refresh endpoint with the required body
-    return this.http.post<any>('/api/auth/refresh', { email, refreshToken }).pipe(
-      tap(response => {
+    return this.http.post<any>(`${environment.apiBase}/api/auth/refresh`, { email, refreshToken }).pipe(
+      tap((response: any) => {
         if (response?.accessToken) {
           localStorage.setItem('access_token', response.accessToken);
         }
@@ -62,7 +59,7 @@ export class AuthService {
   }
 
   logoutApi(): Observable<any> {
-    return this.http.post('/api/auth/logout', {});
+    return this.http.post<any>(`${environment.apiBase}/api/auth/logout`, {});
   }
 
   logout(): void {

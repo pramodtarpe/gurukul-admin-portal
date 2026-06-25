@@ -18,14 +18,14 @@
 
       <!-- Title Input -->
       <div class="form-group">
-        <label for="news-title" class="form-label required">Title *</label>
+        <label for="news-title" class="form-label required">Title</label>
         <input type="text" id="news-title" name="title" [(ngModel)]="newsTitle"
           placeholder="Enter news title (e.g., MPSC 2026 Batch Registrations Open!)" maxlength="200" />
       </div>
 
       <!-- Content Editor with Markdown Support -->
       <div class="form-group">
-        <label for="news-content" class="form-label required">Content *</label>
+        <label for="news-content" class="form-label required">Content</label>
         <div class="markdown-editor-wrapper">
           <!-- Toolbar -->
           <div class="md-toolbar">
@@ -107,7 +107,7 @@
       <!-- Expiry Date Picker -->
       <div class="form-row">
         <div class="form-group half-width">
-          <label for="expiry-date" class="form-label">Expiry Date *</label>
+          <label for="expiry-date" class="form-label">Expiry Date</label>
           <input type="date" id="expiry-date" name="expiryDate" [(ngModel)]="expiryDate" />
           <p class="hint-text">Defaults to 7 days from now if not set.</p>
         </div>

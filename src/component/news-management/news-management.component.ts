@@ -28,7 +28,6 @@ export interface IImageUploadState {
   selector: 'ga-news-management',
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CommonModule, ConfirmDialogComponent, MarkdownPipe],
-  providers: [CommunicationService],
   templateUrl: './news-management.component.html',
   styleUrls: ['./news-management.component.scss']
 })
@@ -65,7 +64,7 @@ export class NewsManagementComponent implements OnInit {
   constructor(
     private communicationService: CommunicationService,
     private notificationService: NotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadAllNews();
