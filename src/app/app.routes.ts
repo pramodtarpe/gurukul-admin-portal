@@ -10,6 +10,7 @@ import { AuthComponent } from '../component/auth/auth.component';
 import { authGuard } from '../service/auth/auth.guard'; // Import your route guard
 import { UploadFileComponent } from '../component/upload-file/upload-file.component';
 import { MaintenanceStatusComponent } from '../component/maintenance-status/maintenance-status.component';
+import { NewsManagementComponent } from '../component/news-management/news-management.component';
 
 export const routes: Routes = [
   {
@@ -49,6 +50,11 @@ export const routes: Routes = [
   {
     path: 'edit-exam/:id',
     component: EditExamComponent,
+    canActivate: [authGuard] // Secure route
+  },
+  {
+    path: 'news',
+    component: NewsManagementComponent,
     canActivate: [authGuard] // Secure route
   },
   {

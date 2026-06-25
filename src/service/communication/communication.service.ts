@@ -131,4 +131,43 @@ export class CommunicationService {
   getDashboardStats(): Observable<{ totalUsers: number; totalExams: number; totalPdfs: number }> {
     return this.http.get<any>('/api/admin/dashboard/stats');
   }
+
+  // --- NEWS MANAGEMENT APIs ---
+
+  // Generate presigned URL for news image upload to S3
+  generateNewsImagePresignedUrl(fileName: string): Observable<any> {
+    const apiUrl = `/api/admin/news/image-url?fileName=${encodeURIComponent(fileName)}`;
+    return this.http.post<any>(apiUrl, {});
+  }
+
+  // Upload file directly to S3 (bypasses Auth Interceptor)
+  uploadNewsImageToS3(uploadUrl: string, file: File): Observable<any> {
+    const bypassHttp = new HttpClient(this.httpBackend);
+    return bypassHttp.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': file.type
+      }
+    });
+  }
+
+  // Create a new news item
+  createNews(payload: any): Observable<any> {
+    const apiUrl = '/api/admin/news';
+    return this.http.post<any>(apiUrl, payload);
+  }
+
+  // Fetch all public news with pagination (cursor-based)
+  getAllPublicNews(limit: number, cursor?: string): Observable<any> {
+    let apiUrl = `/api/public/news?limit=${limit}`;
+    if (cursor) {
+      apiUrl += `&cursor=${encodeURIComponent(cursor)}`;
+    }
+    return this.http.get<any>(apiUrl);
+  }
+
+  // Delete a news item
+  deleteNews(newsId: string): Observable<any> {
+    const apiUrl = `/api/admin/news/${newsId}`;
+    return this.http.delete<any>(apiUrl);
+  }
 }
