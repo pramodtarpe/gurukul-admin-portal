@@ -9,8 +9,102 @@
     </div>
   </div>
 
+  <!-- News List Card (always visible) -->
+  <div class="news-list-card" [class.hidden]="showCreateForm && isSubmitting">
+    <div class="card-header with-actions">
+      <h3><i class="ph ph-newspaper"></i> All Published News</h3>
+      <span class="limit-selector-wrapper">
+        <label for="page-size" class="page-label">Items:</label>
+        <select id="page-size" [(ngModel)]="selectedLimit" (change)="onLimitChange()" [disabled]="isFetchingNews" class="page-select">
+          <option *ngFor="let opt of limitOptions" [value]="opt">{{ opt }}</option>
+        </select>
+      </span>
+    </div>
+    <div class="card-body">
+
+      <!-- Loading -->
+      <div class="loader-wrapper" *ngIf="isFetchingNews && newsData.length === 0">
+        <i class="ph ph-spinner ph-spin"></i>
+        <p>Loading news...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="no-news-fallback" *ngIf="!isFetchingNews && newsData.length === 0">
+        <div class="empty-icon"><i class="ph ph-newspaper"></i></div>
+        <p>No news published yet. Click the button below to create your first news item.</p>
+      </div>
+
+      <!-- News Items List -->
+      <div class="news-list-wrapper" *ngIf="!isFetchingNews && newsData.length > 0">
+        <div *ngFor="let news of newsData; let i = index" class="news-list-item">
+
+          <div class="item-number">{{ i + 1 }}</div>
+
+          <!-- Left column: title, dates -->
+          <div class="info-col">
+            <div class="title-row">
+              <span class="news-title-text">{{ news.title }}</span>
+              @if (isExpired(news.expiryDate)) {
+                <span class="badge badge-danger">Expired</span>
+              } @else if (news.expiryDate) {
+                <span class="badge badge-success">Active</span>
+              }
+            </div>
+
+            <!-- Image thumbnails -->
+            <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
+              <img *ngFor="let img of news.imageUrls.slice(0,3)" [src]="img" alt="News image" class="strip-img" />
+              <span *ngIf="news.imageUrls.length > 3" class="more-images-count">+{{ news.imageUrls.length - 3 }}</span>
+            </div>
+
+            <!-- Dates -->
+            <div class="dates-row">
+              <span><i class="ph ph-calendar-blank"></i> Created: {{ formatDate(news.createdDate) }}</span>
+              @if (news.expiryDate) {
+                <span><i class="ph ph-hourglass-high"></i> Expires: {{ formatDate(news.expiryDate) }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- Right column: content preview -->
+          <div class="content-col">
+            <p>{{ truncate(news.content, 150) }}</p>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="controls-col">
+            <button type="button" class="action-btn delete-action" (click)="onDeleteClick(news)" title="Delete news">
+              <i class="ph ph-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls-wrapper">
+          <span class="pagination-info">{{ newsData.length }} item(s) shown</span>
+          <div class="pagination-buttons">
+            <button type="button" class="btn btn-sm btn-outline" (click)="onPrevPage()" [disabled]="!canGoPrev()">
+              <i class="ph ph-caret-left"></i> Prev
+            </button>
+            <button type="button" class="btn btn-sm btn-outline" (click)="onNextPage()" [disabled]="!canGoNext()">
+              Next <i class="ph ph-caret-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Create News Button -->
+    <div class="card-footer">
+      <button type="button" class="btn btn-primary create-news-btn" (click)="onShowCreateForm()" [disabled]="isSubmitting">
+        <i class="ph ph-plus-circle"></i> Create News
+      </button>
+    </div>
+  </div>
+
   <!-- Create News Form Card -->
-  <div class="create-news-card">
+  <div *ngIf="showCreateForm" class="create-news-card">
     <div class="card-header">
       <h3><i class="ph ph-plus-circle"></i> Create New News</h3>
     </div>
@@ -114,12 +208,12 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="form-actions">
+      <div class="form-actions form-actions--create">
         <button type="button" class="btn btn-secondary" (click)="resetForm()">
           <i class="ph ph-eraser"></i> Clear Form
         </button>
-        <button type="button" class="btn btn-primary" (click)="onCreateNews()" [disabled]="isCreatingNews">
-          @if (isCreatingNews) {
+        <button type="button" class="btn btn-primary" (click)="onCreateNews()" [disabled]="isSubmitting">
+          @if (isSubmitting) {
             <i class="ph ph-spinner ph-spin"></i> Publishing...
           } @else {
             <i class="ph ph-paper-plane-right"></i> Publish News
@@ -128,92 +222,12 @@
       </div>
 
     </div>
-  </div>
 
-  <!-- News List Section -->
-  <div class="news-list-card">
-    <div class="card-header with-actions">
-      <h3><i class="ph ph-newspaper"></i> All Published News</h3>
-      <span class="limit-selector-wrapper">
-        <label for="page-size" class="page-label">Items:</label>
-        <select id="page-size" [(ngModel)]="selectedLimit" (change)="onLimitChange()" [disabled]="isFetchingNews" class="page-select">
-          <option *ngFor="let opt of limitOptions" [value]="opt">{{ opt }}</option>
-        </select>
-      </span>
-    </div>
-    <div class="card-body">
-
-      <!-- Loading -->
-      <div class="loader-wrapper" *ngIf="isFetchingNews && newsData.length === 0">
-        <i class="ph ph-spinner ph-spin"></i>
-        <p>Loading news...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div class="no-news-fallback" *ngIf="!isFetchingNews && newsData.length === 0">
-        <div class="empty-icon"><i class="ph ph-newspaper"></i></div>
-        <p>No news published yet. Click the form above to create your first news item.</p>
-      </div>
-
-      <!-- News Items List -->
-      <div class="news-list-wrapper" *ngIf="!isFetchingNews && newsData.length > 0">
-        <div *ngFor="let news of newsData; let i = index" class="news-list-item">
-
-          <div class="item-number">{{ i + 1 }}</div>
-
-          <!-- Left column: title, dates -->
-          <div class="info-col">
-            <div class="title-row">
-              <span class="news-title-text">{{ news.title }}</span>
-              @if (isExpired(news.expiryDate)) {
-                <span class="badge badge-danger">Expired</span>
-              } @else if (news.expiryDate) {
-                <span class="badge badge-success">Active</span>
-              }
-            </div>
-
-            <!-- Image thumbnails -->
-            <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
-              <img *ngFor="let img of news.imageUrls.slice(0,3)" [src]="img" alt="News image" class="strip-img" />
-              <span *ngIf="news.imageUrls.length > 3" class="more-images-count">+{{ news.imageUrls.length - 3 }}</span>
-            </div>
-
-            <!-- Dates -->
-            <div class="dates-row">
-              <span><i class="ph ph-calendar-blank"></i> Created: {{ formatDate(news.createdDate) }}</span>
-              @if (news.expiryDate) {
-                <span><i class="ph ph-hourglass-high"></i> Expires: {{ formatDate(news.expiryDate) }}</span>
-              }
-            </div>
-          </div>
-
-          <!-- Right column: content preview -->
-          <div class="content-col">
-            <p>{{ truncate(news.content, 150) }}</p>
-          </div>
-
-          <!-- Action buttons -->
-          <div class="controls-col">
-            <button type="button" class="action-btn delete-action" (click)="onDeleteClick(news)" title="Delete news">
-              <i class="ph ph-trash"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div class="pagination-controls-wrapper">
-          <span class="pagination-info">{{ newsData.length }} item(s) shown</span>
-          <div class="pagination-buttons">
-            <button type="button" class="btn btn-sm btn-outline" (click)="onPrevPage()" [disabled]="!canGoPrev()">
-              <i class="ph ph-caret-left"></i> Prev
-            </button>
-            <button type="button" class="btn btn-sm btn-outline" (click)="onNextPage()" [disabled]="!canGoNext()">
-              Next <i class="ph ph-caret-right"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
+    <!-- Cancel / Go Back -->
+    <div class="card-footer card-footer--cancel">
+      <button type="button" class="btn btn-outline cancel-btn" (click)="onCancelCreate()">
+        <i class="ph ph-arrow-left"></i> Go Back to List
+      </button>
     </div>
   </div>
 

@@ -35,6 +35,26 @@
   margin-bottom: 1.5rem;
 }
 
+// Hide list card when create form is open and submitting
+.news-list-card {
+  &.hidden {
+    display: none;
+  }
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &.card-footer--cancel {
+    background: #f9fafb;
+    justify-content: flex-end;
+  }
+}
+
 .card-header {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #e5e7eb;
@@ -392,6 +412,11 @@ input[type="date"] {
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
+}
+
+.form-actions--create {
+  display: flex;
+  gap: 0.75rem;
   margin-top: 1.25rem;
 }
 
@@ -432,6 +457,16 @@ input[type="date"] {
     }
   }
 
+  &.btn-outline {
+    background: transparent;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+
+    &:hover:not(:disabled) {
+      background: #f3f4f6;
+    }
+  }
+
   &.btn-sm {
     padding: 0.375rem 0.875rem;
     font-size: 0.813rem;
@@ -446,6 +481,17 @@ input[type="date"] {
       }
     }
   }
+}
+
+.cancel-btn {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.938rem;
+  color: #4b5563;
+}
+
+.create-news-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 // ===================== NEWS LIST =====================

@@ -57,8 +57,11 @@ export class NewsManagementComponent implements OnInit {
   showConfirmDialog: boolean = false;
   newsToDelete: INewsItem | null = null;
 
+  // View toggle (show form vs show list)
+  showCreateForm: boolean = false;
+
   // Upload state tracking
-  isCreatingNews: boolean = false;
+  isSubmitting: boolean = false;
   isFetchingNews: boolean = false;
 
   constructor(
@@ -68,6 +71,24 @@ export class NewsManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllNews();
+  }
+
+  // ===================== VIEW TOGGLE =====================
+
+  onShowCreateForm(): void {
+    this.showCreateForm = true;
+  }
+
+  onCancelCreate(): void {
+    if (this.newsTitle || this.newsContent || this.imageUploadStates.length > 0) {
+      const confirmReset = window.confirm(
+        'Are you sure you want to cancel? All unsaved changes will be lost.'
+      );
+      if (confirmReset) {
+        this.resetForm();
+      }
+    }
+    this.showCreateForm = false;
   }
 
   // ===================== NEWS LIST LOADING =====================
@@ -256,7 +277,7 @@ export class NewsManagementComponent implements OnInit {
     }
 
     // Upload all images first
-    this.isCreatingNews = true;
+    this.isSubmitting = true;
     const uploadedImageUrls: string[] = [];
 
     for (const imageState of this.imageUploadStates) {
@@ -287,8 +308,9 @@ export class NewsManagementComponent implements OnInit {
         });
       });
 
-      // Reset form
+      // Reset form and go back to list view
       this.resetForm();
+      this.showCreateForm = false;
       // Reload news list
       this.loadAllNews(null);
       this.notificationService.showSuccess('News published successfully!');
@@ -296,7 +318,7 @@ export class NewsManagementComponent implements OnInit {
       console.error('Error creating news:', error);
       this.notificationService.showError('Failed to create news. Please try again.');
     } finally {
-      this.isCreatingNews = false;
+      this.isSubmitting = false;
     }
   }
 
