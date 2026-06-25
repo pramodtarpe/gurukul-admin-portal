@@ -43,16 +43,11 @@
             <i class="ph ph-trash"></i>
           </button>
 
-          <!-- Top: number + title row with badge -->
-          <div class="item-top">
+          <!-- Meta header: item number + title, side by side -->
+          <div class="item-header-row">
             <span class="item-number">{{ i + 1 }}</span>
             <div class="title-row">
               <span class="news-title-text">{{ news.title }}</span>
-              @if (isExpired(news.expiryDate)) {
-                <span class="badge badge-danger">Expired</span>
-              } @else if (news.expiryDate) {
-                <span class="badge badge-success">Active</span>
-              }
             </div>
           </div>
 
