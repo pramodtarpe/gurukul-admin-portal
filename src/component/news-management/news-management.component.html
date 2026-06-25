@@ -1,16 +1,17 @@
-<!-- src/component/news-management/news-management.component.html -->
 <div class="news-management-container">
 
-  <!-- Header Section -->
   <div class="news-header">
     <div class="header-title-block">
       <h2>News Management</h2>
       <p>Create and manage news publications.</p>
     </div>
+
+    <button type="button" class="btn btn-primary" (click)="onShowCreateForm()">
+      <i class="ph ph-plus-circle"></i> Create News
+    </button>
   </div>
 
-  <!-- News List Card (always visible) -->
-  <div class="news-list-card" [class.hidden]="showCreateForm && isSubmitting">
+  <div class="news-list-card">
     <div class="card-header with-actions">
       <h3><i class="ph ph-newspaper"></i> All Published News</h3>
       <span class="limit-selector-wrapper">
@@ -23,20 +24,16 @@
     </div>
     <div class="card-body">
 
-      <!-- Loading -->
       <div class="loader-wrapper" *ngIf="isFetchingNews && newsData.length === 0">
         <i class="ph ph-spinner ph-spin"></i>
         <p>Loading news...</p>
       </div>
 
-      <!-- Empty State -->
       <div class="no-news-fallback" *ngIf="!isFetchingNews && newsData.length === 0">
         <div class="empty-icon"><i class="ph ph-newspaper"></i></div>
-        <p>No news published yet. Click the button below to create your first news item.</p>
+        <p>No news published yet. Click the button above to create your first news item.</p>
       </div>
 
-      <!-- News Items List -->
-      <!-- News Items List -->
       <div class="news-list-wrapper" *ngIf="!isFetchingNews && newsData.length > 0">
         <div class="news-list-item" *ngFor="let news of newsData; let i = index"
           [class.is-expanded]="isExpanded(news.newsId)">
@@ -76,7 +73,6 @@
           </div>
 
           <div class="news-expanded-body" *ngIf="isExpanded(news.newsId)">
-
             <div class="content-col rich-text-content" [innerHTML]="news.content | markdown"></div>
 
             <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
@@ -85,12 +81,10 @@
                   class="strip-image" alt="News Attachment">
               </div>
             </div>
-
           </div>
 
         </div>
 
-        <!-- Pagination Controls -->
         <div class="pagination-controls-wrapper">
           <span class="pagination-info">{{ newsData.length }} item(s) shown</span>
           <div class="pagination-buttons">
@@ -105,131 +99,116 @@
       </div>
 
     </div>
-
-    <!-- Create News Button -->
-    <div class="card-footer">
-      <button type="button" class="btn btn-primary create-news-btn" (click)="onShowCreateForm()"
-        [disabled]="isSubmitting">
-        <i class="ph ph-plus-circle"></i> Create News
-      </button>
-    </div>
   </div>
 
-  <!-- Create News Form Card -->
-  <div *ngIf="showCreateForm" class="create-news-card">
-    <div class="card-header">
-      <h3><i class="ph ph-plus-circle"></i> Create New News</h3>
-    </div>
-    <div class="card-body">
+  <div class="modal-overlay" *ngIf="showCreateForm" (click)="onCancelCreate()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
 
-      <!-- Title Input -->
-      <div class="form-group">
-        <label for="news-title" class="form-label required">Title</label>
-        <input type="text" id="news-title" name="title" [(ngModel)]="newsTitle"
-          placeholder="Enter news title (e.g., MPSC 2026 Batch Registrations Open!)" maxlength="200" />
+      <div class="modal-header">
+        <h3><i class="ph ph-megaphone"></i> Create New Announcement</h3>
+        <button class="close-btn" (click)="onCancelCreate()" title="Close Form">
+          <i class="ph ph-x"></i>
+        </button>
       </div>
 
-      <!-- Content Editor with Markdown Support -->
-      <div class="form-group">
-        <label for="news-content" class="form-label required">Content</label>
-        <div class="markdown-editor-wrapper">
-          <!-- Toolbar -->
-          <div class="md-toolbar">
-            <button type="button" class="md-btn" (click)="insertMd('# ')" title="Heading 1"># H1</button>
-            <button type="button" class="md-btn" (click)="insertMd('## ')" title="Heading 2">## H2</button>
-            <button type="button" class="md-separator"></button>
-            <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i
-                class="ph ph-text-b"></i></button>
-            <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i
-                class="ph ph-text-italic"></i></button>
-            <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i
-                class="ph ph-text-strikethrough"></i></button>
-            <div class="md-separator"></div>
-            <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i
-                class="ph ph-list-bullets"></i></button>
-            <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i
-                class="ph ph-list-numbers"></i></button>
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label for="news-title" class="form-label required">Title</label>
+          <input type="text" id="news-title" name="title" [(ngModel)]="newsTitle"
+            placeholder="Enter news title (e.g., MPSC 2026 Batch Registrations Open!)" maxlength="200" />
+        </div>
+
+        <div class="form-group">
+          <label for="news-content" class="form-label required">Content</label>
+          <div class="markdown-editor-wrapper">
+            <div class="md-toolbar">
+              <button type="button" class="md-btn" (click)="insertMd('# ')" title="Heading 1"># H1</button>
+              <button type="button" class="md-btn" (click)="insertMd('## ')" title="Heading 2">## H2</button>
+              <button type="button" class="md-separator"></button>
+              <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i
+                  class="ph ph-text-b"></i></button>
+              <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i
+                  class="ph ph-text-italic"></i></button>
+              <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i
+                  class="ph ph-text-strikethrough"></i></button>
+              <div class="md-separator"></div>
+              <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i
+                  class="ph ph-list-bullets"></i></button>
+              <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i
+                  class="ph ph-list-numbers"></i></button>
+            </div>
+            <textarea id="news-content" name="content" [(ngModel)]="newsContent" rows="8"
+              placeholder="## Great News!&#10;We are starting our new MPSC foundation batch.&#10;&#10;* **Date:** Next Monday&#10;* **Discount:** 10% for early birds."
+              class="md-textarea"></textarea>
           </div>
-          <!-- Textarea -->
-          <textarea id="news-content" name="content" [(ngModel)]="newsContent" rows="8"
-            placeholder="## Great News!&#10;We are starting our new MPSC foundation batch.&#10;&#10;* **Date:** Next Monday&#10;* **Discount:** 10% for early birds."
-            class="md-textarea"></textarea>
+
+          <div class="preview-toolbar">
+            <label class="toggle-label">
+              <input type="checkbox" (change)="onTogglePreview()" />
+              <span>Preview Markdown</span>
+            </label>
+          </div>
+
+          <div *ngIf="previewMarkdown" class="md-preview" [innerHTML]="newsContent | markdown"></div>
         </div>
 
-        <!-- Preview Toggle -->
-        <div class="preview-toolbar">
-          <label class="toggle-label">
-            <input type="checkbox" (change)="onTogglePreview()" />
-            <span>Preview</span>
-          </label>
-        </div>
+        <div class="form-group">
+          <label class="form-label">Images (max 5)</label>
+          <p class="hint-text">Upload up to 5 images for your news. Each file must be under 5MB.</p>
 
-        <!-- Preview Area (rendered as HTML, markdown stripped by browser) -->
-        <div *ngIf="previewMarkdown" class="md-preview" [innerHTML]="newsContent | markdown"></div>
-      </div>
-
-      <!-- Image Upload Section -->
-      <div class="form-group">
-        <label class="form-label required">Images (max 5)</label>
-        <p class="hint-text">Upload up to 5 images for your news. Each file must be under 5MB.</p>
-
-        <div class="image-upload-area" *ngIf="imageUploadStates.length < maxImages">
-          <input type="file" #fileInput (change)="onFileSelected($event, imageUploadStates.length)"
-            [attr.accept]="'image/*'" multiple style="display:none" />
-          <button type="button" class="upload-trigger-btn" (click)="fileInput.click()">
-            <i class="ph ph-image"></i>
-            Select Images
-          </button>
-        </div>
-
-        <!-- Uploaded Image Previews -->
-        <div class="image-grid">
-          <div *ngFor="let imgState of imageUploadStates; let i = index" [class.uploading]="imgState.uploading"
-            class="image-thumb-card">
-            <span class="image-index">{{ i + 1 }}</span>
-
-            <div class="thumb-inner">
-              @if (imgState.url) {
-              <img [src]="imgState.url" alt="Preview" />
-              }
-            </div>
-
-            <!-- Upload status overlay -->
-            <div *ngIf="imgState.uploading" class="upload-overlay">
-              <i class="ph ph-spinner ph-spin"></i>
-              <span>Uploading...</span>
-            </div>
-            <div *ngIf="!imgState.uploading && imgState.uploaded" class="uploaded-badge">
-              <i class="ph ph-check-circle"></i> Uploaded
-            </div>
-
-            <!-- Remove button -->
-            <button type="button" class="remove-img-btn" (click)="removeImage(i)" title="Remove image"
-              *ngIf="!imgState.uploading">
-              <i class="ph ph-x"></i>
+          <div class="image-upload-area" *ngIf="imageUploadStates.length < maxImages">
+            <input type="file" #fileInput (change)="onFileSelected($event, imageUploadStates.length)"
+              [attr.accept]="'image/*'" multiple style="display:none" />
+            <button type="button" class="upload-trigger-btn" (click)="fileInput.click()">
+              <i class="ph ph-upload-simple"></i> Select Images
             </button>
           </div>
+
+          <div class="image-grid" *ngIf="imageUploadStates.length > 0">
+            <div *ngFor="let imgState of imageUploadStates; let i = index" [class.uploading]="imgState.uploading"
+              class="image-thumb-card">
+              <span class="image-index">{{ i + 1 }}</span>
+
+              <div class="thumb-inner">
+                @if (imgState.url) {
+                <img [src]="imgState.url" alt="Preview" />
+                }
+              </div>
+
+              <div *ngIf="imgState.uploading" class="upload-overlay">
+                <i class="ph ph-spinner ph-spin"></i><span>Uploading...</span>
+              </div>
+              <div *ngIf="!imgState.uploading && imgState.uploaded" class="uploaded-badge">
+                <i class="ph ph-check-circle"></i> Uploaded
+              </div>
+
+              <button type="button" class="remove-img-btn" (click)="removeImage(i)" title="Remove image"
+                *ngIf="!imgState.uploading">
+                <i class="ph ph-x"></i>
+              </button>
+            </div>
+          </div>
+
+          <p class="image-count">{{ imageUploadStates.length }} / {{ maxImages }} attached</p>
         </div>
 
-        <!-- Image count indicator -->
-        <p class="image-count">{{ imageUploadStates.length }} / {{ maxImages }}</p>
-      </div>
-
-      <!-- Expiry Date Picker -->
-      <div class="form-row">
-        <div class="form-group half-width">
-          <label for="expiry-date" class="form-label">Expiry Date</label>
-          <input type="date" id="expiry-date" name="expiryDate" [(ngModel)]="expiryDate" />
-          <p class="hint-text">Defaults to 7 days from now if not set.</p>
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label for="expiry-date" class="form-label">Expiry Date</label>
+            <input type="date" id="expiry-date" name="expiryDate" [(ngModel)]="expiryDate" />
+            <p class="hint-text">Defaults to 7 days from now if not set.</p>
+          </div>
         </div>
+
       </div>
 
-      <!-- Action Buttons -->
-      <div class="form-actions form-actions--create">
+      <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="resetForm()">
           <i class="ph ph-eraser"></i> Clear Form
         </button>
-        <button type="button" class="btn btn-primary" (click)="onCreateNews()" [disabled]="isSubmitting">
+        <button type="button" class="btn btn-primary" (click)="onCreateNews()"
+          [disabled]="isSubmitting || !newsTitle.trim()">
           @if (isSubmitting) {
           <i class="ph ph-spinner ph-spin"></i> Publishing...
           } @else {
@@ -239,16 +218,8 @@
       </div>
 
     </div>
-
-    <!-- Cancel / Go Back -->
-    <div class="card-footer card-footer--cancel">
-      <button type="button" class="btn btn-outline cancel-btn" (click)="onCancelCreate()">
-        <i class="ph ph-arrow-left"></i> Go Back to List
-      </button>
-    </div>
   </div>
 
-  <!-- Confirmation Dialog for Delete -->
   @if (showConfirmDialog && newsToDelete) {
   <ga-confirm-dialog title="Delete News?"
     [message]="'Are you sure you want to delete the news: ' + newsToDelete.title + '? This action cannot be undone.'"
