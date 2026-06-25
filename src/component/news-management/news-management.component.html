@@ -15,7 +15,8 @@
       <h3><i class="ph ph-newspaper"></i> All Published News</h3>
       <span class="limit-selector-wrapper">
         <label for="page-size" class="page-label">Items:</label>
-        <select id="page-size" [(ngModel)]="selectedLimit" (change)="onLimitChange()" [disabled]="isFetchingNews" class="page-select">
+        <select id="page-size" [(ngModel)]="selectedLimit" (change)="onLimitChange()" [disabled]="isFetchingNews"
+          class="page-select">
           <option *ngFor="let opt of limitOptions" [value]="opt">{{ opt }}</option>
         </select>
       </span>
@@ -35,40 +36,58 @@
       </div>
 
       <!-- News Items List -->
+      <!-- News Items List -->
       <div class="news-list-wrapper" *ngIf="!isFetchingNews && newsData.length > 0">
-        <div *ngFor="let news of newsData; let i = index" class="news-list-item">
+        <div class="news-list-item" *ngFor="let news of newsData; let i = index"
+          [class.is-expanded]="isExpanded(news.newsId)">
 
-          <!-- Delete button at top right -->
-          <button type="button" class="action-btn delete-action" (click)="onDeleteClick(news)" title="Delete news">
-            <i class="ph ph-trash"></i>
-          </button>
+          <div class="news-main-row" (click)="toggleExpand(news.newsId)">
+            <div class="news-info">
 
-          <!-- Meta header: item number + title, side by side -->
-          <div class="item-header-row">
-            <span class="item-number">{{ i + 1 }}</span>
-            <div class="title-row">
-              <span class="news-title-text">{{ news.title }}</span>
+              <h4 class="news-title" [title]="news.title">{{ news.title }}</h4>
+
+              <div class="news-meta">
+                <span class="meta-item"><i class="ph ph-calendar-blank"></i> {{ news.createdDate * 1000 | date:
+                  'mediumDate' }}</span>
+
+                <span class="meta-separator" *ngIf="news.expiryDate">•</span>
+                <span class="meta-item expiring" *ngIf="news.expiryDate"><i class="ph ph-clock"></i> Expires: {{
+                  news.expiryDate * 1000 | date: 'mediumDate' }}</span>
+
+                <span class="meta-separator" *ngIf="news.linkUrl">•</span>
+                <span class="meta-item link" *ngIf="news.linkUrl" (click)="$event.stopPropagation()">
+                  <i class="ph ph-link"></i>
+                  <a [href]="news.linkUrl" target="_blank">External Link</a>
+                </span>
+              </div>
+
+            </div>
+
+            <div class="action-group">
+              <div class="news-controls" (click)="$event.stopPropagation()">
+                <button class="icon-btn delete-btn" (click)="onDeleteClick(news)" title="Delete News">
+                  <i class="ph ph-trash"></i>
+                </button>
+              </div>
+              <div class="expand-indicator">
+                <i class="ph" [ngClass]="isExpanded(news.newsId) ? 'ph-caret-up' : 'ph-caret-down'"></i>
+              </div>
             </div>
           </div>
 
-          <!-- Dates row -->
-          <div class="dates-row">
-            <span><i class="ph ph-calendar-blank"></i> Created: {{ formatDate(news.createdDate) }}</span>
-            @if (news.expiryDate) {
-              <span><i class="ph ph-hourglass-high"></i> Expires: {{ formatDate(news.expiryDate) }}</span>
-            }
+          <div class="news-expanded-body" *ngIf="isExpanded(news.newsId)">
+
+            <div class="content-col rich-text-content" [innerHTML]="news.content | markdown"></div>
+
+            <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
+              <div class="strip-container">
+                <img *ngFor="let imgUrl of news.imageUrls" [src]="imgUrl" (error)="onImageError($event)"
+                  class="strip-image" alt="News Attachment">
+              </div>
+            </div>
+
           </div>
 
-          <!-- Content preview -->
-          <div class="content-col">
-            <p>{{ truncate(news.content, 150) }}</p>
-          </div>
-
-          <!-- Image thumbnails at bottom -->
-          <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
-            <img *ngFor="let img of news.imageUrls.slice(0,3)" [src]="img" alt="News image" class="strip-img" />
-            <span *ngIf="news.imageUrls.length > 3" class="more-images-count">+{{ news.imageUrls.length - 3 }}</span>
-          </div>
         </div>
 
         <!-- Pagination Controls -->
@@ -89,7 +108,8 @@
 
     <!-- Create News Button -->
     <div class="card-footer">
-      <button type="button" class="btn btn-primary create-news-btn" (click)="onShowCreateForm()" [disabled]="isSubmitting">
+      <button type="button" class="btn btn-primary create-news-btn" (click)="onShowCreateForm()"
+        [disabled]="isSubmitting">
         <i class="ph ph-plus-circle"></i> Create News
       </button>
     </div>
@@ -118,12 +138,17 @@
             <button type="button" class="md-btn" (click)="insertMd('# ')" title="Heading 1"># H1</button>
             <button type="button" class="md-btn" (click)="insertMd('## ')" title="Heading 2">## H2</button>
             <button type="button" class="md-separator"></button>
-            <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i class="ph ph-text-b"></i></button>
-            <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i class="ph ph-text-italic"></i></button>
-            <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i class="ph ph-text-strikethrough"></i></button>
+            <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i
+                class="ph ph-text-b"></i></button>
+            <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i
+                class="ph ph-text-italic"></i></button>
+            <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i
+                class="ph ph-text-strikethrough"></i></button>
             <div class="md-separator"></div>
-            <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i class="ph ph-list-bullets"></i></button>
-            <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i class="ph ph-list-numbers"></i></button>
+            <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i
+                class="ph ph-list-bullets"></i></button>
+            <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i
+                class="ph ph-list-numbers"></i></button>
           </div>
           <!-- Textarea -->
           <textarea id="news-content" name="content" [(ngModel)]="newsContent" rows="8"
@@ -159,13 +184,13 @@
 
         <!-- Uploaded Image Previews -->
         <div class="image-grid">
-          <div *ngFor="let imgState of imageUploadStates; let i = index"
-            [class.uploading]="imgState.uploading" class="image-thumb-card">
+          <div *ngFor="let imgState of imageUploadStates; let i = index" [class.uploading]="imgState.uploading"
+            class="image-thumb-card">
             <span class="image-index">{{ i + 1 }}</span>
 
             <div class="thumb-inner">
               @if (imgState.url) {
-                <img [src]="imgState.url" alt="Preview" />
+              <img [src]="imgState.url" alt="Preview" />
               }
             </div>
 
@@ -206,9 +231,9 @@
         </button>
         <button type="button" class="btn btn-primary" (click)="onCreateNews()" [disabled]="isSubmitting">
           @if (isSubmitting) {
-            <i class="ph ph-spinner ph-spin"></i> Publishing...
+          <i class="ph ph-spinner ph-spin"></i> Publishing...
           } @else {
-            <i class="ph ph-paper-plane-right"></i> Publish News
+          <i class="ph ph-paper-plane-right"></i> Publish News
           }
         </button>
       </div>
@@ -225,12 +250,11 @@
 
   <!-- Confirmation Dialog for Delete -->
   @if (showConfirmDialog && newsToDelete) {
-    <ga-confirm-dialog
-      title="Delete News?"
-      [message]="'Are you sure you want to delete the news: ' + newsToDelete.title + '? This action cannot be undone.'"
-      confirmText="Delete" cancelText="Cancel" [isConfirmDangerous]="true"
-      (confirmed)="onConfirmDelete()" (cancelled)="onCancelDelete()">
-    </ga-confirm-dialog>
+  <ga-confirm-dialog title="Delete News?"
+    [message]="'Are you sure you want to delete the news: ' + newsToDelete.title + '? This action cannot be undone.'"
+    confirmText="Delete" cancelText="Cancel" [isConfirmDangerous]="true" (confirmed)="onConfirmDelete()"
+    (cancelled)="onCancelDelete()">
+  </ga-confirm-dialog>
   }
 
 </div>

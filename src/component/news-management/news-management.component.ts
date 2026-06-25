@@ -13,7 +13,9 @@ export interface INewsItem {
   content: string;
   imageUrls: string[];
   createdDate: number;
-  expiryDate: number;
+  expiryDate?: number;
+  isActive?: boolean;
+  linkUrl?: string;
 }
 
 export interface IImageUploadState {
@@ -392,4 +394,21 @@ export class NewsManagementComponent implements OnInit {
     }
     return url;
   }
+
+  expandedNewsIds: Set<string> = new Set<string>();
+
+  toggleExpand(newsId: string): void {
+    if (this.expandedNewsIds.has(newsId)) {
+      this.expandedNewsIds.delete(newsId);
+    } else {
+      this.expandedNewsIds.add(newsId);
+    }
+  }
+  isExpanded(newsId: string): boolean {
+    return this.expandedNewsIds.has(newsId);
+  }
+  onImageError(event: any): void {
+    event.target.style.display = 'none';
+  }
+
 }
