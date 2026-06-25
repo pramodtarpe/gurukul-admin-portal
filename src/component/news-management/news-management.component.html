@@ -38,10 +38,14 @@
       <div class="news-list-wrapper" *ngIf="!isFetchingNews && newsData.length > 0">
         <div *ngFor="let news of newsData; let i = index" class="news-list-item">
 
-          <div class="item-number">{{ i + 1 }}</div>
+          <!-- Delete button at top right -->
+          <button type="button" class="action-btn delete-action" (click)="onDeleteClick(news)" title="Delete news">
+            <i class="ph ph-trash"></i>
+          </button>
 
-          <!-- Left column: title, dates -->
-          <div class="info-col">
+          <!-- Top: number + title row with badge -->
+          <div class="item-top">
+            <span class="item-number">{{ i + 1 }}</span>
             <div class="title-row">
               <span class="news-title-text">{{ news.title }}</span>
               @if (isExpired(news.expiryDate)) {
@@ -50,32 +54,25 @@
                 <span class="badge badge-success">Active</span>
               }
             </div>
-
-            <!-- Image thumbnails -->
-            <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
-              <img *ngFor="let img of news.imageUrls.slice(0,3)" [src]="img" alt="News image" class="strip-img" />
-              <span *ngIf="news.imageUrls.length > 3" class="more-images-count">+{{ news.imageUrls.length - 3 }}</span>
-            </div>
-
-            <!-- Dates -->
-            <div class="dates-row">
-              <span><i class="ph ph-calendar-blank"></i> Created: {{ formatDate(news.createdDate) }}</span>
-              @if (news.expiryDate) {
-                <span><i class="ph ph-hourglass-high"></i> Expires: {{ formatDate(news.expiryDate) }}</span>
-              }
-            </div>
           </div>
 
-          <!-- Right column: content preview -->
+          <!-- Dates row -->
+          <div class="dates-row">
+            <span><i class="ph ph-calendar-blank"></i> Created: {{ formatDate(news.createdDate) }}</span>
+            @if (news.expiryDate) {
+              <span><i class="ph ph-hourglass-high"></i> Expires: {{ formatDate(news.expiryDate) }}</span>
+            }
+          </div>
+
+          <!-- Content preview -->
           <div class="content-col">
             <p>{{ truncate(news.content, 150) }}</p>
           </div>
 
-          <!-- Action buttons -->
-          <div class="controls-col">
-            <button type="button" class="action-btn delete-action" (click)="onDeleteClick(news)" title="Delete news">
-              <i class="ph ph-trash"></i>
-            </button>
+          <!-- Image thumbnails at bottom -->
+          <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
+            <img *ngFor="let img of news.imageUrls.slice(0,3)" [src]="img" alt="News image" class="strip-img" />
+            <span *ngIf="news.imageUrls.length > 3" class="more-images-count">+{{ news.imageUrls.length - 3 }}</span>
           </div>
         </div>
 
