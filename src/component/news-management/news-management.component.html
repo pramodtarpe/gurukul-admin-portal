@@ -241,4 +241,20 @@
   </ga-confirm-dialog>
   }
 
+  @if (showConfirmDialog && newsToDelete) {
+  <ga-confirm-dialog title="Delete News?"
+    [message]="'Are you sure you want to delete the news: ' + newsToDelete.title + '? This action cannot be undone.'"
+    confirmText="Delete" cancelText="Cancel" [isConfirmDangerous]="true" (confirmed)="onConfirmDelete()"
+    (cancelled)="onCancelDelete()">
+  </ga-confirm-dialog>
+  }
+
+  @if (showCancelConfirmDialog) {
+  <ga-confirm-dialog title="Discard Changes?"
+    message="Are you sure you want to cancel? All unsaved changes will be lost." confirmText="Discard Changes"
+    cancelText="Keep Editing" [isConfirmDangerous]="true" (confirmed)="onConfirmCancelForm()"
+    (cancelled)="onAbortCancelForm()">
+  </ga-confirm-dialog>
+  }
+
 </div>

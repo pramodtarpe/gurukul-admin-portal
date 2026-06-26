@@ -59,6 +59,8 @@ export class NewsManagementComponent implements OnInit {
   showConfirmDialog: boolean = false;
   newsToDelete: INewsItem | null = null;
 
+  showCancelConfirmDialog: boolean = false;
+
   // View toggle (show form vs show list)
   showCreateForm: boolean = false;
 
@@ -83,15 +85,21 @@ export class NewsManagementComponent implements OnInit {
 
   onCancelCreate(): void {
     if (this.newsTitle || this.newsContent || this.imageUploadStates.length > 0) {
-      const confirmReset = window.confirm(
-        'Are you sure you want to cancel? All unsaved changes will be lost.'
-      );
-      if (confirmReset) {
-        this.resetForm();
-      }
+      // Show the custom confirmation dialog instead of window.confirm
+      this.showCancelConfirmDialog = true;
     } else {
       this.showCreateForm = false;
     }
+  }
+
+  onConfirmCancelForm(): void {
+    this.resetForm();
+    this.showCreateForm = false;
+    this.showCancelConfirmDialog = false;
+  }
+
+  onAbortCancelForm(): void {
+    this.showCancelConfirmDialog = false;
   }
 
   // ===================== NEWS LIST LOADING =====================
