@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 export class CommunicationService {
   private http = inject(HttpClient);
   // Inject HttpBackend to create requests that bypass interceptors
-  private httpBackend = inject(HttpBackend); 
+  private httpBackend = inject(HttpBackend);
 
   // --- EXAM MANAGEMENT APIs ---
   getAllExams(type: string, cursor?: string): Observable<any> {
@@ -91,7 +91,7 @@ export class CommunicationService {
   }
 
   // --- DIAGRAM MANAGEMENT APIs ---
-  
+
   // S3 UPLOAD STEP 1: Get Diagram Presigned URL
   generateDiagramPresignedUrl(fileName: string, examType: string, fileType: string): Observable<any> {
     const apiUrl = `${environment.apiBase}/api/admin/exam/diagram/generate-url?fileName=${fileName}&examType=${examType}`;
@@ -135,9 +135,13 @@ export class CommunicationService {
   // --- NEWS MANAGEMENT APIs ---
 
   // Generate presigned URL for news image upload to S3
-  generateNewsImagePresignedUrl(fileName: string): Observable<any> {
+  generateNewsImagePresignedUrl(fileName: string, fileType: string): Observable<any> {
     const apiUrl = `${environment.apiBase}/api/admin/news/image-url?fileName=${encodeURIComponent(fileName)}`;
-    return this.http.post<any>(apiUrl, {});
+    return this.http.post<any>(apiUrl, {}, {
+      headers: {
+        'X-File-Type': fileType // <-- ADDED THIS HEADER
+      }
+    });
   }
 
   // Upload file directly to S3 (bypasses Auth Interceptor)
@@ -145,8 +149,9 @@ export class CommunicationService {
     const bypassHttp = new HttpClient(this.httpBackend);
     return bypassHttp.put(uploadUrl, file, {
       headers: {
-        'Content-Type': file.type
-      }
+        'Content-Type': file.type // S3 Content-Type will now match X-File-Type perfectly
+      },
+      responseType: 'text' // <-- PREVENTS ANGULAR JSON PARSE ERROR ON S3 SUCCESS
     });
   }
 

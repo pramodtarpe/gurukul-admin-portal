@@ -177,10 +177,12 @@ export class NewsManagementComponent implements OnInit {
       imageState.uploading = true;
 
       const fileName = `NEWS_${Date.now()}_${Math.random().toString(36).substring(7)}_${imageState.file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const fileType = imageState.file.type; // <-- Extract the exact MIME type (e.g., 'image/png')
 
       // Step 1: Get presigned URL
       const response = await new Promise<any>((resolve, reject) => {
-        this.communicationService.generateNewsImagePresignedUrl(fileName).subscribe({
+        // Pass fileType to the service
+        this.communicationService.generateNewsImagePresignedUrl(fileName, fileType).subscribe({
           next: resolve,
           error: reject
         });
@@ -283,14 +285,16 @@ export class NewsManagementComponent implements OnInit {
     const uploadedImageUrls: string[] = [];
 
     for (const imageState of this.imageUploadStates) {
-      if (imageState.uploaded) continue; // Already uploaded
+      if (imageState.uploaded) continue;
 
       const url = await this.uploadImageToS3(imageState);
       if (url) {
         uploadedImageUrls.push(url);
         imageState.uploaded = true;
       } else {
-        break;
+        this.notificationService.showError('Image upload failed. Aborting news creation.');
+        this.isSubmitting = false;
+        return;
       }
     }
 
