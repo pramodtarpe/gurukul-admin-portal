@@ -252,6 +252,29 @@ export class NewsManagementComponent implements OnInit {
     }, 0);
   }
 
+  insertLink(): void {
+    const textarea = document.getElementById('news-content') as HTMLTextAreaElement;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    // Use the highlighted text as the link text, or a default placeholder if nothing is highlighted
+    const selectedText = this.newsContent.substring(start, end) || 'link text';
+    // Prompt the user for the URL
+    const url = window.prompt('Enter the URL for the link:', 'https://');
+    // If the user cancels the prompt or leaves it blank, abort insertion
+    if (!url) return;
+    const markdownLink = `[${selectedText}](${url})`;
+    const newText = this.newsContent.substring(0, start) + markdownLink + this.newsContent.substring(end);
+    this.newsContent = newText;
+    // Move the cursor right after the newly inserted link
+    const newCursorPos = start + markdownLink.length;
+    setTimeout(() => {
+      textarea.selectionStart = newCursorPos;
+      textarea.selectionEnd = newCursorPos;
+      textarea.focus();
+    }, 0);
+  }
+
   onTogglePreview(): void {
     this.previewMarkdown = !this.previewMarkdown;
   }

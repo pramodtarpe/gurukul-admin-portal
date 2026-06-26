@@ -136,14 +136,20 @@
               <div class="md-toolbar">
                 <button type="button" class="md-btn" (click)="insertMd('# ')" title="Heading 1">H1</button>
                 <button type="button" class="md-btn" (click)="insertMd('## ')" title="Heading 2">H2</button>
+                <button type="button" class="md-btn" (click)="insertMd('### ')" title="Heading 3">H3</button>
+                <button type="button" class="md-btn" (click)="insertMd('#### ')" title="Heading 4">H4</button>
                 <div class="md-separator"></div>
+
                 <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i
                     class="ph ph-text-b"></i></button>
                 <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i
                     class="ph ph-text-italic"></i></button>
                 <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i
                     class="ph ph-text-strikethrough"></i></button>
+                <button type="button" class="md-btn" (click)="insertLink()" title="Insert Link"><i
+                    class="ph ph-link"></i></button>
                 <div class="md-separator"></div>
+
                 <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i
                     class="ph ph-list-bullets"></i></button>
                 <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i
