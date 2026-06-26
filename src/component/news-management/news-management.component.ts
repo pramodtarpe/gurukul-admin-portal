@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../service/notification.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { MarkdownPipe } from '../../app/pipes/markdown.pipe';
+import { MarkdownComponent } from 'ngx-markdown';
 
 export interface INewsItem {
   newsId: string;
@@ -29,7 +29,7 @@ export interface IImageUploadState {
 @Component({
   selector: 'ga-news-management',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, ConfirmDialogComponent, MarkdownPipe],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, ConfirmDialogComponent, MarkdownComponent],
   templateUrl: './news-management.component.html',
   styleUrls: ['./news-management.component.scss']
 })
@@ -47,7 +47,7 @@ export class NewsManagementComponent implements OnInit {
   // Form fields
   newsTitle: string = '';
   newsContent: string = '';
-  previewMarkdown: string = '';
+  previewMarkdown: boolean = false; // Changed to boolean for cleaner toggle logic
   expiryDate: string = '';
 
   // Image upload state (max 5 images)
@@ -89,8 +89,9 @@ export class NewsManagementComponent implements OnInit {
       if (confirmReset) {
         this.resetForm();
       }
+    } else {
+      this.showCreateForm = false;
     }
-    this.showCreateForm = false;
   }
 
   // ===================== NEWS LIST LOADING =====================
@@ -137,7 +138,7 @@ export class NewsManagementComponent implements OnInit {
     return !!this.currentCursor && this.newsData.length > 0;
   }
 
-  // ===================== IMAGE UPLOAD (max 5) =====================
+  // ===================== IMAGE UPLOAD =====================
 
   onFileSelected(event: any, index: number): void {
     const files = event.target.files;
@@ -146,10 +147,9 @@ export class NewsManagementComponent implements OnInit {
     for (const file of files) {
       if (this.imageUploadStates.length >= this.maxImages) break;
 
-      // Check image type
       if (!file.type.startsWith('image/')) continue;
 
-      const maxSize = 5 * 1024 * 1024; // 5MB max per image
+      const maxSize = 5 * 1024 * 1024; // 5MB max
       if (file.size > maxSize) {
         this.notificationService.showError(`File "${file.name}" exceeds 5MB limit.`);
         continue;
@@ -167,29 +167,23 @@ export class NewsManagementComponent implements OnInit {
       };
       reader.readAsDataURL(file);
     }
-
-    // Reset the input so the same file can be selected again
     event.target.value = '';
   }
 
   async uploadImageToS3(imageState: IImageUploadState): Promise<string | null> {
     try {
       imageState.uploading = true;
-
       const fileName = `NEWS_${Date.now()}_${Math.random().toString(36).substring(7)}_${imageState.file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-      const fileType = imageState.file.type; // <-- Extract the exact MIME type (e.g., 'image/png')
+      const fileType = imageState.file.type;
 
-      // Step 1: Get presigned URL
       const response = await new Promise<any>((resolve, reject) => {
-        // Pass fileType to the service
         this.communicationService.generateNewsImagePresignedUrl(fileName, fileType).subscribe({
           next: resolve,
           error: reject
         });
       });
 
-      // Step 2: Upload to S3 directly (bypasses auth)
-      const uploadResponse = await new Promise<any>((resolve, reject) => {
+      await new Promise<any>((resolve, reject) => {
         this.communicationService.uploadNewsImageToS3(response.uploadUrl, imageState.file).subscribe({
           next: resolve,
           error: reject
@@ -214,7 +208,7 @@ export class NewsManagementComponent implements OnInit {
     this.imageUploadStates.splice(index, 1);
   }
 
-  // ===================== CREATE NEWS =====================
+  // ===================== CREATE NEWS EDITOR =====================
 
   insertMd(prefix: string): void {
     const textarea = document.getElementById('news-content') as HTMLTextAreaElement;
@@ -228,26 +222,29 @@ export class NewsManagementComponent implements OnInit {
     let newCursorPos: number;
 
     if (selectedText && !prefix.endsWith(' ')) {
-      // Wrap (bold/italic): **text**
+      // 1. Wrap selected text (e.g., Bold, Italic: **text**)
       newText = this.newsContent.substring(0, start) + prefix + selectedText + prefix + this.newsContent.substring(end);
       newCursorPos = end + prefix.length * 2;
+
     } else if (prefix.endsWith(' ')) {
-      // Prefix (heading/list): ## or - or 1.
-      const lines = this.newsContent.split('\n');
-      let lineStart = start;
-      for (let i = 0; i < lines.length && lineStart > lines[i].length; i++) {
-        lineStart -= lines[i].length + 1; // +1 for newline
-      }
-      const charIndex = lineStart;
-      newText = this.newsContent.substring(0, charIndex) + prefix + this.newsContent.substring(charIndex);
-      newCursorPos = charIndex + prefix.length;
+      // 2. Prefix text (e.g., Headings, Lists) -> Insert at the start of the CURRENT line
+      // Find the absolute index of the last newline character before the cursor
+      const startOfLineIndex = this.newsContent.substring(0, start).lastIndexOf('\n') + 1;
+
+      newText = this.newsContent.substring(0, startOfLineIndex) + prefix + this.newsContent.substring(startOfLineIndex);
+
+      // Move cursor forward to account for the newly inserted characters
+      newCursorPos = start + prefix.length;
+
     } else {
-      // Plain insert (e.g., ~~ for strikethrough)
+      // 3. Plain inline insert (exactly at cursor position)
       newText = this.newsContent.substring(0, start) + prefix + this.newsContent.substring(end);
       newCursorPos = start + prefix.length;
     }
 
     this.newsContent = newText;
+
+    // Ensure Angular updates the DOM before we move the selection cursor
     setTimeout(() => {
       textarea.selectionStart = newCursorPos;
       textarea.selectionEnd = newCursorPos;
@@ -256,7 +253,7 @@ export class NewsManagementComponent implements OnInit {
   }
 
   onTogglePreview(): void {
-    this.previewMarkdown = !this.previewMarkdown ? this.newsContent : '';
+    this.previewMarkdown = !this.previewMarkdown;
   }
 
   async onCreateNews(): Promise<void> {
@@ -265,7 +262,6 @@ export class NewsManagementComponent implements OnInit {
       return;
     }
 
-    // Validate expiry date
     const now = Math.floor(Date.now() / 1000);
     let expiryEpoch: number;
     if (this.expiryDate) {
@@ -276,11 +272,9 @@ export class NewsManagementComponent implements OnInit {
         return;
       }
     } else {
-      // Default to 7 days from now
       expiryEpoch = now + 7 * 24 * 60 * 60;
     }
 
-    // Upload all images first
     this.isSubmitting = true;
     const uploadedImageUrls: string[] = [];
 
@@ -298,7 +292,6 @@ export class NewsManagementComponent implements OnInit {
       }
     }
 
-    // Prepare payload and create news
     const payload = {
       title: this.newsTitle.trim(),
       content: this.newsContent.trim(),
@@ -314,10 +307,8 @@ export class NewsManagementComponent implements OnInit {
         });
       });
 
-      // Reset form and go back to list view
       this.resetForm();
       this.showCreateForm = false;
-      // Reload news list
       this.loadAllNews(null);
       this.notificationService.showSuccess('News published successfully!');
     } catch (error) {
@@ -333,6 +324,7 @@ export class NewsManagementComponent implements OnInit {
     this.newsContent = '';
     this.expiryDate = '';
     this.imageUploadStates = [];
+    this.previewMarkdown = false;
   }
 
   // ===================== DELETE NEWS =====================
@@ -344,7 +336,6 @@ export class NewsManagementComponent implements OnInit {
 
   onConfirmDelete(): void {
     if (!this.newsToDelete) return;
-
     const title = this.newsToDelete.title;
     const id = this.newsToDelete.newsId;
     this.showConfirmDialog = false;
@@ -352,7 +343,7 @@ export class NewsManagementComponent implements OnInit {
     this.communicationService.deleteNews(id).subscribe({
       next: () => {
         this.notificationService.showSuccess(`Successfully deleted the news: ${title}`);
-        this.loadAllNews(null); // Reload from first page
+        this.loadAllNews(null);
       },
       error: (error) => {
         console.error('Error deleting news:', error);
@@ -369,36 +360,6 @@ export class NewsManagementComponent implements OnInit {
   }
 
   // ===================== UTILITIES =====================
-
-  formatDate(epochSeconds: number): string {
-    return new Date(epochSeconds * 1000).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
-
-  isExpired(expiryEpoch: number): boolean {
-    return expiryEpoch < Math.floor(Date.now() / 1000);
-  }
-
-  truncate(text: string, limit: number = 120): string {
-    if (!text) return '';
-    // Strip markdown for preview
-    const plainText = text.replace(/[#*`\[\]()]/g, '').trim();
-    return plainText.length > limit ? plainText.substring(0, limit) + '...' : plainText;
-  }
-
-  truncateImageUrl(url: string, limit: number = 80): string {
-    if (!url || url.length <= limit) return url;
-    const filenameIdx = url.lastIndexOf('/') + 1;
-    const fileName = url.substring(filenameIdx);
-    if (fileName && fileName.length > 35) {
-      return '...' + fileName.slice(-35);
-    }
-    return url;
-  }
-
   expandedNewsIds: Set<string> = new Set<string>();
 
   toggleExpand(newsId: string): void {
@@ -408,11 +369,12 @@ export class NewsManagementComponent implements OnInit {
       this.expandedNewsIds.add(newsId);
     }
   }
+
   isExpanded(newsId: string): boolean {
     return this.expandedNewsIds.has(newsId);
   }
+
   onImageError(event: any): void {
     event.target.style.display = 'none';
   }
-
 }

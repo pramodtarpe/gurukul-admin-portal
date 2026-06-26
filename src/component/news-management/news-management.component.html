@@ -73,7 +73,9 @@
           </div>
 
           <div class="news-expanded-body" *ngIf="isExpanded(news.newsId)">
-            <div class="content-col rich-text-content" [innerHTML]="news.content | markdown"></div>
+            <div class="content-col rich-text-content">
+              <markdown [data]="news.content"></markdown>
+            </div>
 
             <div class="image-strip" *ngIf="news.imageUrls && news.imageUrls.length > 0">
               <div class="strip-container">
@@ -101,8 +103,8 @@
     </div>
   </div>
 
-  <div class="modal-overlay" *ngIf="showCreateForm" (click)="onCancelCreate()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" *ngIf="showCreateForm" (mousedown)="onCancelCreate()">
+    <div class="modal-content" (mousedown)="$event.stopPropagation()">
 
       <div class="modal-header">
         <h3><i class="ph ph-megaphone"></i> Create New Announcement</h3>
@@ -121,36 +123,41 @@
 
         <div class="form-group">
           <label for="news-content" class="form-label required">Content</label>
+
           <div class="markdown-editor-wrapper">
-            <div class="md-toolbar">
-              <button type="button" class="md-btn" (click)="insertMd('# ')" title="Heading 1"># H1</button>
-              <button type="button" class="md-btn" (click)="insertMd('## ')" title="Heading 2">## H2</button>
-              <button type="button" class="md-separator"></button>
-              <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i
-                  class="ph ph-text-b"></i></button>
-              <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i
-                  class="ph ph-text-italic"></i></button>
-              <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i
-                  class="ph ph-text-strikethrough"></i></button>
-              <div class="md-separator"></div>
-              <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i
-                  class="ph ph-list-bullets"></i></button>
-              <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i
-                  class="ph ph-list-numbers"></i></button>
+            <div class="editor-tabs">
+              <button type="button" class="tab-btn" [class.active]="!previewMarkdown"
+                (click)="previewMarkdown = false">Write</button>
+              <button type="button" class="tab-btn" [class.active]="previewMarkdown"
+                (click)="previewMarkdown = true">Preview</button>
             </div>
-            <textarea id="news-content" name="content" [(ngModel)]="newsContent" rows="8"
-              placeholder="## Great News!&#10;We are starting our new MPSC foundation batch.&#10;&#10;* **Date:** Next Monday&#10;* **Discount:** 10% for early birds."
-              class="md-textarea"></textarea>
-          </div>
 
-          <div class="preview-toolbar">
-            <label class="toggle-label">
-              <input type="checkbox" (change)="onTogglePreview()" />
-              <span>Preview Markdown</span>
-            </label>
-          </div>
+            <div *ngIf="!previewMarkdown" class="editor-pane">
+              <div class="md-toolbar">
+                <button type="button" class="md-btn" (click)="insertMd('# ')" title="Heading 1">H1</button>
+                <button type="button" class="md-btn" (click)="insertMd('## ')" title="Heading 2">H2</button>
+                <div class="md-separator"></div>
+                <button type="button" class="md-btn" (click)="insertMd('**')" title="Bold"><i
+                    class="ph ph-text-b"></i></button>
+                <button type="button" class="md-btn" (click)="insertMd('*')" title="Italic"><i
+                    class="ph ph-text-italic"></i></button>
+                <button type="button" class="md-btn" (click)="insertMd('~~')" title="Strikethrough"><i
+                    class="ph ph-text-strikethrough"></i></button>
+                <div class="md-separator"></div>
+                <button type="button" class="md-btn" (click)="insertMd('- ')" title="Unordered List"><i
+                    class="ph ph-list-bullets"></i></button>
+                <button type="button" class="md-btn" (click)="insertMd('1. ')" title="Ordered List"><i
+                    class="ph ph-list-numbers"></i></button>
+              </div>
+              <textarea id="news-content" name="content" [(ngModel)]="newsContent" rows="10"
+                placeholder="We are starting our new batch...&#10;&#10;* **Date:** Next Monday&#10;* **Discount:** 10% for early birds."
+                class="md-textarea"></textarea>
+            </div>
 
-          <div *ngIf="previewMarkdown" class="md-preview" [innerHTML]="newsContent | markdown"></div>
+            <div *ngIf="previewMarkdown" class="preview-pane">
+              <markdown class="md-preview" [data]="newsContent || '*Nothing to preview*'"></markdown>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
