@@ -4,9 +4,59 @@
       <h2>User Management</h2>
       <p>View and manage all registered platform users.</p>
     </div>
+
+    <div class="search-bar">
+      <form (ngSubmit)="onSearchUser()" class="search-form">
+        <input type="email" [(ngModel)]="searchEmail" name="searchEmail" placeholder="Enter user email to search..."
+          [disabled]="isSearching" />
+        <button type="submit" [disabled]="!searchEmail.trim() || isSearching"><i class="ph ph-magnifying-glass"></i>
+          Search User</button>
+      </form>
+
+      <div *ngIf="isSearching" class="search-loader">
+        <div class="spinner small"></div>
+        <span>Searching user...</span>
+      </div>
+
+      <div *ngIf="searchError && !isSearching" class="search-error">
+        <i class="ph ph-warning-circle"></i>{{ searchError }}
+      </div>
+    </div>
+
+    <button *ngIf="searchedUser" class="btn-reset-search" (click)="resetSearch()">
+      <i class="ph ph-x"></i> Clear Search & View All Users
+    </button>
   </div>
 
-  <div class="table-card">
+  <!-- Single User Profile Result -->
+  <div class="table-card" *ngIf="searchedUser">
+    <div class="user-profile-detail">
+      <div class="profile-avatar-large"
+        [class]="!searchedUser.profilePictureUrl || searchedUser.profilePictureUrl === 'null' ? 'has-placeholder' : ''">
+        <img *ngIf="searchedUser.profilePictureUrl && searchedUser.profilePictureUrl !== 'null'"
+          [src]="searchedUser.profilePictureUrl" (error)="onImageError(searchedUser)" alt="Profile" />
+        <span *ngIf="!searchedUser.profilePictureUrl || searchedUser.profilePictureUrl === 'null'">{{
+          getInitials(searchedUser.name, searchedUser.email) }}</span>
+      </div>
+
+      <div class="profile-info-grid">
+        <div class="info-item"><label>Name</label><strong>{{ searchedUser.name || 'Unknown' }}</strong></div>
+        <div class="info-item"><label>Email Address</label><span>{{ searchedUser.email }}</span></div>
+      </div>
+
+      <div class="profile-info-grid" *ngIf="searchedUser.phoneNumber || searchedUser.accountCreatedDate">
+        <div class="info-item" *ngIf="searchedUser.phoneNumber"><label>Phone Number</label><span>{{
+            searchedUser.phoneNumber }}</span></div>
+        <div class="info-item" *ngIf="searchedUser.accountCreatedDate"><label>Joined Date</label><span>{{
+            (searchedUser.accountCreatedDate * 1000) | date: 'mediumDate' }}</span></div>
+      </div>
+
+      <button class="btn-back" (click)="resetSearch()"><i class="ph ph-arrow-left"></i> Back to User List</button>
+    </div>
+  </div>
+
+  <!-- Regular Users Table -->
+  <div class="table-card" *ngIf="!searchedUser">
     <div class="loader-wrapper" *ngIf="isLoading">
       <div class="spinner"></div>
       <p>Fetching user records...</p>
@@ -16,64 +66,37 @@
       <table class="data-table" *ngIf="hasUsers()">
         <thead>
           <tr>
-            <th #thName>
-              Name 
-              <div class="resizer" (mousedown)="onResizeStart($event, thName)"></div>
+            <th #thName>Name <div class="resizer" (mousedown)="onResizeStart($event, thName)"></div>
             </th>
-            <th #thEmail>
-              Email Address 
-              <div class="resizer" (mousedown)="onResizeStart($event, thEmail)"></div>
+            <th #thEmail>Email Address <div class="resizer" (mousedown)="onResizeStart($event, thEmail)"></div>
             </th>
-            <th #thPhone>
-              Phone Number 
-              <div class="resizer" (mousedown)="onResizeStart($event, thPhone)"></div>
+            <th #thPhone>Phone Number <div class="resizer" (mousedown)="onResizeStart($event, thPhone)"></div>
             </th>
-            <th #thDate>
-              Joined Date 
-              </th>
+            <th #thDate>Joined Date</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let user of userData">
-            
             <td class="name-cell">
               <div class="user-profile-block">
-                
-                <div *ngIf="user.profilePictureUrl && user.profilePictureUrl !== 'null'" class="avatar-container">
-                  <img [src]="user.profilePictureUrl" (error)="onImageError(user)" alt="Profile" class="avatar-img">
-                </div>
-                
-                <div *ngIf="!user.profilePictureUrl || user.profilePictureUrl === 'null'" class="avatar-placeholder">
-                  {{ getInitials(user.name, user.email) }}
-                </div>
-                
+                <div *ngIf="user.profilePictureUrl && user.profilePictureUrl !== 'null'" class="avatar-container"><img
+                    [src]="user.profilePictureUrl" (error)="onImageError(user)" alt="Profile" class="avatar-img"></div>
+                <div *ngIf="!user.profilePictureUrl || user.profilePictureUrl === 'null'" class="avatar-placeholder">{{
+                  getInitials(user.name, user.email) }}</div>
                 <span class="fw-bold truncate-text" [title]="user.name">{{ user.name || 'Unknown' }}</span>
               </div>
             </td>
-
-            <td>
-              <span class="truncate-text" [title]="user.email">{{ user.email }}</span>
-            </td>
-            
+            <td><span class="truncate-text" [title]="user.email">{{ user.email }}</span></td>
             <td>
               <div class="phone-cell-wrapper" *ngIf="user.phoneNumber">
-                <span class="phone-text" [class.blurred-text]="!isPhoneVisible(user.email)">
-                  {{ user.phoneNumber }}
-                </span>
-                <button class="icon-btn" (click)="togglePhoneVisibility(user.email)" title="Toggle visibility">
-                  <i class="ph" [ngClass]="isPhoneVisible(user.email) ? 'ph-eye-slash' : 'ph-eye'"></i>
-                </button>
-              </div>
-              <span class="muted-text" *ngIf="!user.phoneNumber">N/A</span>
+                <span class="phone-text" [class.blurred-text]="!isPhoneVisible(user.email)">{{ user.phoneNumber
+                  }}</span>
+                <button class="icon-btn" (click)="togglePhoneVisibility(user.email)" title="Toggle visibility"><i
+                    class="ph" [ngClass]="isPhoneVisible(user.email) ? 'ph-eye-slash' : 'ph-eye'"></i></button>
+              </div><span class="muted-text" *ngIf="!user.phoneNumber">N/A</span>
             </td>
-            
-            <td>
-              <span class="date-badge" *ngIf="user.accountCreatedDate">
-                {{ user.accountCreatedDate * 1000 | date: 'mediumDate' }}
-              </span>
-              <span class="muted-text" *ngIf="!user.accountCreatedDate">N/A</span>
-            </td>
-
+            <td><span class="date-badge" *ngIf="user.accountCreatedDate">{{ user.accountCreatedDate * 1000 | date:
+                'mediumDate' }}</span><span class="muted-text" *ngIf="!user.accountCreatedDate">N/A</span></td>
           </tr>
         </tbody>
       </table>
@@ -84,12 +107,10 @@
     </div>
 
     <div class="pagination-controls" *ngIf="hasUsers() || cursorHistory.length > 0">
-      <button class="pagination-btn" (click)="loadPreviousPage()" [disabled]="cursorHistory.length === 0 || isLoading">
-        <i class="ph ph-caret-left"></i> Previous
-      </button>
-      <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">
-        Next <i class="ph ph-caret-right"></i>
-      </button>
+      <button class="pagination-btn" (click)="loadPreviousPage()"
+        [disabled]="cursorHistory.length === 0 || isLoading"><i class="ph ph-caret-left"></i> Previous</button>
+      <button class="pagination-btn" (click)="loadNextPage()" [disabled]="!nextCursor || isLoading">Next <i
+          class="ph ph-caret-right"></i></button>
     </div>
   </div>
 </div>

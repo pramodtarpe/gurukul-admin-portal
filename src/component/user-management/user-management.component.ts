@@ -1,11 +1,12 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CommunicationService } from '../../service/communication/communication.service';
 
 @Component({
   selector: 'ga-user-management',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   providers: [CommunicationService],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss'
@@ -14,10 +15,18 @@ export class UserManagementComponent implements OnInit {
   userData: any[] = [];
   isLoading: boolean = false;
 
+  // --- Search State ---
+  searchEmail: string = '';
+  searchedUser: any = null;
+  isSearching: boolean = false;
+  searchError: string | null = null;
+
+  // --- Pagination State Architecture ---
+
   // --- Pagination State Architecture ---
   currentCursor: string | null = null;
   nextCursor: string | null = null;
-  cursorHistory: string[] = []; 
+  cursorHistory: string[] = [];
 
   // --- Privacy State ---
   visiblePhones: Set<string> = new Set<string>();
@@ -28,7 +37,7 @@ export class UserManagementComponent implements OnInit {
   startX = 0;
   startWidth = 0;
 
-  constructor(private communicationService: CommunicationService) {}
+  constructor(private communicationService: CommunicationService) { }
 
   ngOnInit(): void {
     this.resetPaginationAndLoad();
@@ -43,7 +52,7 @@ export class UserManagementComponent implements OnInit {
 
   loadUsers(cursor?: string | null): void {
     this.isLoading = true;
-    this.visiblePhones.clear(); 
+    this.visiblePhones.clear();
 
     this.communicationService.getAllUsers(cursor || undefined).subscribe({
       next: (response) => {
@@ -105,7 +114,7 @@ export class UserManagementComponent implements OnInit {
     if (parts.length >= 2 && targetStr === name.trim()) {
       return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
-    
+
     // Otherwise, just return the first letter
     return targetStr.charAt(0).toUpperCase();
   }
@@ -142,4 +151,49 @@ export class UserManagementComponent implements OnInit {
   hasUsers(): boolean {
     return this.userData && this.userData.length > 0;
   }
+
+  // --- Search User by Email ---
+  onSearchUser(): void {
+    if (!this.searchEmail.trim()) {
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+    if (!emailRegex.test(this.searchEmail.trim())) {
+      this.searchError = 'Please enter a valid email address';
+      return;
+    }
+    this.isSearching = true;
+    this.searchedUser = null;
+    this.searchError = null;
+    this.communicationService.getUserProfileByEmail(this.searchEmail.trim()).subscribe({
+      next: (response) => {
+        if (response && (response.userId || response.email)) {
+          this.searchedUser = response;
+        } else {
+          this.searchError = 'No user found with this email address';
+        }
+        // Turn off loader on success
+        this.isSearching = false;
+      },
+      error: (error) => {
+        console.error('Error searching for user:', error);
+        // Handle your 404 specifically
+        if (error?.status === 404) {
+          this.searchError = 'No user found with this email address';
+        } else {
+          this.searchError = 'An error occurred while searching. Please try again.';
+        }
+        // CRITICAL FIX: Turn off loader on error so it doesn't spin forever
+        this.isSearching = false;
+      }
+      // Note: We removed the 'complete' block as it is safer to handle state in next/error
+    });
+  }
+
+  resetSearch(): void {
+    this.searchEmail = '';
+    this.searchedUser = null;
+    this.searchError = null;
+  }
+
 }
