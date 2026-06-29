@@ -32,7 +32,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     'FOREST_BHARTI': 'वनरक्षक भरती',
     'POLICE_BHARTI': 'पोलीस भरती'
   };
-  
+
   activeSectionIndex: number = 0;
   activeQuestionIndex: number = 0;
 
@@ -232,6 +232,23 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     return hasDollarMath || hasBracketMath || hasParenMath;
   }
 
+  // --- Option Preview State ---
+  activeOptionPreviews: Set<string> = new Set<string>();
+
+  toggleOptionPreview(sIndex: number, qIndex: number, oIndex: number): void {
+    const key = `s${sIndex}q${qIndex}o${oIndex}`;
+    if (this.activeOptionPreviews.has(key)) {
+      this.activeOptionPreviews.delete(key);
+    } else {
+      this.activeOptionPreviews.add(key);
+    }
+  }
+
+  isOptionPreviewActive(sIndex: number, qIndex: number, oIndex: number): boolean {
+    const key = `s${sIndex}q${qIndex}o${oIndex}`;
+    return this.activeOptionPreviews.has(key);
+  }
+
   onDiagramUpload(event: any, sIndex: number, qIndex: number) {
     const file: File = event.target.files?.[0];
 
@@ -288,6 +305,45 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   handleCancel(): void {
     this.confirmDialogConfig = null;
+  }
+
+  // --- Rich Text Formatting Logic ---
+  applyFormat(elementId: string, tag: 'b' | 'i' | 'u', control: AbstractControl | null): void {
+    if (!control) return;
+    const element = document.getElementById(elementId) as HTMLInputElement | HTMLTextAreaElement;
+    if (!element) return;
+
+    const start = element.selectionStart || 0;
+    const end = element.selectionEnd || 0;
+    const text = control.value || '';
+
+    const selectedText = text.substring(start, end);
+    const openTag = `<${tag}>`;
+    const closeTag = `</${tag}>`;
+
+    let newText = text;
+    let newCursorPos = start;
+
+    if (selectedText) {
+      // Wrap the highlighted text
+      newText = text.substring(0, start) + openTag + selectedText + closeTag + text.substring(end);
+      newCursorPos = end + openTag.length + closeTag.length;
+    } else {
+      // Drop empty tags at the cursor position
+      newText = text.substring(0, start) + openTag + closeTag + text.substring(end);
+      newCursorPos = start + openTag.length;
+    }
+
+    // Update the Angular Form Control securely
+    control.patchValue(newText);
+    control.markAsDirty();
+
+    // Restore focus and cursor position after Angular digests the patchValue
+    setTimeout(() => {
+      element.focus();
+      element.selectionStart = newCursorPos;
+      element.selectionEnd = newCursorPos;
+    }, 0);
   }
 
   openMathBuilder(s: number, q: number, type: 'question' | 'option', oIndex?: number) {

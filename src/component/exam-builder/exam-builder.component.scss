@@ -145,6 +145,7 @@
         border: 1px solid #cbd5e1;
         border-radius: 6px;
         font-size: clamp(0.85rem, 2vw, 0.95rem);
+        background: transparent;
 
         &:focus {
             outline: none;
@@ -194,7 +195,6 @@
     }
 }
 
-/* On mobile, sidebar stacks above content */
 @media (max-width: 1023px) {
     .workspace-sidebar-nav {
         position: static;
@@ -356,7 +356,268 @@
     }
 }
 
-/* ---- Options Container ---- */
+/* ---- File Upload Styling ---- */
+.file-upload-group {
+    margin-top: clamp(0.75rem, 2vh, 1.5rem);
+    background: #f8fafc;
+    padding: clamp(0.75rem, 2vh, 1rem);
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+
+    .upload-controls {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.5rem, 2vw, 1rem);
+        flex-wrap: wrap;
+    }
+
+    .diagram-file-input {
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+        color: #475569;
+
+        &::file-selector-button {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 0.4rem clamp(0.75rem, 2vw, 1rem);
+            border-radius: 4px;
+            color: #334155;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-right: 1rem;
+
+            &:hover {
+                background: #f1f5f9;
+            }
+        }
+    }
+
+    .uploading-indicator {
+        color: #f59e0b;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .uploaded-file-preview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        padding: clamp(0.5rem, 1.5vh, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+        border: 1px solid #10b981;
+        border-radius: 6px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        gap: clamp(0.5rem, 2vw, 1rem);
+
+        .preview-content {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 2vw, 0.75rem);
+            min-width: 0;
+
+            i {
+                color: #10b981;
+                font-size: clamp(1.2rem, 3vw, 1.5rem);
+                flex-shrink: 0;
+            }
+
+            .preview-link {
+                color: #0f172a;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: clamp(0.85rem, 2vw, 0.95rem);
+
+                &:hover {
+                    text-decoration: underline;
+                    color: #4f46e5;
+                }
+            }
+        }
+
+        .remove-diagram-btn {
+            background: transparent;
+            color: #ef4444;
+            border: none;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+/* ---- Rich Editor (Question & Options) ---- */
+.rich-editor-container {
+    border: 1px solid #cbd5e1;
+    border-radius: clamp(4px, 0.8vw, 6px);
+    overflow: hidden;
+    background: #ffffff;
+    transition: border-color 0.2s;
+    width: 100%;
+
+    &:focus-within {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .editor-toolbar {
+        background: #f8fafc;
+        border-bottom: 1px solid #cbd5e1;
+        padding: clamp(4px, 1vh, 6px) clamp(8px, 2vw, 10px);
+        display: flex;
+        gap: clamp(4px, 1vw, 8px);
+        align-items: center;
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: #cbd5e1;
+            margin: 0 4px;
+        }
+
+        .toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(4px, 1vw, 6px);
+            background: transparent;
+            color: #475569;
+            border: 1px solid transparent;
+            padding: clamp(3px, 0.8vh, 4px) clamp(6px, 1.5vw, 8px);
+            border-radius: 4px;
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            i {
+                font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+                color: #475569;
+            }
+
+            &:hover {
+                background: #e2e8f0;
+                color: #0f172a;
+            }
+
+            &.math-special-btn {
+                color: #4f46e5;
+
+                i {
+                    color: #4f46e5;
+                }
+
+                &:hover {
+                    background: #eef2ff;
+                }
+            }
+        }
+    }
+
+    .standard-text-area {
+        width: 100%;
+        min-height: clamp(60px, 15vh, 100px);
+        padding: clamp(8px, 2vw, 12px);
+        border: none;
+        resize: vertical;
+        font-size: clamp(0.9rem, 2vw, 0.95rem);
+        font-family: inherit;
+        background: transparent;
+        color: #0f172a;
+
+        &:focus {
+            outline: none;
+        }
+    }
+}
+
+/* ---- Hybrid Input (Options) ---- */
+.option-body-col {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: clamp(4px, 1vh, 6px);
+}
+
+.hybrid-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
+    transition: border-color 0.2s;
+
+    &:focus-within {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .standard-text-input {
+        flex: 1;
+        padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
+        border: none;
+        font-size: clamp(0.9rem, 2vw, 0.95rem);
+        background: transparent;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .insert-math-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-left: 1px solid #cbd5e1;
+        padding: clamp(4px, 1vh, 8px) clamp(6px, 1.5vw, 10px);
+        align-self: stretch;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        i {
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+        }
+
+        &:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        &.math-special-btn {
+            background: #eef2ff;
+            color: #4f46e5;
+
+            &:hover {
+                background: #e0e7ff;
+            }
+        }
+
+        &.preview-toggle-btn {
+            color: #64748b;
+
+            &.active {
+                background: #e2e8f0;
+                color: #0f172a;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+                /* Creates a "pressed down" effect */
+            }
+        }
+    }
+}
+
+/* ---- Options & Custom Checkmark ---- */
 .options-container {
     background: #f8fafc;
     border-radius: clamp(6px, 1vw, 8px);
@@ -374,7 +635,7 @@
 .option-group-wrapper {
     display: flex;
     gap: clamp(0.5rem, 1.5vw, 1rem);
-    align-items: flex-start;
+    align-items: center;
     padding: clamp(0.75rem, 2vh, 1rem);
     background: white;
     border: 1px solid #e2e8f0;
@@ -386,37 +647,168 @@
         flex-wrap: wrap;
     }
 
+    /* Active "Correct Answer" styling */
     &.is-correct-answer {
         border-color: #10b981;
         background-color: #f0fdf4;
         box-shadow: 0 0 0 1px #10b981;
+
+        .custom-radio-tick {
+            background-color: #10b981;
+            border-color: #10b981;
+
+            .tick-indicator {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .option-letter {
+            color: #059669;
+        }
     }
 }
 
-.option-group-wrapper .radio-selection-cell {
-    padding-top: clamp(6px, 2vh, 10px);
+/* Custom Interactive Radio & Label Group */
+.option-selector-label {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    padding-right: 0.25rem;
 
-    input[type="radio"] {
-        width: 1.2rem;
-        height: 1.2rem;
-        cursor: pointer;
-        accent-color: #10b981;
+    .option-letter {
+        font-weight: 700;
+        color: #475569;
+        font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+        transition: color 0.2s;
+    }
+
+    .custom-radio-tick {
+        position: relative;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 2px solid #cbd5e1;
+        background: #ffffff;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .tick-indicator {
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            i {
+                font-size: 16px;
+            }
+        }
+
+        &:hover {
+            border-color: #94a3b8;
+        }
     }
 }
 
-.option-group-wrapper .option-input-cell {
+.option-input-cell {
     flex: 1;
     min-width: 0;
     display: flex;
-    align-items: flex-start;
-    gap: clamp(0.5rem, 2vw, 1rem);
+    align-items: center;
 }
 
-.option-group-wrapper .option-input-cell label {
-    font-weight: 700;
-    color: #475569;
-    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-    padding-top: clamp(6px, 2vh, 8px);
+
+/* ---- Math Preview ---- */
+.math-preview-box {
+    background-color: #f8fafc;
+    border-left: clamp(2px, 0.5vw, 3px) solid #4f46e5;
+    border-radius: 0 clamp(4px, 1vw, 6px) clamp(4px, 1vw, 6px) 0;
+    padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
+    margin-top: clamp(4px, 1vh, 6px);
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+    color: #1e293b;
+
+    .preview-label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: clamp(4px, 1vh, 6px);
+    }
+
+    &.compact-preview {
+        padding: clamp(5px, 1.2vh, 6px) clamp(7px, 1.8vw, 10px);
+        margin-top: 0;
+        border-left-color: #10b981;
+
+        .preview-label {
+            display: inline-block;
+            margin-right: clamp(4px, 2vw, 8px);
+            margin-bottom: 0;
+        }
+
+        ga-math-render {
+            display: inline-block;
+        }
+    }
+}
+
+/* Compact preview nested under input */
+.option-body-col > .math-preview-box.compact-preview {
+    width: 100%;
+    margin-top: 0.4rem;
+    border-left-width: 3px;
+    animation: slideDownPreview 0.2s ease-out forwards;
+    transform-origin: top;
+}
+@keyframes slideDownPreview {
+    from { 
+        opacity: 0; 
+        transform: translateY(-5px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ---- Fallback No Sections ---- */
+.no-sections-fallback {
+    text-align: center;
+    padding: clamp(3rem, 8vh, 6rem) 1rem;
+
+    i {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        color: #64748b;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+
+        strong {
+            color: #334155;
+        }
+    }
 }
 
 /* ---- Action Footer ---- */
@@ -521,292 +913,6 @@
     }
 }
 
-/* ---- File Upload Styling ---- */
-.file-upload-group {
-    margin-top: clamp(0.75rem, 2vh, 1.5rem);
-    background: #f8fafc;
-    padding: clamp(0.75rem, 2vh, 1rem);
-    border-radius: 8px;
-    border: 1px dashed #cbd5e1;
-
-    .upload-controls {
-        display: flex;
-        align-items: center;
-        gap: clamp(0.5rem, 2vw, 1rem);
-        flex-wrap: wrap;
-    }
-
-    .diagram-file-input {
-        font-size: clamp(0.8rem, 2vw, 0.9rem);
-        color: #475569;
-
-        &::file-selector-button {
-            background: white;
-            border: 1px solid #cbd5e1;
-            padding: 0.4rem clamp(0.75rem, 2vw, 1rem);
-            border-radius: 4px;
-            color: #334155;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-right: 1rem;
-
-            &:hover {
-                background: #f1f5f9;
-            }
-        }
-    }
-
-    .uploading-indicator {
-        color: #f59e0b;
-        font-size: clamp(0.8rem, 2vw, 0.9rem);
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .uploaded-file-preview {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: white;
-        padding: clamp(0.5rem, 1.5vh, 0.75rem) clamp(0.75rem, 2vw, 1rem);
-        border: 1px solid #10b981;
-        border-radius: 6px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        gap: clamp(0.5rem, 2vw, 1rem);
-
-        .preview-content {
-            display: flex;
-            align-items: center;
-            gap: clamp(0.5rem, 2vw, 0.75rem);
-            min-width: 0;
-
-            i {
-                color: #10b981;
-                font-size: clamp(1.2rem, 3vw, 1.5rem);
-                flex-shrink: 0;
-            }
-
-            .preview-link {
-                color: #0f172a;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: clamp(0.85rem, 2vw, 0.95rem);
-
-                &:hover {
-                    text-decoration: underline;
-                    color: #4f46e5;
-                }
-            }
-        }
-
-        .remove-diagram-btn {
-            background: transparent;
-            color: #ef4444;
-            border: none;
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
-}
-
-/* ---- Rich Editor ---- */
-.rich-editor-container {
-    border: 1px solid #cbd5e1;
-    border-radius: clamp(4px, 0.8vw, 6px);
-    overflow: hidden;
-    background: #ffffff;
-    transition: border-color 0.2s;
-    width: 100%;
-
-    &:focus-within {
-        border-color: #4f46e5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    .editor-toolbar {
-        background: #f8fafc;
-        border-bottom: 1px solid #cbd5e1;
-        padding: clamp(4px, 1vh, 6px) clamp(8px, 2vw, 10px);
-        display: flex;
-        gap: clamp(4px, 1vw, 8px);
-
-        .toolbar-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: clamp(4px, 1vw, 6px);
-            background: transparent;
-            color: #475569;
-            border: 1px solid transparent;
-            padding: clamp(3px, 0.8vh, 4px) clamp(6px, 1.5vw, 8px);
-            border-radius: 4px;
-            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-
-            i {
-                font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-                color: #4f46e5;
-            }
-
-            &:hover {
-                background: #e2e8f0;
-                color: #0f172a;
-            }
-        }
-    }
-
-    .standard-text-area {
-        width: 100%;
-        min-height: clamp(60px, 15vh, 100px);
-        padding: clamp(8px, 2vw, 12px);
-        border: none;
-        resize: vertical;
-        font-size: clamp(0.9rem, 2vw, 0.95rem);
-        font-family: inherit;
-        background: transparent;
-        color: #0f172a;
-
-        &:focus {
-            outline: none;
-        }
-    }
-}
-
-/* ---- Hybrid Input (Options) ---- */
-.option-body-col {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: clamp(4px, 1vh, 6px);
-}
-
-.hybrid-input-wrapper {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #ffffff;
-    transition: border-color 0.2s;
-
-    &:focus-within {
-        border-color: #4f46e5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    .standard-text-input {
-        flex: 1;
-        padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
-        border: none;
-        font-size: clamp(0.9rem, 2vw, 0.95rem);
-        background: transparent;
-
-        &:focus {
-            outline: none;
-        }
-    }
-
-    .insert-math-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: #f1f5f9;
-        color: #4f46e5;
-        border: none;
-        border-left: 1px solid #cbd5e1;
-        padding: clamp(4px, 1vh, 8px) clamp(8px, 2vw, 12px);
-        align-self: stretch;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        i {
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
-        }
-
-        &:hover {
-            background: #e2e8f0;
-        }
-    }
-}
-
-/* ---- Math Preview ---- */
-.math-preview-box {
-    background-color: #f8fafc;
-    border-left: clamp(2px, 0.5vw, 3px) solid #4f46e5;
-    border-radius: 0 clamp(4px, 1vw, 6px) clamp(4px, 1vw, 6px) 0;
-    padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
-    margin-top: clamp(4px, 1vh, 6px);
-    font-size: clamp(0.85rem, 2vw, 0.95rem);
-    color: #1e293b;
-
-    .preview-label {
-        display: block;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: clamp(4px, 1vh, 6px);
-    }
-
-    &.compact-preview {
-        padding: clamp(5px, 1.2vh, 6px) clamp(7px, 1.8vw, 10px);
-        margin-top: 0;
-        border-left-color: #10b981;
-
-        .preview-label {
-            display: inline-block;
-            margin-right: clamp(4px, 2vw, 8px);
-            margin-bottom: 0;
-        }
-
-        ga-math-render {
-            display: inline-block;
-        }
-    }
-}
-
-/* Compact preview positioned below each option-group-wrapper */
-.options-container > .math-preview-box.compact-preview {
-    width: 100%;
-    margin-top: 0.5rem;
-    margin-bottom: 0.25rem;
-    border-left-width: 3px;
-}
-
-/* ---- Fallback No Sections ---- */
-.no-sections-fallback {
-    text-align: center;
-    padding: clamp(3rem, 8vh, 6rem) 1rem;
-
-    i {
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        color: #cbd5e1;
-        margin-bottom: 1rem;
-    }
-
-    p {
-        color: #64748b;
-        font-size: clamp(0.9rem, 2.5vw, 1rem);
-
-        strong {
-            color: #334155;
-        }
-    }
-}
-
 /* ---- Math Modal ---- */
 .modal-backdrop {
     position: fixed;
@@ -830,8 +936,8 @@
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         animation: slideUp 0.3s ease-out;
         overflow: visible;
-        margin-top: -15vh; /* Shifts the modal slightly upwards to accommodate the virtual keyboard */
-        
+        margin-top: -15vh;
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -881,7 +987,6 @@
                 border-radius: 8px;
                 background: #fafafa;
 
-                /* Ensure mathlive virtual keyboard renders above backdrop */
                 &:focus-within {
                     position: relative;
                     z-index: 1003;
@@ -1044,7 +1149,6 @@
         overflow-y: auto;
     }
 
-    /* Hide vertical scrollbar but allow scroll */
     .workspace-sidebar-nav::-webkit-scrollbar {
         width: 4px;
     }

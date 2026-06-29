@@ -27,11 +27,13 @@
 
         <fieldset class="meta-details-fieldset">
             <legend>Set Exam</legend>
+
+            <div class="form-group">
+                <label>Exam Title:</label>
+                <input type="text" formControlName="title" placeholder="Enter exam title" />
+            </div>
+
             <div class="meta-fields-grid">
-                <div class="form-group">
-                    <label>Title:</label>
-                    <input type="text" formControlName="title" placeholder="Enter exam title" />
-                </div>
                 <div class="form-group">
                     <label>Exam Type:</label>
                     <select formControlName="examType">
@@ -91,8 +93,10 @@
 
                             <div class="form-group">
                                 <label>Section Title:</label>
-                                <input type="text" formControlName="sectionTitle" placeholder="e.g., Marathi Grammar" />
+                                <input type="text" formControlName="sectionTitle" [id]="'sec-title-s' + sIndex"
+                                    class="standard-text-input" placeholder="e.g., Marathi Grammar" />
                             </div>
+
                             <div class="form-group-row">
                                 <div class="form-group">
                                     <label>Questions:</label>
@@ -128,12 +132,24 @@
                                         <div class="rich-editor-container">
                                             <div class="editor-toolbar">
                                                 <button type="button" class="toolbar-btn"
+                                                    (click)="applyFormat('question-text-s' + sIndex + '-q' + qIndex, 'b', question.get('text'))"
+                                                    title="Bold"><i class="ph ph-text-b"></i></button>
+                                                <button type="button" class="toolbar-btn"
+                                                    (click)="applyFormat('question-text-s' + sIndex + '-q' + qIndex, 'i', question.get('text'))"
+                                                    title="Italic"><i class="ph ph-text-italic"></i></button>
+                                                <button type="button" class="toolbar-btn"
+                                                    (click)="applyFormat('question-text-s' + sIndex + '-q' + qIndex, 'u', question.get('text'))"
+                                                    title="Underline"><i class="ph ph-text-underline"></i></button>
+                                                <div class="toolbar-divider"></div>
+                                                <button type="button" class="toolbar-btn math-special-btn"
                                                     (click)="openMathBuilder(sIndex, qIndex, 'question')">
                                                     <i class="ph ph-function"></i> Insert Formula
                                                 </button>
                                             </div>
-                                            <textarea formControlName="text" class="standard-text-area"
-                                                placeholder="Enter question text here... Use the toolbar to insert math."></textarea>
+                                            <textarea formControlName="text"
+                                                [id]="'question-text-s' + sIndex + '-q' + qIndex"
+                                                class="standard-text-area"
+                                                placeholder="Enter question text here... Use the toolbar to apply formatting or insert math."></textarea>
                                         </div>
 
                                         <div class="math-preview-box" *ngIf="containsMath(question.get('text')?.value)">
@@ -180,43 +196,67 @@
 
                                         <ng-container
                                             *ngFor="let option of getOptions(sIndex, qIndex).controls; let oIndex = index">
+
                                             <div class="option-group-wrapper"
                                                 [class.is-correct-answer]="getCorrectAnswerControl(sIndex, qIndex).value === oIndex">
 
-                                                <div class="radio-selection-cell">
-                                                    <input type="radio"
-                                                        [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
-                                                        [name]="'correctAnswer_s' + sIndex + '_q' + qIndex"
-                                                        [value]="oIndex"
-                                                        [formControl]="getCorrectAnswerControl(sIndex, qIndex)"
-                                                        title="Select as the correct answer" />
-                                                </div>
+                                                <label class="option-selector-label"
+                                                    [for]="'radio-s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                                                    title="Mark as correct answer">
+                                                    <div class="custom-radio-tick">
+                                                        <input type="radio"
+                                                            [id]="'radio-s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                                                            [name]="'correctAnswer_s' + sIndex + '_q' + qIndex"
+                                                            [value]="oIndex"
+                                                            [formControl]="getCorrectAnswerControl(sIndex, qIndex)" />
+                                                        <div class="tick-indicator">
+                                                            <i class="ph-bold ph-check"></i>
+                                                        </div>
+                                                    </div>
+                                                    <span class="option-letter">{{ getOptionLetter(oIndex) }}:</span>
+                                                </label>
 
                                                 <div class="option-input-cell">
-                                                    <label [for]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex">{{
-                                                        getOptionLetter(oIndex) }}:</label>
-
                                                     <div class="option-body-col">
                                                         <div class="hybrid-input-wrapper">
                                                             <input type="text" [formControlName]="oIndex"
-                                                                [id]="'s' + sIndex + 'q' + qIndex + 'o' + oIndex"
+                                                                [id]="'opt-text-s' + sIndex + '-q' + qIndex + '-o' + oIndex"
                                                                 class="standard-text-input"
                                                                 placeholder="Option text..." />
                                                             <button type="button" class="insert-math-btn"
+                                                                (click)="applyFormat('opt-text-s' + sIndex + '-q' + qIndex + '-o' + oIndex, 'b', getOptions(sIndex, qIndex).at(oIndex))"
+                                                                title="Bold"><i class="ph ph-text-b"></i></button>
+                                                            <button type="button" class="insert-math-btn"
+                                                                (click)="applyFormat('opt-text-s' + sIndex + '-q' + qIndex + '-o' + oIndex, 'i', getOptions(sIndex, qIndex).at(oIndex))"
+                                                                title="Italic"><i
+                                                                    class="ph ph-text-italic"></i></button>
+                                                            <button type="button" class="insert-math-btn"
+                                                                (click)="applyFormat('opt-text-s' + sIndex + '-q' + qIndex + '-o' + oIndex, 'u', getOptions(sIndex, qIndex).at(oIndex))"
+                                                                title="Underline"><i
+                                                                    class="ph ph-text-underline"></i></button>
+                                                            <button type="button"
+                                                                class="insert-math-btn math-special-btn"
                                                                 (click)="openMathBuilder(sIndex, qIndex, 'option', oIndex)"
                                                                 title="Insert Math Equation">
                                                                 <i class="ph ph-function"></i>
                                                             </button>
+                                                            <button type="button"
+                                                                class="insert-math-btn preview-toggle-btn"
+                                                                [class.active]="isOptionPreviewActive(sIndex, qIndex, oIndex)"
+                                                                (click)="toggleOptionPreview(sIndex, qIndex, oIndex)"
+                                                                title="Toggle Render Preview">
+                                                                <i class="ph"
+                                                                    [ngClass]="isOptionPreviewActive(sIndex, qIndex, oIndex) ? 'ph-eye-slash' : 'ph-eye'"></i>
+                                                            </button>
                                                         </div>
+                                                        <div class="math-preview-box compact-preview"
+                                                            *ngIf="isOptionPreviewActive(sIndex, qIndex, oIndex)">
+                                                            <span class="preview-label">Preview:</span>
+                                                            <ga-math-render [content]="option.value"></ga-math-render>
+                                                        </div>
+
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <div class="math-preview-box compact-preview"
-                                                *ngIf="containsMath(option.value)">
-                                                <span class="preview-label">{{ getOptionLetter(oIndex) }}
-                                                    Preview:</span>
-                                                <ga-math-render [content]="option.value"></ga-math-render>
                                             </div>
                                         </ng-container>
 
@@ -269,18 +309,13 @@
 
     </form>
 
-    <!-- Confirm Dialog -->
-    <ga-confirm-dialog *ngIf="confirmDialogConfig"
-        [title]="confirmDialogConfig.title"
-        [message]="confirmDialogConfig.message"
-        [confirmText]="confirmDialogConfig.confirmText || 'Confirm'"
+    <ga-confirm-dialog *ngIf="confirmDialogConfig" [title]="confirmDialogConfig.title"
+        [message]="confirmDialogConfig.message" [confirmText]="confirmDialogConfig.confirmText || 'Confirm'"
         [cancelText]="confirmDialogConfig.cancelText || 'Cancel'"
-        [isConfirmDangerous]="confirmDialogConfig.isDangerous || false"
-        (confirmed)="handleConfirm()"
+        [isConfirmDangerous]="confirmDialogConfig.isDangerous || false" (confirmed)="handleConfirm()"
         (cancelled)="handleCancel()">
     </ga-confirm-dialog>
 
-    <!-- Math Builder Modal -->
     <div class="modal-backdrop" *ngIf="isMathBuilderOpen" (click)="closeMathBuilder()">
         <div class="modal-card math-builder-card" (click)="$event.stopPropagation()">
             <div class="modal-header">
