@@ -1,6 +1,7 @@
 <div class="modal-overlay" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
 
+    <!-- ===== MAIN ATTEMPTS LIST MODAL ===== -->
     <div class="modal-header">
       <div class="title-block">
         <h3>User Attempts</h3>
@@ -15,7 +16,126 @@
         <p>Loading attempts...</p>
       </div>
 
-      <div class="attempts-container" *ngIf="!isLoading && attempts.length > 0">
+      <!-- Attempt Detail Modal Overlay -->
+      <div class="detail-modal-overlay" *ngIf="selectedAttemptEmail && attemptDetail" (click)="closeDetailModal()">
+        <div class="detail-modal-content" (click)="$event.stopPropagation()">
+
+          <div class="detail-modal-header">
+            <div>
+              <h3>{{ attemptDetail.examTitle }}</h3>
+              <p class="subtitle">Attempt by {{ selectedAttemptEmail }}</p>
+            </div>
+            <button class="close-btn" (click)="closeDetailModal()"><i class="ph ph-x"></i></button>
+          </div>
+
+          <!-- Attempt Metadata Card -->
+          <ng-container *ngIf="!detailModalLoading">
+            <div class="attempt-metadata-card" *ngIf="attemptDetail">
+              <div class="meta-row">
+                <div class="meta-stat highlight-score">
+                  <span class="label">Score</span>
+                  <strong [style.color]="getScoreColor(attemptDetail.score, attemptDetail.totalQuestions)">
+                    {{ attemptDetail.score }}/{{ attemptDetail.totalQuestions }}
+                  </strong>
+                </div>
+                <div class="meta-stat">
+                  <i class="ph ph-tag"></i>
+                  <span>{{ attemptDetail.examType }}</span>
+                </div>
+              </div>
+              <div class="meta-row stats-grid">
+                <div class="meta-stat">
+                  <i class="ph ph-check-circle" style="color:#059669"></i>
+                  <span>{{ attemptDetail.correctCount }}</span>
+                  <small>Correct</small>
+                </div>
+                <div class="meta-stat">
+                  <i class="ph ph-x-circle" style="color:#dc2626"></i>
+                  <span>{{ attemptDetail.wrongCount }}</span>
+                  <small>Wrong</small>
+                </div>
+                <div class="meta-stat">
+                  <i class="ph ph-dash-circle" style="color:#9ca3af"></i>
+                  <span>{{ attemptDetail.unattemptedCount }}</span>
+                  <small>Unanswered</small>
+                </div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-item">
+                  <i class="ph ph-clock"></i>
+                  <span>Last Attempt: {{ formatTimestamp(attemptDetail.lastAttemptDate) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exam Navigator Sidebar (Section Tabs) -->
+            <div class="exam-navigator" *ngIf="attemptDetail.sections && attemptDetail.sections.length > 0">
+              <button type="button"
+                *ngFor="let section of attemptDetail.sections; let si = index;"
+                [class.active]="si === activeSectionIndex"
+                (click)="selectSection(si)">
+                <span class="nav-num">S{{ si + 1 }}</span>
+                <span class="nav-title">{{ section.sectionTitle || ('Section ' + (si + 1)) }}</span>
+                <span class="nav-count">{{ section.questions?.length || 0 }} Q</span>
+              </button>
+            </div>
+
+            <!-- Section Content (scrollable) -->
+            <div class="section-content-scroll">
+              <ng-container *ngFor="let section of attemptDetail.sections; let si = index;">
+                <ng-container *ngIf="si === activeSectionIndex">
+                  <div class="section-questions" *ngFor="let question of section.questions; let qi = index;">
+
+                    <!-- Question Card -->
+                    <div class="question-card" [class.question-unanswered]="getVerdictClass(question) === 'verdict-unattempted'">
+                      <div class="q-header">
+                        <span class="q-badge">{{ si + 1 }}-Q{{ qi + 1 }}</span>
+                        <p class="q-text">{{ question.text }}</p>
+                        <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
+                          <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
+                          {{ getVerdictText(question) }}
+                        </button>
+                      </div>
+
+                      <!-- Diagram -->
+                      <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
+                        <div class="diagram-wrapper">
+                          <img [src]="getDiagramUrl(question.diagramUrl)" alt="Question Diagram" (error)="onDiagramImageError($event)" />
+                        </div>
+                      </ng-container>
+
+                      <!-- Options Row -->
+                      <div class="options-row" *ngIf="question.options?.length > 0">
+                        <div class="option-item"
+                          [class.opt-selected]="isOptionSelectedByUser(question, oi)"
+                          [class.opt-correct]="isOptionCorrect(question, oi)"
+                          *ngFor="let opt of question.options; let oi = index;">
+
+                          <span class="opt-letter">{{ getOptionLetter(oi) }}</span>
+                          <span class="opt-text">{{ opt }}</span>
+
+                          <!-- Highlight indicators -->
+                          <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check" style="color:#10b981"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </ng-container>
+
+              <!-- Loading State -->
+              <div class="detail-loading" *ngIf="detailModalLoading">
+                <div class="spinner"></div>
+                <p>Loading attempt details...</p>
+              </div>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+
+      <!-- Attempts Table -->
+      <div class="attempts-container" *ngIf="!isLoading && !selectedAttemptEmail && attempts.length > 0">
         <table class="attempts-table">
           <thead>
             <tr>
@@ -23,6 +143,7 @@
               <th>Score</th>
               <th>Correct</th>
               <th>Date</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -34,11 +155,17 @@
               <td class="score-cell"><strong>{{ attempt.score }}</strong></td>
               <td>{{ attempt.correctCount }} / {{ attempt.totalQuestions }}</td>
               <td>{{ attempt.lastAttemptDate * 1000 | date: 'medium' }}</td>
+              <td class="action-cell">
+                <button class="view-attempts-btn" (click)="viewAttemptDetail(attempt.email)" title="View Attempt Details">
+                  <i class="ph ph-eye"></i>
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      <!-- No Data -->
       <div class="no-data-fallback" *ngIf="!isLoading && attempts.length === 0">
         <i class="ph ph-users-slash"></i>
         <p>No attempts found for this exam.</p>
@@ -59,7 +186,8 @@
 
   </div>
 
-  <div class="user-profile-tooltip" [ngStyle]="tooltipStyle" *ngIf="hoveredEmail">
+  <!-- User Profile Tooltip -->
+  <div class="user-profile-tooltip" [ngStyle]="tooltipStyle" *ngIf="hoveredEmail && !selectedAttemptEmail">
     <div *ngIf="isProfileLoading" class="tooltip-loader">
       <div class="mini-spinner"></div>
       <span>Loading details...</span>
@@ -69,7 +197,6 @@
       class="tooltip-content">
 
       <div class="profile-header">
-
         <div *ngIf="profileCache[hoveredEmail].profilePictureUrl" class="profile-avatar-container">
           <img [src]="profileCache[hoveredEmail].profilePictureUrl" (error)="onImageError(hoveredEmail)"
             alt="Profile Picture" class="avatar-img">
@@ -86,7 +213,6 @@
             <span class="profile-email">{{ profileCache[hoveredEmail].email || hoveredEmail }}</span>
           </div>
         </div>
-
       </div>
 
       <div class="profile-details">

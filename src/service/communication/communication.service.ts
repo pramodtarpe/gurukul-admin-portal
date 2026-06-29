@@ -43,6 +43,11 @@ export class CommunicationService {
     return this.http.get<any>(apiUrl);
   }
 
+  getExamAttemptByEmail(examId: string, email: string): Observable<any> {
+    const apiUrl = `${environment.apiBase}/api/admin/exam/attempt/${examId}?email=${encodeURIComponent(email)}`;
+    return this.http.get<any>(apiUrl);
+  }
+
   getUserProfileByEmail(email: string): Observable<any> {
     const apiUrl = `${environment.apiBase}/api/admin/profile?email=${encodeURIComponent(email)}`;
     return this.http.get<any>(apiUrl);
