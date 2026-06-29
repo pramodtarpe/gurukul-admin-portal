@@ -37,11 +37,12 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
   detailModalLoading: boolean = false;
   attemptDetail: any = null;
   activeSectionIndex: number = 0;
+  activeQuestionIndex: number = 0;
 
   constructor(
     private communicationService: CommunicationService,
     private notificationService: NotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (this.examId) {
@@ -144,7 +145,7 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
   private updateTooltipPosition() {
     const offsetX = 15;
     const offsetY = 15;
-    
+
     this.tooltipStyle = {
       display: 'block',
       left: `${this.mouseX + offsetX}px`,
@@ -158,14 +159,14 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
     this.detailModalLoading = true;
     this.attemptDetail = null;
     this.activeSectionIndex = 0;
+    this.activeQuestionIndex = 0; // Reset question index
 
     this.communicationService.getExamAttemptByEmail(this.examId, email).subscribe({
       next: (response) => {
-        // Pre-process sections for display (add collapsed state)
+        // Pre-process sections for display
         if (response?.sections) {
           response.sections.forEach((section: any) => {
-            section._collapsed = false;
-            section.questions?.forEach((q: any, _caIdx: number) => {
+            section.questions?.forEach((q: any) => {
               this.setQuestionVerdict(q);
             });
           });
@@ -186,6 +187,30 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
     this.selectedAttemptEmail = null;
     this.attemptDetail = null;
     this.detailModalLoading = false;
+  }
+
+  // --- NEW WORKSPACE NAVIGATION METHODS ---
+  setActiveQuestion(si: number, qi: number) {
+    this.activeSectionIndex = si;
+    this.activeQuestionIndex = qi;
+  }
+
+  navigateQuestion(si: number, qi: number, direction: 'prev' | 'next') {
+    if (direction === 'prev') {
+      if (qi > 0) {
+        this.setActiveQuestion(si, qi - 1);
+      } else if (si > 0) {
+        const prevSection = this.attemptDetail.sections[si - 1];
+        this.setActiveQuestion(si - 1, prevSection.questions.length - 1);
+      }
+    } else {
+      const currentSection = this.attemptDetail.sections[si];
+      if (qi < currentSection.questions.length - 1) {
+        this.setActiveQuestion(si, qi + 1);
+      } else if (si < this.attemptDetail.sections.length - 1) {
+        this.setActiveQuestion(si + 1, 0);
+      }
+    }
   }
 
   selectSection(index: number) {
@@ -254,11 +279,11 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
    */
   getVerdictIcon(question: any): string {
     switch (question._verdict) {
-      case 'correct':     return 'check-circle';
-      case 'incorrect':   return 'x-circle';
+      case 'correct': return 'check-circle';
+      case 'incorrect': return 'x-circle';
       case 'unattempted': return 'minus-circle';
-      case 'unmapped':    return 'info';
-      default:            return 'help-circle';
+      case 'unmapped': return 'info';
+      default: return 'help-circle';
     }
   }
 

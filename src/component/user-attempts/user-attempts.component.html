@@ -68,67 +68,88 @@
               </div>
             </div>
 
-            <!-- Exam Navigator Sidebar (Section Tabs) -->
-            <div class="exam-navigator" *ngIf="attemptDetail.sections && attemptDetail.sections.length > 0">
-              <button type="button"
-                *ngFor="let section of attemptDetail.sections; let si = index;"
-                [class.active]="si === activeSectionIndex"
-                (click)="selectSection(si)">
-                <span class="nav-num">S{{ si + 1 }}</span>
-                <span class="nav-title">{{ section.sectionTitle || ('Section ' + (si + 1)) }}</span>
-                <span class="nav-count">{{ section.questions?.length || 0 }} Q</span>
-              </button>
-            </div>
+            <div class="workspace-split-layout" *ngIf="attemptDetail.sections && attemptDetail.sections.length > 0">
 
-            <!-- Section Content (scrollable) -->
-            <div class="section-content-scroll">
-              <ng-container *ngFor="let section of attemptDetail.sections; let si = index;">
-                <ng-container *ngIf="si === activeSectionIndex">
-                  <div class="section-questions" *ngFor="let question of section.questions; let qi = index;">
+              <div class="workspace-sidebar-nav">
+                <h4>Exam Directory</h4>
+                <div *ngFor="let section of attemptDetail.sections; let si = index" class="sidebar-section-block">
+                  <div class="sidebar-section-header" (click)="setActiveQuestion(si, 0)">
+                    <span class="section-num">S{{ si + 1 }}:</span>
+                    <span class="section-text-title">{{ section.sectionTitle || 'Untitled Section' }}</span>
+                  </div>
+                  <div class="sidebar-questions-grid">
+                    <button type="button" *ngFor="let question of section.questions; let qi = index"
+                      [class]="getVerdictClass(question)"
+                      [class.active-node]="si === activeSectionIndex && qi === activeQuestionIndex"
+                      (click)="setActiveQuestion(si, qi)" [title]="getVerdictText(question)">
+                      {{ qi + 1 }}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                    <!-- Question Card -->
-                    <div class="question-card" [class.question-unanswered]="getVerdictClass(question) === 'verdict-unattempted'">
-                      <div class="q-header">
-                        <span class="q-badge">{{ si + 1 }}-Q{{ qi + 1 }}</span>
-                        <p class="q-text">{{ question.text }}</p>
-                        <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
-                          <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
-                          {{ getVerdictText(question) }}
-                        </button>
-                      </div>
+              <div class="workspace-active-panel">
+                <ng-container *ngFor="let section of attemptDetail.sections; let si = index">
+                  <ng-container *ngIf="si === activeSectionIndex">
+                    <div *ngFor="let question of section.questions; let qi = index">
+                      <div *ngIf="qi === activeQuestionIndex" class="focused-question-card">
 
-                      <!-- Diagram -->
-                      <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
-                        <div class="diagram-wrapper">
-                          <img [src]="getDiagramUrl(question.diagramUrl)" alt="Question Diagram" (error)="onDiagramImageError($event)" />
+                        <div class="q-header">
+                          <span class="q-badge">S{{ si + 1 }} - Q{{ qi + 1 }}</span>
+                          <p class="q-text">{{ question.text }}</p>
+                          <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
+                            <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
+                            {{ getVerdictText(question) }}
+                          </button>
                         </div>
-                      </ng-container>
 
-                      <!-- Options Row -->
-                      <div class="options-row" *ngIf="question.options?.length > 0">
-                        <div class="option-item"
-                          [class.opt-selected]="isOptionSelectedByUser(question, oi)"
-                          [class.opt-correct]="isOptionCorrect(question, oi)"
-                          *ngFor="let opt of question.options; let oi = index;">
+                        <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
+                          <div class="diagram-wrapper">
+                            <img [src]="getDiagramUrl(question.diagramUrl)" alt="Question Diagram"
+                              (error)="onDiagramImageError($event)" />
+                          </div>
+                        </ng-container>
 
-                          <span class="opt-letter">{{ getOptionLetter(oi) }}</span>
-                          <span class="opt-text">{{ opt }}</span>
+                        <div class="options-row" *ngIf="question.options?.length > 0">
+                          <div class="option-item" [class.opt-selected]="isOptionSelectedByUser(question, oi)"
+                            [class.opt-correct]="isOptionCorrect(question, oi)"
+                            *ngFor="let opt of question.options; let oi = index;">
 
-                          <!-- Highlight indicators -->
-                          <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check" style="color:#10b981"></i>
+                            <span class="opt-letter">{{ getOptionLetter(oi) }}</span>
+                            <span class="opt-text">{{ opt }}</span>
+
+                            <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check"
+                              style="color:#10b981"></i>
+                          </div>
                         </div>
+
+                        <div class="workspace-action-footer-row">
+                          <div class="card-pagination-controls">
+                            <button type="button" class="control-nav-btn" [disabled]="si === 0 && qi === 0"
+                              (click)="navigateQuestion(si, qi, 'prev')">
+                              ← Previous
+                            </button>
+                            <button type="button" class="control-nav-btn"
+                              [disabled]="si === (attemptDetail.sections.length - 1) && qi === (section.questions.length - 1)"
+                              (click)="navigateQuestion(si, qi, 'next')">
+                              Next →
+                            </button>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
-                  </div>
+                  </ng-container>
                 </ng-container>
-              </ng-container>
 
-              <!-- Loading State -->
-              <div class="detail-loading" *ngIf="detailModalLoading">
-                <div class="spinner"></div>
-                <p>Loading attempt details...</p>
+                <div class="detail-loading" *ngIf="detailModalLoading">
+                  <div class="spinner"></div>
+                  <p>Loading attempt details...</p>
+                </div>
+
               </div>
             </div>
+
           </ng-container>
 
         </div>
@@ -156,7 +177,8 @@
               <td>{{ attempt.correctCount }} / {{ attempt.totalQuestions }}</td>
               <td>{{ attempt.lastAttemptDate * 1000 | date: 'medium' }}</td>
               <td class="action-cell">
-                <button class="view-attempts-btn" (click)="viewAttemptDetail(attempt.email)" title="View Attempt Details">
+                <button class="view-attempts-btn" (click)="viewAttemptDetail(attempt.email)"
+                  title="View Attempt Details">
                   <i class="ph ph-eye"></i>
                 </button>
               </td>
