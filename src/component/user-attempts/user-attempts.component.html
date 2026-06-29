@@ -25,7 +25,11 @@
               <h3>{{ attemptDetail.examTitle }}</h3>
               <p class="subtitle">Attempt by {{ selectedAttemptEmail }}</p>
             </div>
-            <button class="close-btn" (click)="closeDetailModal()"><i class="ph ph-x"></i></button>
+
+            <button class="close-attempt-btn" (click)="closeDetailModal()">
+              <span>Close Attempt</span>
+              <i class="ph ph-x"></i>
+            </button>
           </div>
 
           <!-- Attempt Metadata Card -->
@@ -95,12 +99,29 @@
                       <div *ngIf="qi === activeQuestionIndex" class="focused-question-card">
 
                         <div class="q-header">
-                          <span class="q-badge">S{{ si + 1 }} - Q{{ qi + 1 }}</span>
+                          <div class="q-top-bar">
+                            <div class="q-top-left">
+                              <span class="q-badge">S{{ si + 1 }} - Q{{ qi + 1 }}</span>
+                              <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
+                                <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
+                                {{ getVerdictText(question) }}
+                              </button>
+                            </div>
+
+                            <div class="card-pagination-controls">
+                              <button type="button" class="control-nav-btn" [disabled]="si === 0 && qi === 0"
+                                (click)="navigateQuestion(si, qi, 'prev')">
+                                ← Previous
+                              </button>
+                              <button type="button" class="control-nav-btn"
+                                [disabled]="si === (attemptDetail.sections.length - 1) && qi === (section.questions.length - 1)"
+                                (click)="navigateQuestion(si, qi, 'next')">
+                                Next →
+                              </button>
+                            </div>
+                          </div>
+
                           <p class="q-text">{{ question.text }}</p>
-                          <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
-                            <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
-                            {{ getVerdictText(question) }}
-                          </button>
                         </div>
 
                         <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
@@ -120,20 +141,6 @@
 
                             <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check"
                               style="color:#10b981"></i>
-                          </div>
-                        </div>
-
-                        <div class="workspace-action-footer-row">
-                          <div class="card-pagination-controls">
-                            <button type="button" class="control-nav-btn" [disabled]="si === 0 && qi === 0"
-                              (click)="navigateQuestion(si, qi, 'prev')">
-                              ← Previous
-                            </button>
-                            <button type="button" class="control-nav-btn"
-                              [disabled]="si === (attemptDetail.sections.length - 1) && qi === (section.questions.length - 1)"
-                              (click)="navigateQuestion(si, qi, 'next')">
-                              Next →
-                            </button>
                           </div>
                         </div>
 
