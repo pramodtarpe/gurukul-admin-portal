@@ -16,8 +16,6 @@
 .modal-content {
   background: #ffffff;
   border-radius: 12px;
-  width: 90%;
-  max-width: 800px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -546,6 +544,7 @@
   color: #1f2937;
   line-height: 1.6;
   font-weight: 500;
+  width: 100%; /* Ensures it takes up the full width below the top-bar */
 }
 
 /* Verdict Badge */
@@ -687,9 +686,10 @@
   .opt-text {
     flex: 1 1 auto;
     line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    word-break: break-word; /* Allows long text/math to wrap cleanly */
+    
+    /* Removed: white-space: nowrap, overflow: hidden, text-overflow: ellipsis */
+    /* This allows the rendered Math/HTML to display fully without being clipped */
   }
 
   i.ph-check {
@@ -732,8 +732,9 @@
 
 /* ==================== VIEW ATTEMPT BUTTON (in table) ==================== */
 .action-cell {
-  width: 50px;
+  width: 140px; /* CRITICAL FIX: Increased from 50px to fit the button */
   text-align: center;
+  white-space: nowrap; /* Prevents the cell from collapsing */
 }
 
 .view-attempts-btn {
@@ -741,20 +742,20 @@
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 8px 16px; /* Wider padding for text-only button */
   border-radius: 8px;
   font-size: .9rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap; /* CRITICAL FIX: Forces text to stay on one line */
   transition: all .2s ease;
   box-shadow: 0 2px 6px rgba(79, 70, 229, .3);
-
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(79, 70, 229, .45);
   }
-
   &:active {
     transform: translateY(0);
   }

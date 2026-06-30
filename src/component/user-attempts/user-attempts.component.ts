@@ -4,10 +4,12 @@ import { CommunicationService } from '../../service/communication/communication.
 import { NotificationService } from '../../service/notification.service';
 import { environment } from '../../environments/environment';
 
+import { MathRenderComponent } from '../math-render/math-render.component';
+
 @Component({
   selector: 'ga-user-attempts',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MathRenderComponent],
   templateUrl: './user-attempts.component.html',
   styleUrl: './user-attempts.component.scss'
 })

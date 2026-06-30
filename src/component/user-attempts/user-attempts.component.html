@@ -121,7 +121,9 @@
                             </div>
                           </div>
 
-                          <p class="q-text">{{ question.text }}</p>
+                          <div class="q-text">
+                            <ga-math-render [content]="question.text"></ga-math-render>
+                          </div>
                         </div>
 
                         <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
@@ -137,7 +139,9 @@
                             *ngFor="let opt of question.options; let oi = index;">
 
                             <span class="opt-letter">{{ getOptionLetter(oi) }}</span>
-                            <span class="opt-text">{{ opt }}</span>
+                            <div class="opt-text">
+                              <ga-math-render [content]="opt"></ga-math-render>
+                            </div>
 
                             <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check"
                               style="color:#10b981"></i>
