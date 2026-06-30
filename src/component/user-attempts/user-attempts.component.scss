@@ -741,14 +741,12 @@
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 8px 16px; /* Slightly wider padding for text-only button */
+  padding: 8px 12px;
   border-radius: 8px;
   font-size: .9rem;
-  font-weight: 500; /* Added slight weight to make text crisp */
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap; /* CRITICAL: Forces text to stay on one line */
   transition: all .2s ease;
   box-shadow: 0 2px 6px rgba(79, 70, 229, .3);
 
