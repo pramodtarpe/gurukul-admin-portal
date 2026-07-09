@@ -371,4 +371,10 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
   getOptionLetter(index: number): string {
     return String.fromCharCode(65 + index);
   }
+
+  // --- Math Sanitizer ---
+  sanitizeMath(text: string | null | undefined): string {
+    if (!text) return '';
+    return text.replace(/\$\$/g, '$');
+  }
 }
