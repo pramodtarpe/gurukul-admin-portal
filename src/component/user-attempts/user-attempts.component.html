@@ -32,140 +32,138 @@
             </button>
           </div>
 
-          <div class="detail-modal-body">
-            <ng-container *ngIf="!detailModalLoading">
-              <div class="attempt-metadata-card" *ngIf="attemptDetail">
-                <div class="meta-row">
-                  <div class="meta-stat highlight-score">
-                    <span class="label">Score</span>
-                    <strong [style.color]="getScoreColor(attemptDetail.score, attemptDetail.totalQuestions)">
-                      {{ attemptDetail.score }}/{{ attemptDetail.totalQuestions }}
-                    </strong>
-                  </div>
-                  <div class="meta-stat">
-                    <i class="ph ph-tag"></i>
-                    <span>{{ attemptDetail.examType }}</span>
-                  </div>
+          <ng-container *ngIf="!detailModalLoading">
+            <div class="attempt-metadata-card" *ngIf="attemptDetail">
+              <div class="meta-row">
+                <div class="meta-stat highlight-score">
+                  <span class="label">Score</span>
+                  <strong [style.color]="getScoreColor(attemptDetail.score, attemptDetail.totalQuestions)">
+                    {{ attemptDetail.score }}/{{ attemptDetail.totalQuestions }}
+                  </strong>
                 </div>
-                <div class="meta-row stats-grid">
-                  <div class="meta-stat">
-                    <i class="ph ph-check-circle" style="color:#059669"></i>
-                    <span>{{ attemptDetail.correctCount }}</span>
-                    <small>Correct</small>
-                  </div>
-                  <div class="meta-stat">
-                    <i class="ph ph-x-circle" style="color:#dc2626"></i>
-                    <span>{{ attemptDetail.wrongCount }}</span>
-                    <small>Wrong</small>
-                  </div>
-                  <div class="meta-stat">
-                    <i class="ph ph-dash-circle" style="color:#9ca3af"></i>
-                    <span>{{ attemptDetail.unattemptedCount }}</span>
-                    <small>Unanswered</small>
-                  </div>
+                <div class="meta-stat">
+                  <i class="ph ph-tag"></i>
+                  <span>{{ attemptDetail.examType }}</span>
                 </div>
-                <div class="meta-row">
-                  <div class="meta-item">
-                    <i class="ph ph-clock"></i>
-                    <span>Last Attempt: {{ formatTimestamp(attemptDetail.lastAttemptDate) }}</span>
+              </div>
+              <div class="meta-row stats-grid">
+                <div class="meta-stat">
+                  <i class="ph ph-check-circle" style="color:#059669"></i>
+                  <span>{{ attemptDetail.correctCount }}</span>
+                  <small>Correct</small>
+                </div>
+                <div class="meta-stat">
+                  <i class="ph ph-x-circle" style="color:#dc2626"></i>
+                  <span>{{ attemptDetail.wrongCount }}</span>
+                  <small>Wrong</small>
+                </div>
+                <div class="meta-stat">
+                  <i class="ph ph-dash-circle" style="color:#9ca3af"></i>
+                  <span>{{ attemptDetail.unattemptedCount }}</span>
+                  <small>Unanswered</small>
+                </div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-item">
+                  <i class="ph ph-clock"></i>
+                  <span>Last Attempt: {{ formatTimestamp(attemptDetail.lastAttemptDate) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="workspace-split-layout" *ngIf="attemptDetail.sections && attemptDetail.sections.length > 0">
+
+              <div class="workspace-sidebar-nav">
+                <h4>Exam Directory</h4>
+                <div *ngFor="let section of attemptDetail.sections; let si = index" class="sidebar-section-block">
+                  <div class="sidebar-section-header" (click)="setActiveQuestion(si, 0)">
+                    <span class="section-num">S{{ si + 1 }}:</span>
+                    <span class="section-text-title">{{ section.sectionTitle || 'Untitled Section' }}</span>
+                  </div>
+                  <div class="sidebar-questions-grid">
+                    <button type="button" *ngFor="let question of section.questions; let qi = index"
+                      [class]="getVerdictClass(question)"
+                      [class.active-node]="si === activeSectionIndex && qi === activeQuestionIndex"
+                      (click)="setActiveQuestion(si, qi)" [title]="getVerdictText(question)">
+                      {{ qi + 1 }}
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div class="workspace-split-layout" *ngIf="attemptDetail.sections && attemptDetail.sections.length > 0">
+              <div class="workspace-active-panel">
+                <ng-container *ngFor="let section of attemptDetail.sections; let si = index">
+                  <ng-container *ngIf="si === activeSectionIndex">
+                    <div *ngFor="let question of section.questions; let qi = index">
+                      <div *ngIf="qi === activeQuestionIndex" class="focused-question-card">
 
-                <div class="workspace-sidebar-nav">
-                  <h4>Exam Directory</h4>
-                  <div *ngFor="let section of attemptDetail.sections; let si = index" class="sidebar-section-block">
-                    <div class="sidebar-section-header" (click)="setActiveQuestion(si, 0)">
-                      <span class="section-num">S{{ si + 1 }}:</span>
-                      <span class="section-text-title">{{ section.sectionTitle || 'Untitled Section' }}</span>
-                    </div>
-                    <div class="sidebar-questions-grid">
-                      <button type="button" *ngFor="let question of section.questions; let qi = index"
-                        [class]="getVerdictClass(question)"
-                        [class.active-node]="si === activeSectionIndex && qi === activeQuestionIndex"
-                        (click)="setActiveQuestion(si, qi)" [title]="getVerdictText(question)">
-                        {{ qi + 1 }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="workspace-active-panel">
-                  <ng-container *ngFor="let section of attemptDetail.sections; let si = index">
-                    <ng-container *ngIf="si === activeSectionIndex">
-                      <div *ngFor="let question of section.questions; let qi = index">
-                        <div *ngIf="qi === activeQuestionIndex" class="focused-question-card">
-
-                          <div class="q-header">
-                            <div class="q-top-bar">
-                              <div class="q-top-left">
-                                <span class="q-badge">S{{ si + 1 }} - Q{{ qi + 1 }}</span>
-                                <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
-                                  <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
-                                  {{ getVerdictText(question) }}
-                                </button>
-                              </div>
-
-                              <div class="card-pagination-controls">
-                                <button type="button" class="control-nav-btn" [disabled]="si === 0 && qi === 0"
-                                  (click)="navigateQuestion(si, qi, 'prev')">
-                                  ← Previous
-                                </button>
-                                <button type="button" class="control-nav-btn"
-                                  [disabled]="si === (attemptDetail.sections.length - 1) && qi === (section.questions.length - 1)"
-                                  (click)="navigateQuestion(si, qi, 'next')">
-                                  Next →
-                                </button>
-                              </div>
+                        <div class="q-header">
+                          <div class="q-top-bar">
+                            <div class="q-top-left">
+                              <span class="q-badge">S{{ si + 1 }} - Q{{ qi + 1 }}</span>
+                              <button type="button" [class]="getVerdictClass(question)" class="verdict-btn">
+                                <i [class]="'ph ph-' + (getVerdictIcon(question))"></i>
+                                {{ getVerdictText(question) }}
+                              </button>
                             </div>
 
-                            <div class="q-text">
-                              <ga-math-render [content]="sanitizeMath(question.text)"></ga-math-render>
+                            <div class="card-pagination-controls">
+                              <button type="button" class="control-nav-btn" [disabled]="si === 0 && qi === 0"
+                                (click)="navigateQuestion(si, qi, 'prev')">
+                                ← Previous
+                              </button>
+                              <button type="button" class="control-nav-btn"
+                                [disabled]="si === (attemptDetail.sections.length - 1) && qi === (section.questions.length - 1)"
+                                (click)="navigateQuestion(si, qi, 'next')">
+                                Next →
+                              </button>
                             </div>
                           </div>
 
-                          <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
-                            <div class="diagram-wrapper">
-                              <img [src]="getDiagramUrl(question.diagramUrl)" alt="Question Diagram"
-                                (error)="onDiagramImageError($event)" />
-                            </div>
-                          </ng-container>
-
-                          <div class="options-row" *ngIf="question.options?.length > 0">
-                            <div class="option-item" [class.opt-selected]="isOptionSelectedByUser(question, oi)"
-                              [class.opt-correct]="isOptionCorrect(question, oi)"
-                              *ngFor="let opt of question.options; let oi = index;">
-
-                              <span class="opt-letter">{{ getOptionLetter(oi) }}</span>
-                              <div class="opt-text">
-                                <ga-math-render [content]="sanitizeMath(opt)"></ga-math-render>
-                              </div>
-
-                              <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check"
-                                style="color:#10b981"></i>
-                            </div>
+                          <div class="q-text">
+                            <ga-math-render [content]="sanitizeMath(question.text)"></ga-math-render>
                           </div>
-
                         </div>
+
+                        <ng-container *ngIf="getDiagramUrl(question.diagramUrl)">
+                          <div class="diagram-wrapper">
+                            <img [src]="getDiagramUrl(question.diagramUrl)" alt="Question Diagram"
+                              (error)="onDiagramImageError($event)" />
+                          </div>
+                        </ng-container>
+
+                        <div class="options-row" *ngIf="question.options?.length > 0">
+                          <div class="option-item" [class.opt-selected]="isOptionSelectedByUser(question, oi)"
+                            [class.opt-correct]="isOptionCorrect(question, oi)"
+                            *ngFor="let opt of question.options; let oi = index;">
+
+                            <span class="opt-letter">{{ getOptionLetter(oi) }}</span>
+                            <div class="opt-text">
+                              <ga-math-render [content]="sanitizeMath(opt)"></ga-math-render>
+                            </div>
+
+                            <i *ngIf="isOptionSelectedByUser(question, oi)" class="ph ph-check"
+                              style="color:#10b981"></i>
+                          </div>
+                        </div>
+
                       </div>
-                    </ng-container>
+                    </div>
                   </ng-container>
+                </ng-container>
 
-                  <div class="detail-loading" *ngIf="detailModalLoading">
-                    <div class="spinner"></div>
-                    <p>Loading attempt details...</p>
-                  </div>
-
+                <div class="detail-loading" *ngIf="detailModalLoading">
+                  <div class="spinner"></div>
+                  <p>Loading attempt details...</p>
                 </div>
+
               </div>
+            </div>
 
-            </ng-container>
-          </div>
-          </div>
+          </ng-container>
+
+        </div>
       </div>
-
       <!-- Attempts Table -->
       <div class="attempts-container" *ngIf="!isLoading && !selectedAttemptEmail && attempts.length > 0">
         <table class="attempts-table">
