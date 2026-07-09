@@ -1,5 +1,5 @@
-<div class="modal-overlay" (click)="closeModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<div class="modal-overlay">
+  <div class="modal-content">
 
     <!-- ===== MAIN ATTEMPTS LIST MODAL ===== -->
     <div class="modal-header">
@@ -17,8 +17,8 @@
       </div>
 
       <!-- Attempt Detail Modal Overlay -->
-      <div class="detail-modal-overlay" *ngIf="selectedAttemptEmail && attemptDetail" (click)="closeDetailModal()">
-        <div class="detail-modal-content" (click)="$event.stopPropagation()">
+      <div class="detail-modal-overlay" *ngIf="selectedAttemptEmail && attemptDetail">
+        <div class="detail-modal-content">
 
           <div class="detail-modal-header">
             <div>
