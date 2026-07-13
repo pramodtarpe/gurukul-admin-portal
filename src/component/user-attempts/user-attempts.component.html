@@ -187,8 +187,14 @@
               <td>{{ attempt.lastAttemptDate * 1000 | date: 'medium' }}</td>
               <td class="action-cell">
                 <button class="view-attempts-btn" (click)="viewAttemptDetail(attempt.email)"
-                  title="View Attempt Details">
-                  <span>View Attempt</span>
+                  title="View Attempt Details" [disabled]="loadingAttemptEmail === attempt.email">
+                  <ng-container *ngIf="loadingAttemptEmail !== attempt.email">
+                    <span>View Attempt</span>
+                  </ng-container>
+                  <ng-container *ngIf="loadingAttemptEmail === attempt.email">
+                    <i class="ph ph-circle-notch spinning"></i>
+                    <span>Loading...</span>
+                  </ng-container>
                 </button>
               </td>
             </tr>

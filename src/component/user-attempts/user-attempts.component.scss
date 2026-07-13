@@ -544,7 +544,8 @@
   color: #1f2937;
   line-height: 1.6;
   font-weight: 500;
-  width: 100%; /* Ensures it takes up the full width below the top-bar */
+  width: 100%;
+  /* Ensures it takes up the full width below the top-bar */
 }
 
 /* Verdict Badge */
@@ -686,8 +687,9 @@
   .opt-text {
     flex: 1 1 auto;
     line-height: 1.4;
-    word-break: break-word; /* Allows long text/math to wrap cleanly */
-    
+    word-break: break-word;
+    /* Allows long text/math to wrap cleanly */
+
     /* Removed: white-space: nowrap, overflow: hidden, text-overflow: ellipsis */
     /* This allows the rendered Math/HTML to display fully without being clipped */
   }
@@ -732,9 +734,11 @@
 
 /* ==================== VIEW ATTEMPT BUTTON (in table) ==================== */
 .action-cell {
-  width: 140px; /* CRITICAL FIX: Increased from 50px to fit the button */
+  width: 140px;
+  /* CRITICAL FIX: Increased from 50px to fit the button */
   text-align: center;
-  white-space: nowrap; /* Prevents the cell from collapsing */
+  white-space: nowrap;
+  /* Prevents the cell from collapsing */
 }
 
 .view-attempts-btn {
@@ -742,22 +746,39 @@
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 8px 16px; /* Wider padding for text-only button */
+  padding: 8px 16px;
   border-radius: 8px;
   font-size: .9rem;
   font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap; /* CRITICAL FIX: Forces text to stay on one line */
+  gap: 8px;
+  /* Adds space between spinner and text */
+  white-space: nowrap;
   transition: all .2s ease;
   box-shadow: 0 2px 6px rgba(79, 70, 229, .3);
-  &:hover {
+
+  &:hover:not(:disabled) {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(79, 70, 229, .45);
   }
-  &:active {
+
+  &:active:not(:disabled) {
     transform: translateY(0);
+  }
+
+  /* Professional Disabled / Loading State */
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    box-shadow: none;
+  }
+
+  .spinning {
+    animation: spin 1s linear infinite;
+    font-size: 1.1rem;
   }
 }
 

@@ -36,6 +36,7 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
 
   // --- Detail Modal State ---
   selectedAttemptEmail: string | null = null;
+  loadingAttemptEmail: string | null = null;
   detailModalLoading: boolean = false;
   attemptDetail: any = null;
   activeSectionIndex: number = 0;
@@ -157,11 +158,8 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
 
   // --- View Attempt Detail Modal ---
   viewAttemptDetail(email: string) {
-    this.selectedAttemptEmail = email;
-    this.detailModalLoading = true;
+    this.loadingAttemptEmail = email; // Start the button spinner
     this.attemptDetail = null;
-    this.activeSectionIndex = 0;
-    this.activeQuestionIndex = 0; // Reset question index
 
     this.communicationService.getExamAttemptByEmail(this.examId, email).subscribe({
       next: (response) => {
@@ -173,14 +171,20 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
             });
           });
         }
+
         this.attemptDetail = response;
-        this.detailModalLoading = false;
+        this.activeSectionIndex = 0;
+        this.activeQuestionIndex = 0;
+
+        // Modal only opens AFTER data is completely ready
+        this.selectedAttemptEmail = email;
+        this.loadingAttemptEmail = null; // Stop the button spinner
       },
       error: (error) => {
         console.error('Error fetching attempt detail:', error);
-        this.notificationService.showError('Failed to load attempt details.');
-        this.detailModalLoading = false;
-        this.selectedAttemptEmail = null;
+        // Toast notification provides a professional error transition
+        this.notificationService.showError('Failed to load attempt details. Please try again.');
+        this.loadingAttemptEmail = null; // Stop the button spinner on error
       }
     });
   }

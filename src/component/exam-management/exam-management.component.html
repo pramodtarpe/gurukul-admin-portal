@@ -43,8 +43,10 @@
           </div>
 
           <div class="exam-controls">
-            <button class="view-attempts-btn" (click)="viewAttempts(exam)" title="View Attempts">
-              <i class="ph ph-users"></i>
+            <button class="view-attempts-btn" (click)="viewAttempts(exam)" title="View Attempts"
+              [disabled]="isOpeningAttemptsFor === exam.examId">
+              <i class="ph"
+                [ngClass]="isOpeningAttemptsFor === exam.examId ? 'ph-circle-notch spinning' : 'ph-users'"></i>
             </button>
             <button class="edit-exam-btn" [routerLink]="['/edit-exam', exam.examId]" title="Edit Exam"><i
                 class="ph ph-pencil-simple"></i></button>

@@ -150,6 +150,7 @@ $bg-card: #ffffff;
     border-color: #94a3b8;
 
     .exam-controls {
+
       .edit-exam-btn,
       .delete-exam-btn {
         background-color: #f8fafc;
@@ -292,8 +293,19 @@ $bg-card: #ffffff;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  
-  &:hover { background: #e0e7ff; }
+
+  &:hover:not(:disabled) {
+    background: #e0e7ff;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .spinning {
+    animation: spin 1s linear infinite;
+  }
 }
 
 // Loader
@@ -326,8 +338,13 @@ $bg-card: #ffffff;
 }
 
 @keyframes spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Pagination Controls

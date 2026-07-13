@@ -34,6 +34,7 @@ export class ExamManagementComponent implements OnInit {
 
   showAttemptsModal = false;
   selectedExamForAttempts: any = null;
+  isOpeningAttemptsFor: string | null = null;
 
   constructor(
     private communicationService: CommunicationService,
@@ -108,8 +109,12 @@ export class ExamManagementComponent implements OnInit {
   examToDelete: any = null;
 
   viewAttempts(exam: any): void {
-    this.selectedExamForAttempts = exam;
-    this.showAttemptsModal = true;
+    this.isOpeningAttemptsFor = exam.examId; 
+    setTimeout(() => {
+      this.selectedExamForAttempts = exam;
+      this.showAttemptsModal = true;
+      this.isOpeningAttemptsFor = null;
+    }, 350);
   }
 
   closeAttemptsModal(): void {
