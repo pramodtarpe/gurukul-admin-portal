@@ -36,9 +36,9 @@ export class CommunicationService {
   }
 
   getExamAttempts(examId: string, cursor?: string): Observable<any> {
-    let apiUrl = `${environment.apiBase}/api/admin/exam/attempts/${examId}`;
+    let apiUrl = `${environment.apiBase}/api/admin/exam/attempts/${examId}?limit=5`;
     if (cursor) {
-      apiUrl += `?cursor=${encodeURIComponent(cursor)}`;
+      apiUrl += `&cursor=${encodeURIComponent(cursor)}`;
     }
     return this.http.get<any>(apiUrl);
   }
