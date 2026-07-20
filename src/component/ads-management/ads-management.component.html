@@ -19,22 +19,31 @@
       </div>
 
       <div class="image-slots-grid">
-        <div *ngFor="let slot of imageSlots; let i = index" [class.has-image]="slot.imageUrl || slot.previewUrl"
+        <div *ngFor="let slot of imageSlots; let i = index" 
+          [class.has-image]="slot.imageUrl || slot.previewUrl"
+          [class.removing]="slot.removing"
           class="slot-card">
-
+          
           <!-- Slot Header with Remove Button -->
           <div class="slot-header">
             <span class="slot-label">Slot {{ i + 1 }}</span>
-            <button type="button" *ngIf="canRemove(slot)" (click)="removeImage(i)" [disabled]="slot.uploading"
+            <button type="button" *ngIf="canRemove(slot)" (click)="removeImage(i)" [disabled]="slot.uploading || slot.removing"
               title="Remove image" class="remove-btn">
               <i class="ph ph-trash"></i>
             </button>
           </div>
 
           <!-- Live Image -->
-          <div class="preview-zone" *ngIf="!slot.file && slot.imageUrl">
+          <div class="preview-zone" *ngIf="!slot.file && slot.imageUrl && !slot.removing">
             <img [src]="slot.imageUrl" (error)="onImageError($event)" alt="Slot {{ i + 1 }} image" />
             <span class="live-badge"><i class="ph ph-check-circle"></i> Live</span>
+          </div>
+
+          <!-- NEW: Shimmer during deletion -->
+          <div class="preview-zone removing-active" *ngIf="slot.removing">
+            <img [src]="slot.imageUrl || ''" alt="Removing preview" />
+            <div class="shimmer-overlay"></div>
+            <span class="removing-badge"><i class="ph ph-spinner ph-spin"></i> Removing...</span>
           </div>
 
           <!-- Shimmer during upload -->
@@ -45,7 +54,7 @@
           </div>
 
           <!-- Empty Upload Area -->
-          <div class="upload-drop-area" *ngIf="!slot.file && !slot.imageUrl">
+          <div class="upload-drop-area" *ngIf="!slot.file && !slot.imageUrl && !slot.removing">
             <input type="file" #fileInput (change)="onFileSelected($event, i)" accept="image/*" style="display:none" />
             <button type="button" class="upload-btn" (click)="fileInput.click()">
               <i class="ph ph-upload-simple"></i> Upload Image {{ i + 1 }}

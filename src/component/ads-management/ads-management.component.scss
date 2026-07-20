@@ -84,6 +84,12 @@
         background: #f8faff;
       }
 
+      &.removing {
+        border-color: #fca5a5;
+        background: #fef2f2;
+        opacity: 0.8;
+      }
+
       .slot-header {
         display: flex;
         justify-content: space-between;
@@ -170,18 +176,57 @@
           opacity: 0.6;
           animation: shimmer-fade 1s ease-in-out infinite alternate-reverse;
         }
+
+        .removing-badge {
+          position: absolute;
+          bottom: 6px;
+          right: 6px;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          background: rgba(239, 68, 68, 0.9);
+          /* Red color for removal */
+          color: #ffffff;
+        }
+
+        &.removing-active img {
+          opacity: 0.4;
+          filter: grayscale(100%);
+        }
       }
 
       @keyframes shimmer-slide {
-        0% { transform: translateX(-100%); }
-        50%, 80% { transform: translateX(100%); }
-        100% { transform: translateX(100%); }
+        0% {
+          transform: translateX(-100%);
+        }
+
+        50%,
+        80% {
+          transform: translateX(100%);
+        }
+
+        100% {
+          transform: translateX(100%);
+        }
       }
 
       @keyframes shimmer-fade {
-        0% { opacity: 0.4; }
-        50%, 80% { opacity: 0.7; }
-        100% { opacity: 1; }
+        0% {
+          opacity: 0.4;
+        }
+
+        50%,
+        80% {
+          opacity: 0.7;
+        }
+
+        100% {
+          opacity: 1;
+        }
       }
 
       .upload-drop-area {
@@ -220,4 +265,3 @@
     }
   }
 }
-

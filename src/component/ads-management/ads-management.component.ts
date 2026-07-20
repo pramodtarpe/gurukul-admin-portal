@@ -12,6 +12,7 @@ export interface ICarouselImageSlot {
   uploading: boolean;
   uploaded: boolean;
   progress: number;
+  removing?: boolean;
 }
 
 @Component({
@@ -61,14 +62,23 @@ export class AdsManagementComponent implements OnInit {
     this.isLoadingBanners = true;
     this.communicationService.getCarouselBanners().subscribe({
       next: (urls) => {
-        urls.forEach((url, index) => {
-          if (index < this.maxImages && this.imageSlots[index]) {
-            this.imageSlots[index].imageUrl = url;
-            this.imageSlots[index].previewUrl = url;
-            this.imageSlots[index].uploaded = true;
+        // CRITICAL FIX: Loop over all maxImages to guarantee stale data is wiped out
+        for (let i = 0; i < this.maxImages; i++) {
+          if (i < urls.length) {
+            this.imageSlots[i].imageUrl = urls[i];
+            this.imageSlots[i].previewUrl = urls[i];
+            this.imageSlots[i].uploaded = true;
+          } else {
+            // Explicitly clear trailing slots!
+            this.imageSlots[i].imageUrl = null;
+            this.imageSlots[i].previewUrl = null;
+            this.imageSlots[i].uploaded = false;
           }
-        });
+          this.imageSlots[i].removing = false; // Reset removing state
+        }
+        
         this.isLoadingBanners = false;
+        this.cdr.detectChanges(); // Ensure UI reflects the change immediately
       },
       error: (error) => {
         console.error('Error fetching carousel banners:', error);
@@ -102,13 +112,11 @@ export class AdsManagementComponent implements OnInit {
     const slot = this.imageSlots[index];
     
     try {
-      // Step 1: Get presigned URL from backend (passes X-File-Type header)
       const fileName = `carousel/images/ADS_${Date.now()}_${Math.random().toString(36).substring(7)}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-
-      console.log('[Ads] Step 1: Generating presigned URL for file:', file.name);
+      
       const presignedResponse = await new Promise<any>((resolve, reject) => {
         this.communicationService.generateCarouselImagePresignedUrl(fileName, file.type).subscribe({
-          next: (res) => { resolve(res); console.log('[Ads] Step 1 complete:', res); },
+          next: (res) => resolve(res),
           error: (err) => reject(err)
         });
       });
@@ -120,30 +128,22 @@ export class AdsManagementComponent implements OnInit {
         throw new Error('No uploadUrl returned from backend');
       }
 
-      // Step 2: PUT to S3 presigned URL (bypasses auth interceptor via HttpBackend)
       slot.uploading = true;
-      console.log('[Ads] Step 2: Uploading to S3, file size:', file.size);
       
       await new Promise<void>((resolve, reject) => {
         this.communicationService.uploadCarouselImageToS3(uploadUrl, file).subscribe({
           next: () => resolve(),
-          error: (err) => { console.error('[Ads] Step 2 failed:', err); reject(err); }
+          error: (err) => reject(err)
         });
       });
-      console.log('[Ads] Step 2 complete');
 
-      // Step 3: Register the image URL with backend at specific index (0-4)
-      console.log(`[Ads] Step 3: Replacing carousel image at index ${index}`);
-      
       await new Promise<void>((resolve, reject) => {
         this.communicationService.replaceCarouselImage(index, fileUrl).subscribe({
           next: () => resolve(),
-          error: (err) => { console.error('[Ads] Step 3 failed:', err); reject(err); }
+          error: (err) => reject(err)
         });
       });
-      console.log('[Ads] Step 3 complete');
 
-      // Success — update slot state in Angular zone so change detection fires
       this.ngZone.run(() => {
         slot.file = null;
         slot.previewUrl = null;
@@ -151,14 +151,13 @@ export class AdsManagementComponent implements OnInit {
         slot.uploaded = true;
         slot.uploading = false;
         this.notificationService.showSuccess(`Image uploaded to Slot ${index + 1} successfully!`);
-        // Force change detection (some cases async RxJS callbacks don't trigger it)
         this.cdr.markForCheck();
       });
+
     } catch (error) {
       console.error('[Ads] Error uploading carousel image:', error);
       this.ngZone.run(() => {
         this.notificationService.showError(`Failed to upload "${file.name}". Please try again.`);
-        // Reset state on error so user can retry
         slot.uploading = false;
         if (!slot.imageUrl) {
           slot.file = null;
@@ -171,38 +170,34 @@ export class AdsManagementComponent implements OnInit {
 
   canRemove(slot: ICarouselImageSlot): boolean {
     const hasImage = !!slot.imageUrl || !!slot.previewUrl;
-    return !slot.uploading && hasImage;
-  }
-
-  // Force a re-render of the entire grid (useful after async operations)
-  forceRefresh(): void {
-    this.cdr.detectChanges();
+    return !slot.uploading && !slot.removing && hasImage;
   }
 
   removeImage(index: number): void {
     const slot = this.imageSlots[index];
     
-    if (slot.uploading) {
-      this.notificationService.showError('Please wait for current upload to finish.');
+    if (slot.uploading || slot.removing) {
+      this.notificationService.showError('Please wait for current operation to finish.');
       return;
     }
+
+    // Set removing state for smooth transition
+    slot.removing = true;
     
-    // Clean up preview URL before removal
     if (slot.previewUrl && !slot.imageUrl) {
       URL.revokeObjectURL(slot.previewUrl);
     }
     
-    // POST /api/admin/carousel/remove/{index}
     this.communicationService.removeCarouselImage(index).subscribe({
       next: () => {
-        console.log(`[Ads] Removed carousel image at index ${index}`);
-        
-        // Reload fresh state from server — images auto-reorder
+        // Automatically fetches and correctly parses the array, 
+        // shifting the images forward and blanking the empty slots.
         this.loadCarouselBanners();
         this.notificationService.showSuccess('Image removed successfully.');
       },
       error: (error) => {
         console.error('[Ads] Failed to remove image:', error);
+        slot.removing = false;
         this.notificationService.showError('Failed to remove image. Please try again.');
       }
     });
@@ -213,7 +208,6 @@ export class AdsManagementComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    // Clean up preview URLs
     this.imageSlots.forEach(slot => {
       if (slot.previewUrl && !slot.imageUrl) {
         URL.revokeObjectURL(slot.previewUrl);
