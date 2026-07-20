@@ -180,4 +180,44 @@ export class CommunicationService {
     const apiUrl = `${environment.apiBase}/api/admin/news/${newsId}`;
     return this.http.delete<any>(apiUrl);
   }
+
+  // --- CAROUSEL / ADS MANAGEMENT APIs ---
+
+  // S3 UPLOAD STEP 1: Get presigned URL for carousel image upload to S3
+  generateCarouselImagePresignedUrl(fileName: string, fileType: string): Observable<any> {
+    const apiUrl = `${environment.apiBase}/api/admin/carousel/image-url?fileName=${encodeURIComponent(fileName)}`;
+    return this.http.post<any>(apiUrl, {}, {
+      headers: {
+        'X-File-Type': fileType
+      }
+    });
+  }
+
+  // Upload file directly to S3 (bypasses Auth Interceptor)
+  uploadCarouselImageToS3(uploadUrl: string, file: File): Observable<any> {
+    const bypassHttp = new HttpClient(this.httpBackend);
+    return bypassHttp.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': file.type
+      },
+      responseType: 'text'
+    });
+  }
+
+  // Replace a carousel image at specific index (0-4)
+  replaceCarouselImage(index: number, newImageUrl: string): Observable<any> {
+    const apiUrl = `${environment.apiBase}/api/admin/carousel/replace/${index}`;
+    return this.http.post<any>(apiUrl, { newImageUrl });
+  }
+
+  // Remove a carousel image at specific index (0-4)
+  removeCarouselImage(index: number): Observable<any> {
+    const apiUrl = `${environment.apiBase}/api/admin/carousel/remove/${index}`;
+    return this.http.post<any>(apiUrl, {});
+  }
+
+  // Fetch public carousel banners (no auth required)
+  getCarouselBanners(): Observable<string[]> {
+    return this.http.get<string[]>(`${environment.apiBase}/api/public/carousel/banners`);
+  }
 }

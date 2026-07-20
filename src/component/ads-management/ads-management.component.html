@@ -1,0 +1,62 @@
+<div class="ads-management-container">
+
+  <div class="ads-header">
+    <div class="header-title-block">
+      <h2>Ads Management</h2>
+      <p>Upload up to 5 images for the home screen carousel. Images are uploaded automatically when selected.</p>
+    </div>
+  </div>
+
+  <div class="ads-card">
+    <div class="card-header">
+      <h3><i class="ph ph-images"></i> Carousel Slots</h3>
+    </div>
+    <div class="card-body">
+
+      <div class="loader-wrapper" *ngIf="isLoadingBanners && !hasLoadedImages()">
+        <i class="ph ph-spinner ph-spin"></i>
+        <p>Loading carousel images...</p>
+      </div>
+
+      <div class="image-slots-grid">
+        <div *ngFor="let slot of imageSlots; let i = index" [class.has-image]="slot.imageUrl || slot.previewUrl"
+          class="slot-card">
+
+          <!-- Slot Header with Remove Button -->
+          <div class="slot-header">
+            <span class="slot-label">Slot {{ i + 1 }}</span>
+            <button type="button" *ngIf="canRemove(slot)" (click)="removeImage(i)" [disabled]="slot.uploading"
+              title="Remove image" class="remove-btn">
+              <i class="ph ph-trash"></i>
+            </button>
+          </div>
+
+          <!-- Live Image -->
+          <div class="preview-zone" *ngIf="!slot.file && slot.imageUrl">
+            <img [src]="slot.imageUrl" (error)="onImageError($event)" alt="Slot {{ i + 1 }} image" />
+            <span class="live-badge"><i class="ph ph-check-circle"></i> Live</span>
+          </div>
+
+          <!-- Shimmer during upload -->
+          <div class="preview-zone shimmer-active" *ngIf="slot.file && slot.uploading">
+            <img [src]="slot.previewUrl || ''" alt="Slot {{ i + 1 }} preview" />
+            <div class="shimmer-overlay"></div>
+            <span class="new-badge"><i class="ph ph-spinner ph-spin"></i> Uploading...</span>
+          </div>
+
+          <!-- Empty Upload Area -->
+          <div class="upload-drop-area" *ngIf="!slot.file && !slot.imageUrl">
+            <input type="file" #fileInput (change)="onFileSelected($event, i)" accept="image/*" style="display:none" />
+            <button type="button" class="upload-btn" (click)="fileInput.click()">
+              <i class="ph ph-upload-simple"></i> Upload Image {{ i + 1 }}
+            </button>
+            <p class="hint">Max 5MB, JPG/PNG</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

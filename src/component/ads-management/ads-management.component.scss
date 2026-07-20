@@ -1,0 +1,223 @@
+// Ads Management Component Styles
+
+.ads-management-container {
+  padding: 1.5rem;
+
+  .ads-header {
+    margin-bottom: 1.5rem;
+
+    .header-title-block {
+      h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.25rem;
+      }
+
+      p {
+        font-size: 0.95rem;
+        color: #64748b;
+        margin: 0;
+      }
+    }
+  }
+
+  .ads-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          color: #4f46e5;
+        }
+      }
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+
+  .loader-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem;
+    color: #64748b;
+
+    i {
+      font-size: 2rem;
+    }
+  }
+
+  .image-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.25rem;
+
+    .slot-card {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 1rem;
+      transition: all 0.2s ease;
+      position: relative;
+
+      &.has-image {
+        border-style: solid;
+        border-color: #4f46e5;
+        background: #f8faff;
+      }
+
+      .slot-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+
+        .slot-label {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #4f46e5;
+        }
+
+        .remove-btn {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #ef4444;
+          transition: all 0.2s ease;
+
+          &:hover:not(:disabled) {
+            background: #fef2f2;
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+      }
+
+      .preview-zone {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+        background: #e2e8f0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: opacity 0.3s ease-in-out;
+        }
+
+        .shimmer-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+          animation: shimmer-slide 1s ease-in-out infinite;
+        }
+
+        .live-badge,
+        .new-badge {
+          position: absolute;
+          bottom: 6px;
+          right: 6px;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+        }
+
+        .live-badge {
+          background: rgba(22, 163, 74, 0.9);
+          color: #ffffff;
+        }
+
+        .new-badge {
+          background: rgba(79, 70, 229, 0.9);
+          color: #ffffff;
+        }
+
+        &.shimmer-active img {
+          opacity: 0.6;
+          animation: shimmer-fade 1s ease-in-out infinite alternate-reverse;
+        }
+      }
+
+      @keyframes shimmer-slide {
+        0% { transform: translateX(-100%); }
+        50%, 80% { transform: translateX(100%); }
+        100% { transform: translateX(100%); }
+      }
+
+      @keyframes shimmer-fade {
+        0% { opacity: 0.4; }
+        50%, 80% { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+
+      .upload-drop-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+
+        .upload-btn {
+          background: #4f46e5;
+          border: none;
+          cursor: pointer;
+          color: #ffffff;
+          font-size: 0.8rem;
+          font-weight: 500;
+          padding: 0.6rem 1rem;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: #4338ca;
+          }
+        }
+
+        .hint {
+          font-size: 0.75rem;
+          color: #94a3b8;
+          margin: 0;
+        }
+      }
+
+    }
+  }
+}
+

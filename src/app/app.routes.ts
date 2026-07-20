@@ -11,6 +11,7 @@ import { authGuard } from '../service/auth/auth.guard'; // Import your route gua
 import { UploadFileComponent } from '../component/upload-file/upload-file.component';
 import { MaintenanceStatusComponent } from '../component/maintenance-status/maintenance-status.component';
 import { NewsManagementComponent } from '../component/news-management/news-management.component';
+import { AdsManagementComponent } from '../component/ads-management/ads-management.component';
 
 export const routes: Routes = [
   {
@@ -55,6 +56,11 @@ export const routes: Routes = [
   {
     path: 'news',
     component: NewsManagementComponent,
+    canActivate: [authGuard] // Secure route
+  },
+  {
+    path: 'ads',
+    component: AdsManagementComponent,
     canActivate: [authGuard] // Secure route
   },
   {
