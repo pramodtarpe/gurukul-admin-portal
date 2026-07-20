@@ -128,14 +128,14 @@
     .create-header-flex {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
         gap: 0.75rem;
         flex-wrap: wrap;
     }
 
     .header-left {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 0.8rem;
         flex-wrap: nowrap;
         min-width: 0;
@@ -195,7 +195,13 @@
     }
 }
 
-.title-block h2 {
+.title-block {
+        display: flex;
+        align-items: center;
+        min-height: 100%;
+    }
+
+    .title-block h2 {
     margin: 0;
     font-size: clamp(1.15rem, 3vw, 1.4rem);
     color: #0f172a;
