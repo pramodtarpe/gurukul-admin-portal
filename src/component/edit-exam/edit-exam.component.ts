@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { ExamBuilderComponent } from '../exam-builder/exam-builder.component';
@@ -12,8 +12,10 @@ import { NotificationService } from '../../service/notification.service';
   template: `
     <ga-exam-builder 
       *ngIf="examData"
+      #examBuilder
       mode="edit"
       [initialData]="examData"
+      [draftScopeId]="examId"
       [isSubmitting]="isSubmitting"
       (save)="handleSave($event)"
       (cancel)="handleCancel()">
@@ -24,10 +26,14 @@ import { NotificationService } from '../../service/notification.service';
     </div>
   `
 })
-export class EditExamComponent implements OnInit {
+export class EditExamComponent implements OnInit, AfterViewInit {
+  @ViewChild('examBuilder') examBuilder!: ExamBuilderComponent;
+
   examId: string | null = null;
   examData: any = null;
   isSubmitting = false;
+
+  ngAfterViewInit() { /* ViewChild ready */ }
 
   constructor(
     private communicationService: CommunicationService,
@@ -64,6 +70,7 @@ export class EditExamComponent implements OnInit {
     this.communicationService.updateExam(this.examId, finalPayload).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.examBuilder?.onPublishSuccess();
         this.notificationService.showSuccess('Exam changes saved successfully!');
         setTimeout(() => {
           this.router.navigate(['/exam'], { queryParams: { type: formPayload.examType } });
@@ -71,8 +78,9 @@ export class EditExamComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
+        // Draft preserved on failure — user can retry
+        this.notificationService.showError('Failed to update the exam. Your progress has been saved as a draft and will be restored.');
         this.isSubmitting = false;
-        this.notificationService.showError('Failed to update the exam.');
       }
     });
   }

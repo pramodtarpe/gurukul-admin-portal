@@ -1,5 +1,111 @@
 /* ===== Responsive Exam Builder Styles ===== */
 
+/* ================================================================
+ * Last Saved Indicator — inline pill badge (compact header)
+ * ================================================================ */
+
+.last-saved-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #16a34a;
+    font-size: clamp(0.7rem, 1.3vw, 0.78rem);
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.2rem 0.5rem;
+    background: #f0fdf4;
+    border-radius: 99px;
+
+    i {
+        font-size: 0.8rem;
+        color: #22c55e;
+    }
+
+    animation: fadeInSaved 0.3s ease-out;
+}
+
+/* ================================================================
+ * Auto-save spinner — inline pill badge in header during auto-save
+ * ================================================================ */
+
+.autosave-spinner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #f59e0b;
+    font-size: clamp(0.72rem, 1.4vw, 0.8rem);
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.25rem 0.6rem;
+    background: #fef3c7;
+    border-radius: 99px;
+
+    i {
+        font-size: 0.85rem;
+    }
+}
+
+/* ================================================================
+ * Draft Status Bar (compact, inline, and space-saving)
+ * ================================================================ */
+
+.draft-status-bar {
+    display: inline-flex;
+    align-items: center;
+}
+
+.draft-status-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    width: fit-content;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+
+    i {
+        font-size: 0.9rem;
+    }
+
+    span {
+        white-space: nowrap;
+    }
+}
+
+.draft-status-content .discard-draft-btn,
+.draft-status-content .save-draft-btn {
+    border: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 0.15rem;
+    white-space: nowrap;
+}
+
+.draft-status-content .discard-draft-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.draft-status-content .save-draft-btn {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.draft-status-content .discard-draft-btn:hover {
+    background: #fecaca;
+}
+
+.draft-status-content .save-draft-btn:hover {
+    background: #fde68a;
+}
+
 .edit-exam-container {
     padding: clamp(1rem, 3vw, 2rem);
     max-width: 1400px;
@@ -7,76 +113,125 @@
     font-family: var(--font-family, sans-serif);
 }
 
-/* ---- Back Button ---- */
-.go-back-button button {
-    background: none;
-    border: none;
-    color: #4f46e5;
+/* ================================================================
+ * Compact Header Layout — left/right split with inline badges
+ * ================================================================ */
+
+.edit-exam-header {
+    margin-bottom: 0.7rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+
+    .create-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.8rem;
+        flex-wrap: nowrap;
+        min-width: 0;
+
+        @media (max-width: 768px) {
+            flex-wrap: wrap;
+        }
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-shrink: 0;
+    }
+
+    .header-status-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin-top: 0.25rem;
+    }
+
+    .header-status-group--right {
+        margin-top: 0;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        border: none;
+    }
+}
+
+/* ---- Compact Back Button ---- */
+.go-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
     font-weight: 600;
     cursor: pointer;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: clamp(0.85rem, 2vw, 0.95rem);
+    padding: 0.45rem 0.7rem;
+    border-radius: 999px;
+    font-size: clamp(0.78rem, 1.7vw, 0.9rem);
+    transition: all 0.2s ease;
 
     &:hover {
-        text-decoration: underline;
+        background: #eef2ff;
+        color: #4338ca;
+        border-color: #c7d2fe;
+    }
+
+    i {
+        font-size: 0.95rem;
     }
 }
 
-/* ---- Header ---- */
-.edit-exam-header {
-    margin-bottom: clamp(1rem, 3vh, 2rem);
-
-    h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: clamp(1.4rem, 4vw, 1.8rem);
-        color: #0f172a;
-    }
-
-    span {
-        color: #64748b;
-        font-size: clamp(0.8rem, 2vw, 0.95rem);
-    }
-}
-
-.create-header-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.header-info {
-    min-width: 200px;
+.title-block h2 {
+    margin: 0;
+    font-size: clamp(1.15rem, 3vw, 1.4rem);
+    color: #0f172a;
+    line-height: 1.2;
 }
 
 .add-section-header-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    background-color: #10b981;
+    gap: 0.4rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     border: none;
-    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.25rem);
-    border-radius: 8px;
-    font-weight: 600;
+    padding: clamp(0.4rem, 1vw, 0.55rem) clamp(0.8rem, 2vw, 1rem);
+    border-radius: 999px;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     white-space: nowrap;
+    font-size: clamp(0.78rem, 1.8vw, 0.88rem);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
 
     &:hover:not(:disabled) {
-        background-color: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25);
     }
 
     &:disabled {
-        background-color: #94a3b8;
+        background: #94a3b8;
         cursor: not-allowed;
         opacity: 0.7;
+        box-shadow: none;
     }
 
     i {
-        font-size: clamp(1rem, 2vw, 1.2rem);
+        font-size: clamp(0.9rem, 2vw, 1.05rem);
     }
 }
 
@@ -1035,6 +1190,17 @@
 }
 
 /* ---- Animations ---- */
+@keyframes fadeInSaved {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -1063,7 +1229,7 @@
         padding: 0.75rem;
     }
 
-    .create-header-flex {
+    .edit-exam-header .create-header-flex {
         flex-direction: column;
         align-items: stretch;
     }

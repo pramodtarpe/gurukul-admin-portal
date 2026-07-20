@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChanges, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, SimpleChanges, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CommunicationService } from '../../service/communication/communication.service';
@@ -7,6 +7,94 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { switchMap } from 'rxjs';
 import 'mathlive';
 import { NotificationService } from '../../service/notification.service';
+
+// ============================================================
+// IndexedDB Helpers — Lightweight wrapper (no external deps)
+// ============================================================
+
+/** Default IndexedDB name and object store for exam drafts. */
+const INDEXED_DB_NAME = 'GurukulAdminDB';
+const DRAFT_STORE_NAME = 'examDrafts';
+const DB_VERSION = 1;
+
+interface DraftRecord {
+  /** Composite key: "create" or "edit-{examId}" */
+  id: string;
+  formValue: any;
+  activeSectionIndex?: number;
+  activeQuestionIndex?: number;
+  savedAt: string; // ISO timestamp
+}
+
+class IndexedDBHelper {
+  private db: IDBDatabase | null = null;
+  private openPromise: Promise<IDBDatabase> | null = null;
+
+  /** Opens (or reuses) the database connection. */
+  private async getDb(): Promise<IDBDatabase> {
+    if (this.db) return this.db;
+    if (!this.openPromise) {
+      this.openPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(INDEXED_DB_NAME, DB_VERSION);
+        // Upgrade on first install or when bumping DB_VERSION
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(DRAFT_STORE_NAME)) {
+            const store = db.createObjectStore(DRAFT_STORE_NAME, { keyPath: 'id' });
+            // Index for querying by id (useful but not strictly necessary)
+            store.createIndex('byId', 'id', { unique: true });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+    this.db = await this.openPromise;
+    return this.db;
+  }
+
+  /** Saves a draft record. */
+  async saveDraft(draft: DraftRecord): Promise<void> {
+    const db = await this.getDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(DRAFT_STORE_NAME, 'readwrite');
+      tx.objectStore(DRAFT_STORE_NAME).put(draft);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  /** Retrieves a draft by its composite key. Returns null if not found. */
+  async getDraft(id: string): Promise<DraftRecord | null> {
+    const db = await this.getDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(DRAFT_STORE_NAME, 'readonly');
+      const request = tx.objectStore(DRAFT_STORE_NAME).get(id);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Removes a draft by its composite key. */
+  async deleteDraft(id: string): Promise<void> {
+    const db = await this.getDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(DRAFT_STORE_NAME, 'readwrite');
+      tx.objectStore(DRAFT_STORE_NAME).delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+}
+
+// Shared singleton instance across all component instances
+const draftDb = new IndexedDBHelper();
+
+/** Formats an ISO timestamp to "HH:MM AM/PM" (12-hour clock). */
+function formatSavedAt(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
 
 @Component({
   selector: 'ga-exam-builder',
@@ -20,6 +108,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   @Input() mode: 'create' | 'edit' = 'create';
   @Input() initialData: any = null;
   @Input() isSubmitting: boolean = false;
+  @Input() draftScopeId: string | null = null;
 
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
@@ -37,8 +126,217 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   activeQuestionIndex: number = 0;
 
   isUploadingDiagram: boolean = false;
+
+  // ============================================================
+  // Draft / IndexedDB State
+  // ============================================================
+  private readonly DRAFT_STORAGE_KEY_PREFIX = 'exam-draft-';
+  private draftDebounceTimer: any = null;
+  /** ISO timestamp of the last *successfully saved* draft. */
+  public lastSavedAtISO: string | null = null;
+  /** Whether there are local unsaved changes since last save/restore. */
+  public hasUnsavedChanges: boolean = false;
+  /** True while an auto-save is in-flight (debounce timer fired, IndexedDB write pending). */
+  public isSavingDraft: boolean = false;
+  public showRestoreBanner: boolean = false;
+
+  /** Primary composite key derived from mode + examId (if editing). */
+  get storageKey(): string {
+    const resolvedId = this.draftScopeId || this.initialData?.examId || this.examForm?.get('examId')?.value;
+    if (this.mode === 'edit' && resolvedId) {
+      return `${this.DRAFT_STORAGE_KEY_PREFIX}${resolvedId}`;
+    }
+    return `${this.DRAFT_STORAGE_KEY_PREFIX}create`;
+  }
+
+  /** All candidate draft keys to check for edit-mode fallbacks. */
+  get draftStorageKeys(): string[] {
+    if (this.mode === 'edit') {
+      const keys = new Set<string>();
+      const primaryKey = this.storageKey;
+      if (primaryKey) {
+        keys.add(primaryKey);
+      }
+      if (this.draftScopeId || this.initialData?.examId || this.examForm?.get('examId')?.value) {
+        keys.add(`${this.DRAFT_STORAGE_KEY_PREFIX}create`);
+      }
+      return Array.from(keys);
+    }
+    return [this.storageKey];
+  }
+
+  /** Returns true when there's nothing meaningful to save in this exam. */
+  isFormEmptyForDraft(): boolean {
+    const title = this.examForm.get('title')?.value;
+    const hasSections = this.sections.length > 0;
+    return !(title && hasSections);
+  }
+
+  /** Shows the compact draft status bar when the builder has draft activity to surface. */
+  get showDraftStatusBar(): boolean {
+    return this.mode === 'create' && (this.showRestoreBanner || this.hasUnsavedChanges);
+  }
+
+  /** Shows the saved-status badge when there is a confirmed save and no draft activity is active. */
+  get showLastSavedIndicator(): boolean {
+    return !!this.lastSavedAtISO && !this.showDraftStatusBar;
+  }
+
+  // ============================================================
+  // IndexedDB save / restore helpers
+  // ============================================================
+
+  /** Serialises the current form state and writes it to IndexedDB. */
+  async saveDraftToStorage(): Promise<void> {
+    if (!this.isFormValidForDraft()) return;
+
+    this.isSavingDraft = true;
+    try {
+      const draftSavedAt = new Date().toISOString();
+      const savePromises = this.draftStorageKeys.map((key) => {
+        const draft: DraftRecord = {
+          id: key,
+          formValue: this.examForm.value,
+          activeSectionIndex: this.activeSectionIndex,
+          activeQuestionIndex: this.activeQuestionIndex,
+          savedAt: draftSavedAt
+        };
+        return draftDb.saveDraft(draft);
+      });
+
+      await Promise.all(savePromises);
+      // Update the "last saved" timestamp
+      this.lastSavedAtISO = draftSavedAt;
+      this.hasUnsavedChanges = false;
+    } catch (err) {
+      console.error('Failed to save draft to IndexedDB:', err);
+    } finally {
+      this.isSavingDraft = false;
+    }
+  }
+
+  /** Checks whether the form has enough data to persist a draft. */
+  isFormValidForDraft(): boolean {
+    const title = this.examForm.get('title')?.value;
+    return !!(title && this.sections.length > 0);
+  }
+
+  /** Returns true when the submit button should be disabled. */
+  get isSubmitDisabled(): boolean {
+    if (this.isSubmitting) return true;
+    if (this.examForm.invalid) return true;
+    if (this.mode === 'create' && this.totalAddedQuestionsCount !== this.examForm.get('totalQuestions')?.value) return true;
+    return false;
+  }
+
+  /** Restores a previously saved draft from IndexedDB into the form. Returns `null` if no draft found. */
+  async restoreDraftFromStorage(): Promise<{ savedAt: string } | null> {
+    try {
+      for (const key of this.draftStorageKeys) {
+        const record = await draftDb.getDraft(key);
+        if (!record || !record.formValue?.title) continue;
+
+        const { sections: _, ...restFormValue } = record.formValue || {};
+        this.examForm.patchValue(restFormValue);
+        this.sections.clear();
+
+        // Rebuild sections array from stored data
+        if (record.formValue.sections) {
+          record.formValue.sections.forEach((section: any) => {
+            const sectionGroup = this.fb.group({
+              sectionId: [section.sectionId || null],
+              sectionTitle: [section.sectionTitle || '', Validators.required],
+              sectionTotalQuestions: [section.sectionTotalQuestions || null, [Validators.required, Validators.min(1)]],
+              sectionTotalMarks: [section.sectionTotalMarks || null, [Validators.required, Validators.min(1)]],
+              questions: this.fb.array([])
+            });
+
+            const questionsArray = sectionGroup.get('questions') as FormArray;
+            if (section.questions && section.questions.length > 0) {
+              section.questions.forEach((question: any) => {
+                const questionGroup = this.fb.group({
+                  questionId: [question.questionId || null],
+                  text: [question.text || '', Validators.required],
+                  diagramUrl: [question.diagramUrl || null],
+                  correctAnswersIndex: [question.correctAnswersIndex != null ? question.correctAnswersIndex : 0, [Validators.required, Validators.min(0), Validators.max(3)]],
+                  options: this.fb.array([])
+                });
+
+                const optionsArray = questionGroup.get('options') as FormArray;
+                if (question.options && question.options.length > 0) {
+                  question.options.forEach((opt: string) => optionsArray.push(this.fb.control(opt, Validators.required)));
+                }
+                questionsArray.push(questionGroup);
+              });
+            }
+            this.sections.push(sectionGroup);
+          });
+        }
+
+        // Restore cursor position in the editor UI
+        this.activeSectionIndex = record.activeSectionIndex ?? 0;
+        this.activeQuestionIndex = record.activeQuestionIndex ?? 0;
+        this.examForm.updateValueAndValidity();
+        this.setActiveQuestion(this.activeSectionIndex, this.activeQuestionIndex);
+
+        return { savedAt: record.savedAt };
+      }
+    } catch (err) {
+      console.error('Failed to restore draft from IndexedDB:', err);
+    }
+    return null;
+  }
+
+  /** Deletes the stored draft from IndexedDB. */
+  async clearDraftStorage(): Promise<void> {
+    try {
+      await Promise.all(this.draftStorageKeys.map((key) => draftDb.deleteDraft(key)));
+      this.lastSavedAtISO = null;
+      this.hasUnsavedChanges = false;
+      this.showRestoreBanner = false;
+    } catch (err) {
+      console.error('Failed to clear draft from IndexedDB:', err);
+    }
+  }
+
+  // ============================================================
+  // Debounce + top-level subscription wiring
+  // ============================================================
+
+  /** Schedules a deferred save after the user has stopped typing. */
+  private scheduleDebounceSave(): void {
+    if (this.draftDebounceTimer) {
+      clearTimeout(this.draftDebounceTimer);
+    }
+    this.hasUnsavedChanges = true;
+    this.showRestoreBanner = false;
+    this.draftDebounceTimer = setTimeout(() => {
+      // Fire-and-forget async save to avoid blocking change detection
+      this.saveDraftToStorage();
+    }, 2000);
+  }
+
+  /**
+   * Single top-level subscription — listens only on the root form.valueChanges.
+   * Because Angular's Reactive Forms propagate nested changes up through parent controls,
+   * we don't need to subscribe to every individual FormArray/FormControl. One listener is enough.
+   */
+  private setupFormChangeTracking(): void {
+    if (!this.examForm) return;
+
+    this.examForm.valueChanges.subscribe(() => {
+      this.scheduleDebounceSave();
+    });
+  }
+
+  // ============================================================
+  // Diagram Upload State
+  // ============================================================
   uploadingQuestionCoords: { s: number, q: number } | null = null;
 
+  // ============================================================
+  // Math Builder Modal
+  // ============================================================
   isMathBuilderOpen = false;
   mathBuilderTargetCoords: { s: number, q: number, type: 'question' | 'option', oIndex?: number } | null = null;
   currentMathFormula = '';
@@ -55,17 +353,65 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   constructor(private fb: FormBuilder, private communicationService: CommunicationService, private notificationService: NotificationService) { }
 
-  ngOnInit() {
+  // ============================================================
+  // Lifecycle Hooks
+  // ============================================================
+
+  ngOnDestroy() {
+    if (this.draftDebounceTimer) {
+      clearTimeout(this.draftDebounceTimer);
+    }
+  }
+
+  async ngOnInit() {
     if (!this.examForm) {
       this.initForm();
+    }
+    this.setupFormChangeTracking();
+
+    if (this.mode === 'edit' && !this.initialData?.examId) {
+      return;
+    }
+
+    // Restore draft asynchronously so the form is ready first.
+    // In edit mode, this should happen before the server payload is applied.
+    const restoreInfo = await this.restoreDraftFromStorage();
+    if (restoreInfo) {
+      this.showRestoreBanner = true;
+      this.lastSavedAtISO = restoreInfo.savedAt;
+    } else if (this.mode === 'edit' && this.initialData) {
+      this.populateForm(this.initialData);
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['initialData'] && this.initialData) {
-      this.populateForm(this.initialData);
+      if (this.mode === 'edit') {
+        void this.initializeFormFromDraftOrInitialData();
+      } else {
+        this.populateForm(this.initialData);
+      }
     }
   }
+
+  private async initializeFormFromDraftOrInitialData(): Promise<void> {
+    if (!this.examForm) {
+      this.initForm();
+    }
+
+    const restoreInfo = await this.restoreDraftFromStorage();
+    if (restoreInfo) {
+      this.showRestoreBanner = true;
+      this.lastSavedAtISO = restoreInfo.savedAt;
+      return;
+    }
+
+    this.populateForm(this.initialData);
+  }
+
+  // ============================================================
+  // Form Initialisation / Population
+  // ============================================================
 
   initForm() {
     this.examForm = this.fb.group({
@@ -128,6 +474,10 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     this.setActiveQuestion(0, 0);
   }
 
+  // ============================================================
+  // Form Array Accessors (concise helpers)
+  // ============================================================
+
   get sections() { return this.examForm.get('sections') as FormArray; }
   getQuestions(sIndex: number) { return this.sections.at(sIndex).get('questions') as FormArray; }
   getOptions(sIndex: number, qIndex: number) { return this.getQuestions(sIndex).at(qIndex).get('options') as FormArray; }
@@ -135,9 +485,14 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     return this.getQuestions(sIndex).at(qIndex).get('correctAnswersIndex') as FormControl;
   }
 
+  /** True when all core exam fields have valid values. */
   get isExamDetailsValid(): boolean {
     return !!(this.examForm.get('title')?.valid && this.examForm.get('totalQuestions')?.valid && this.examForm.get('totalMarks')?.valid && this.examForm.get('timeLimitMinutes')?.valid);
   }
+
+  // ============================================================
+  // Section / Question CRUD
+  // ============================================================
 
   setActiveQuestion(sIndex: number, qIndex: number) {
     this.activeSectionIndex = sIndex;
@@ -149,19 +504,23 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     return qGroup ? qGroup.invalid && qGroup.touched : false;
   }
 
+  /** Sum of all `sectionTotalQuestions` values. */
   get currentAllocatedQuestions(): number {
     return this.sections.controls.reduce((sum, sec) => sum + (sec.get('sectionTotalQuestions')?.value || 0), 0);
   }
 
+  /** Actual count of question controls across all sections. */
   get totalAddedQuestionsCount(): number {
     return this.sections.controls.reduce((sum, sec) => sum + (sec.get('questions') as FormArray).length, 0);
   }
 
+  /** Returns true when no more questions can be added (user hit the exam total cap). */
   get isQuestionLimitReached(): boolean {
     const maxLimit = this.examForm.get('totalQuestions')?.value || 0;
     return maxLimit > 0 && this.totalAddedQuestionsCount >= maxLimit;
   }
 
+  /** Cross-validator: ensures section-level question counts don't exceed the exam total. */
   validateTotalQuestions(control: AbstractControl): ValidationErrors | null {
     const total = control.get('totalQuestions')?.value || 0;
     const sections = control.get('sections') as FormArray;
@@ -181,6 +540,15 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     }));
     this.addQuestion(this.sections.length - 1);
     this.setActiveQuestion(this.sections.length - 1, 0);
+  }
+
+  async discardCurrentDraft(): Promise<void> {
+    await this.clearDraftStorage();
+    this.showRestoreBanner = false;
+    if (this.mode === 'create') {
+      this.initForm();
+      this.setupFormChangeTracking();
+    }
   }
 
   removeSection(sIndex: number) {
@@ -221,37 +589,35 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     return String.fromCharCode(65 + index);
   }
 
-  // --- Math Detection Logic ---
+  // ============================================================
+  // Math Detection / Preview Helpers
+  // ============================================================
+
   containsMath(text: string | null | undefined): boolean {
     if (!text) return false;
-
     const hasDollarMath = (text.match(/\$/g) || []).length >= 2;
     const hasBracketMath = text.includes('\\[') && text.includes('\\]');
     const hasParenMath = text.includes('\\(') && text.includes('\\)');
-
     return hasDollarMath || hasBracketMath || hasParenMath;
   }
 
-  // --- Option Preview State ---
   activeOptionPreviews: Set<string> = new Set<string>();
 
   toggleOptionPreview(sIndex: number, qIndex: number, oIndex: number): void {
     const key = `s${sIndex}q${qIndex}o${oIndex}`;
-    if (this.activeOptionPreviews.has(key)) {
-      this.activeOptionPreviews.delete(key);
-    } else {
-      this.activeOptionPreviews.add(key);
-    }
+    this.activeOptionPreviews.has(key) ? this.activeOptionPreviews.delete(key) : this.activeOptionPreviews.add(key);
   }
 
   isOptionPreviewActive(sIndex: number, qIndex: number, oIndex: number): boolean {
-    const key = `s${sIndex}q${qIndex}o${oIndex}`;
-    return this.activeOptionPreviews.has(key);
+    return this.activeOptionPreviews.has(`s${sIndex}q${qIndex}o${oIndex}`);
   }
+
+  // ============================================================
+  // Diagram Upload
+  // ============================================================
 
   onDiagramUpload(event: any, sIndex: number, qIndex: number) {
     const file: File = event.target.files?.[0];
-
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -297,6 +663,10 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     };
   }
 
+  // ============================================================
+  // Confirm Dialog
+  // ============================================================
+
   handleConfirm(): void {
     if (this.confirmDialogConfig?.action) {
       this.confirmDialogConfig.action();
@@ -307,7 +677,38 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     this.confirmDialogConfig = null;
   }
 
-  // --- Rich Text Formatting Logic ---
+  /** Guard for cancel navigation — prompts about unsaved changes or previously saved drafts. */
+  handleCancelNavigation(): void {
+    const hasPersistedDraft = !!this.lastSavedAtISO || this.showRestoreBanner || this.hasUnsavedChanges;
+
+    if (hasPersistedDraft) {
+      const title = 'Discard Unsaved Changes';
+      const message = `You have ${this.showRestoreBanner ? 'a restored draft' : 'unsaved work'} on this exam. Do you want to discard it and go back?`;
+      this.confirmDialogConfig = {
+        title,
+        message,
+        confirmText: 'Discard & Go Back',
+        cancelText: 'Keep Editing',
+        isDangerous: true,
+        action: () => {
+          this.clearDraftStorage();
+          this.cancel.emit();
+        }
+      };
+    } else {
+      this.cancel.emit();
+    }
+  }
+
+  /** Called from parent component after a successful publish/save. */
+  onPublishSuccess(): void {
+    this.clearDraftStorage();
+  }
+
+  // ============================================================
+  // Rich Text Formatting (Question & Option text)
+  // ============================================================
+
   applyFormat(elementId: string, tag: 'b' | 'i' | 'u', control: AbstractControl | null): void {
     if (!control) return;
     const element = document.getElementById(elementId) as HTMLInputElement | HTMLTextAreaElement;
@@ -316,7 +717,6 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     const start = element.selectionStart || 0;
     const end = element.selectionEnd || 0;
     const text = control.value || '';
-
     const selectedText = text.substring(start, end);
     const openTag = `<${tag}>`;
     const closeTag = `</${tag}>`;
@@ -325,26 +725,29 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     let newCursorPos = start;
 
     if (selectedText) {
-      // Wrap the highlighted text
+      // Wrap highlighted text with tags
       newText = text.substring(0, start) + openTag + selectedText + closeTag + text.substring(end);
       newCursorPos = end + openTag.length + closeTag.length;
     } else {
-      // Drop empty tags at the cursor position
+      // Insert empty tags at cursor position for inline editing
       newText = text.substring(0, start) + openTag + closeTag + text.substring(end);
       newCursorPos = start + openTag.length;
     }
 
-    // Update the Angular Form Control securely
     control.patchValue(newText);
     control.markAsDirty();
 
-    // Restore focus and cursor position after Angular digests the patchValue
+    // Restore focus and selection after Angular's change detection
     setTimeout(() => {
       element.focus();
       element.selectionStart = newCursorPos;
       element.selectionEnd = newCursorPos;
     }, 0);
   }
+
+  // ============================================================
+  // Math Builder Modal Logic
+  // ============================================================
 
   openMathBuilder(s: number, q: number, type: 'question' | 'option', oIndex?: number) {
     this.mathBuilderTargetCoords = { s, q, type, oIndex };
@@ -375,9 +778,17 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     this.closeMathBuilder();
   }
 
+  // ============================================================
+  // Form Submission
+  // ============================================================
+
   triggerSubmit() {
+    // Persist final draft before submission attempt so the user can resume if it fails
+    this.saveDraftToStorage();
+
     if (this.examForm.valid) {
-      this.save.emit(this.examForm.value);
+      const formValue = this.examForm.value;
+      this.save.emit(formValue);
     } else {
       this.examForm.markAllAsTouched();
     }
