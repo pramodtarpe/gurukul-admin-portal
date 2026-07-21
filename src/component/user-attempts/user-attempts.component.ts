@@ -48,12 +48,14 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
     if (this.examId) {
       this.loadAttempts(null);
     }
   }
 
   ngOnDestroy(): void {
+    document.body.style.overflow = '';
     this.clearHoverTimeout();
   }
 
@@ -88,7 +90,8 @@ export class UserAttemptsComponent implements OnInit, OnDestroy {
     }
   }
 
-  closeModal() {
+  closeModal(): void {
+    document.body.style.overflow = '';
     this.close.emit();
   }
 

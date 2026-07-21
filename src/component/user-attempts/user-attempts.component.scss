@@ -11,6 +11,7 @@
   align-items: center;
   z-index: 1000;
   backdrop-filter: blur(4px);
+  overscroll-behavior: contain;
 }
 
 .modal-content {
@@ -18,7 +19,7 @@
   border-radius: 12px;
   width: 90%;            /* NEW: Consistent width */
   max-width: 900px;      /* NEW: Cap the width on large screens */
-  min-height: 65vh;      /* NEW: Forces a consistent minimum height */
+  min-height: 90vh;      /* NEW: Forces a consistent minimum height */
   max-height: 90vh;
   display: flex;
   flex-direction: column;

@@ -197,6 +197,7 @@
     align-items: center;
     justify-items: end;
 }
+
 .status-transition-wrapper>* {
     grid-area: 1 / 1;
 }
@@ -340,6 +341,29 @@
     color: #0f172a;
     outline: none;
     width: 100%;
+}
+
+/* ================================================================
+ * Custom Native Select Dropdown Styling
+ * ================================================================ */
+.input-merged-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.1rem;
+    padding-right: 2.5rem;
+    cursor: pointer;
+    text-overflow: ellipsis;
+}
+.input-merged-group select::-ms-expand {
+    display: none;
+}
+.input-merged-group:focus-within select,
+.input-merged-group select:hover {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234f46e5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
 }
 
 /* ================================================================
@@ -1351,6 +1375,7 @@
         opacity: 0;
         transform: translateY(2px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
