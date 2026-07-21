@@ -229,6 +229,24 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     return false;
   }
 
+  /** Returns true when the exam metadata required for creating sections is valid. */
+  get canAddSections(): boolean {
+    const title = this.examForm?.get('title')?.value;
+    const totalQuestions = this.examForm?.get('totalQuestions')?.value;
+    const totalMarks = this.examForm?.get('totalMarks')?.value;
+    const timeLimitMinutes = this.examForm?.get('timeLimitMinutes')?.value;
+    const examType = this.examForm?.get('examType')?.value;
+
+    return !!(
+      title &&
+      typeof title === 'string' && title.trim().length > 0 &&
+      examType &&
+      typeof totalQuestions === 'number' && totalQuestions > 0 &&
+      typeof totalMarks === 'number' && totalMarks > 0 &&
+      typeof timeLimitMinutes === 'number' && timeLimitMinutes > 0
+    );
+  }
+
   /** Restores a previously saved draft from IndexedDB into the form. Returns `null` if no draft found. */
   async restoreDraftFromStorage(): Promise<{ savedAt: string } | null> {
     try {
@@ -418,11 +436,16 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       examId: [''],
       title: ['', Validators.required],
       totalQuestions: [null, [Validators.required, Validators.min(1)]],
-      totalMarks: [null, [Validators.required, Validators.min(1)]],
+      totalMarks: [{ value: null, disabled: true }, [Validators.required, Validators.min(1)]],
       timeLimitMinutes: [null, [Validators.required, Validators.min(1)]],
       examType: ['FREE', Validators.required],
       sections: this.fb.array([])
     }, { validators: this.validateTotalQuestions });
+
+    this.examForm.get('totalQuestions')?.valueChanges.subscribe((value: number | null) => {
+      const normalized = typeof value === 'number' && value > 0 ? value : null;
+      this.examForm.patchValue({ totalMarks: normalized }, { emitEvent: false });
+    });
   }
 
   populateForm(data: any) {
@@ -432,7 +455,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       examId: data.examId,
       title: data.title,
       totalQuestions: data.totalQuestions,
-      totalMarks: data.totalMarks,
+      totalMarks: data.totalQuestions,
       timeLimitMinutes: data.timeLimitMinutes,
       examType: data.examType || 'FREE'
     });
@@ -531,6 +554,16 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   }
 
   addSection() {
+    if (!this.canAddSections) {
+      this.examForm.markAllAsTouched();
+      this.examForm.get('title')?.markAsTouched();
+      this.examForm.get('totalQuestions')?.markAsTouched();
+      this.examForm.get('totalMarks')?.markAsTouched();
+      this.examForm.get('timeLimitMinutes')?.markAsTouched();
+      this.examForm.get('examType')?.markAsTouched();
+      return;
+    }
+
     this.sections.push(this.fb.group({
       sectionId: [null],
       sectionTitle: ['', Validators.required],

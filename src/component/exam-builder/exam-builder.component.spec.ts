@@ -89,6 +89,21 @@ describe('ExamBuilderComponent', () => {
     expect(component.confirmDialogConfig?.title).toBe('Discard Unsaved Changes');
   });
 
+  it('disables adding sections until the exam metadata is fully valid', () => {
+    component.mode = 'create';
+    component.examForm.patchValue({
+      title: '   ',
+      totalQuestions: null,
+      totalMarks: null,
+      timeLimitMinutes: null,
+      examType: ''
+    });
+    fixture.detectChanges();
+
+    const addSectionButton = fixture.nativeElement.querySelector('.add-section-header-btn');
+    expect(addSectionButton.disabled).toBeTrue();
+  });
+
   it('swaps to the saved badge when there is no active draft state', () => {
     component.mode = 'create';
     component.showRestoreBanner = false;

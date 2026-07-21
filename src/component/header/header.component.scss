@@ -5,7 +5,7 @@ $text-muted: #64748b;
 $error-color: #ef4444;
 
 .admin-header {
-  height: 85px;
+  height: 48px;
   width: 100%; 
   background-color: #ffffff;
   border-bottom: 1px solid $border-color;
@@ -29,14 +29,14 @@ $error-color: #ef4444;
       gap: 12px;
 
       .app-logo {
-        width: 65px;
-        height: 65px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         object-fit: cover;
       }
 
       .app-name {
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 700;
         color: $text-main;
         margin: 0;
