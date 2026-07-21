@@ -37,8 +37,12 @@
             <div class="exam-date-badge"><i class="ph ph-calendar-blank"></i></div>
             <div class="exam-title-group">
               <span class="exam-title">{{ exam.title }}</span>
-              <span *ngIf="exam.examCreatedDate" class="exam-date"><i class="ph ph-clock"></i>{{ exam.examCreatedDate *
-                1000 | date: 'mediumDate' }}</span>
+              <span *ngIf="exam.examCreatedDate" class="exam-date">
+                <i class="ph ph-clock"></i>
+                {{ exam.examCreatedDate * 1000 | date: 'mediumDate' }}
+                <!-- New time ago span added here -->
+                <span class="time-ago">({{ getTimeAgo(exam.examCreatedDate) }})</span>
+              </span>
             </div>
           </div>
 
