@@ -19,12 +19,12 @@
             <div class="header-right">
                 <div class="header-status-group header-status-group--right">
                     <div class="draft-status-bar" *ngIf="showDraftStatusBar">
-                        <div class="draft-status-content" *ngIf="showRestoreBanner && mode === 'create'">
+                        <div class="draft-status-content" *ngIf="showRestoreBanner">
                             <i class="ph ph-info"></i>
                             <span>Draft restored</span>
                             <button type="button" class="discard-draft-btn" (click)="discardCurrentDraft()">Discard</button>
                         </div>
-                        <div class="draft-status-content" *ngIf="hasUnsavedChanges && mode === 'create' && !showRestoreBanner">
+                        <div class="draft-status-content" *ngIf="hasUnsavedChanges && !showRestoreBanner">
                             <i class="ph ph-warning"></i>
                             <span>Unsaved</span>
                             <button type="button" class="save-draft-btn" (click)="saveDraftToStorage()">Save</button>

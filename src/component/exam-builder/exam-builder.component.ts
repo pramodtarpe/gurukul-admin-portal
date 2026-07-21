@@ -174,7 +174,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   /** Shows the compact draft status bar when the builder has draft activity to surface. */
   get showDraftStatusBar(): boolean {
-    return this.mode === 'create' && (this.showRestoreBanner || this.hasUnsavedChanges);
+    return (this.showRestoreBanner || this.hasUnsavedChanges) && (this.mode === 'create' || this.mode === 'edit');
   }
 
   /** Shows the saved-status badge when there is a confirmed save and no draft activity is active. */
