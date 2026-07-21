@@ -123,13 +123,11 @@
 .edit-exam-container input::placeholder,
 .edit-exam-container textarea::placeholder {
     color: #94a3b8;
-    /* A subtle slate gray */
     font-size: clamp(0.75rem, 1.8vw, 0.85rem);
-    /* Slightly smaller than the main input text */
     font-weight: 400;
-    opacity: 1;
-    /* Firefox lowers opacity by default, this normalizes it */
+    opacity: .6;
     letter-spacing: 0.01em;
+    font-style: italic;
 }
 
 /* Specific adjustment for the rich editor to match its proportions */
