@@ -17,9 +17,12 @@
 .modal-content {
   background: #ffffff;
   border-radius: 12px;
-  width: 90%;            /* NEW: Consistent width */
-  max-width: 900px;      /* NEW: Cap the width on large screens */
-  min-height: 90vh;      /* NEW: Forces a consistent minimum height */
+  width: 90%;
+  /* NEW: Consistent width */
+  max-width: 900px;
+  /* NEW: Cap the width on large screens */
+  min-height: 90vh;
+  /* NEW: Forces a consistent minimum height */
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -31,6 +34,7 @@
       transform: translateY(20px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;
@@ -80,15 +84,19 @@
   padding: 24px;
   overflow-y: auto;
   flex: 1;
-  display: flex;          /* NEW: Turns body into a flex container */
-  flex-direction: column; /* NEW: Keeps the table aligned to the top */
+  display: flex;
+  /* NEW: Turns body into a flex container */
+  flex-direction: column;
+  /* NEW: Keeps the table aligned to the top */
 
   .loader-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* NEW: Centers the loader vertically */
-    flex: 1;                 /* NEW: Tells loader to fill the empty space */
+    justify-content: center;
+    /* NEW: Centers the loader vertically */
+    flex: 1;
+    /* NEW: Tells loader to fill the empty space */
     padding: 40px 0;
     color: #6b7280;
   }
@@ -141,8 +149,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* NEW: Centers the text vertically */
-    flex: 1;                 /* NEW: Fills the empty space */
+    justify-content: center;
+    /* NEW: Centers the text vertically */
+    flex: 1;
+    /* NEW: Fills the empty space */
     text-align: center;
     padding: 60px 0;
     color: #9ca3af;
@@ -497,25 +507,37 @@
   min-width: 0;
 }
 
+/* ================================================================
+ * Unified Smooth Pagination Animation
+ * ================================================================ */
+@keyframes smoothEntryFade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 1. Apply to Question Card (Fixes the jarring Left/Right slide) */
 .focused-question-card {
   padding: 1.5rem;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  animation: fadeIn 0.25s ease-out;
+  animation: smoothEntryFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+.attempts-container,
+.loader-wrapper,
+.detail-loading {
+  animation: smoothEntryFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
 }
 
 .q-header {
