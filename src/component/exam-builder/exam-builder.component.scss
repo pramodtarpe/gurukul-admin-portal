@@ -11,7 +11,7 @@
     font-size: clamp(0.7rem, 1.3vw, 0.78rem);
     font-weight: 600;
     white-space: nowrap;
-    padding: 0.2rem 0.5rem;
+    padding: 0.35rem 0.65rem;
     background: #f0fdf4;
     border-radius: 99px;
 
@@ -34,7 +34,7 @@
     font-size: clamp(0.72rem, 1.4vw, 0.8rem);
     font-weight: 600;
     white-space: nowrap;
-    padding: 0.25rem 0.6rem;
+    padding: 0.35rem 0.65rem;
     background: #fef3c7;
     border-radius: 99px;
 
@@ -101,6 +101,13 @@
 
 .draft-status-content .save-draft-btn:hover {
     background: #fde68a;
+}
+
+.draft-status-bar,
+.last-saved-indicator,
+.autosave-spinner {
+    animation: statusFadeIn 0.3s ease-out forwards;
+    will-change: opacity, transform;
 }
 
 .edit-exam-container {
@@ -171,8 +178,6 @@
     .header-status-group {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        flex-wrap: wrap;
         margin-top: 0.25rem;
     }
 
@@ -183,6 +188,19 @@
         background: transparent;
         border: none;
     }
+}
+
+/* ================================================================
+ * Stabilized Status Transition Wrapper
+ * ================================================================ */
+.status-transition-wrapper {
+    display: grid;
+    min-width: 130px;
+    align-items: center;
+    justify-items: end;
+}
+.status-transition-wrapper>* {
+    grid-area: 1 / 1;
 }
 
 /* ---- Compact Back Button ---- */
@@ -1330,13 +1348,12 @@
 }
 
 /* ---- Animations ---- */
-@keyframes fadeInSaved {
-    from {
+@keyframes statusFadeIn {
+    0% {
         opacity: 0;
-        transform: translateY(4px);
+        transform: translateY(2px);
     }
-
-    to {
+    100% {
         opacity: 1;
         transform: translateY(0);
     }

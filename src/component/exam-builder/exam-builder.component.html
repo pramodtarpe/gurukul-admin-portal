@@ -16,41 +16,43 @@
             </div>
 
             <!-- Right: Status + Add Section -->
-            <div class="header-right">
-                <div class="header-status-group header-status-group--right">
-                    <div class="draft-status-bar" *ngIf="showDraftStatusBar">
-                        <div class="draft-status-content" *ngIf="showRestoreBanner">
-                            <i class="ph ph-info"></i>
-                            <span>Draft restored</span>
-                            <button type="button" class="discard-draft-btn"
-                                (click)="discardCurrentDraft()">Discard</button>
-                        </div>
-                        <div class="draft-status-content" *ngIf="hasUnsavedChanges && !showRestoreBanner">
-                            <i class="ph ph-warning"></i>
-                            <span>Unsaved</span>
-                            <button type="button" class="save-draft-btn" (click)="saveDraftToStorage()">Save</button>
-                        </div>
-                    </div>
+                <div class="header-right">
+                    <div class="header-status-group header-status-group--right">
+                        <div class="status-transition-wrapper">
+                            <div class="draft-status-bar" *ngIf="showDraftStatusBar">
+                                <div class="draft-status-content" *ngIf="showRestoreBanner">
+                                    <i class="ph ph-info"></i>
+                                    <span>Draft restored</span>
+                                    <button type="button" class="discard-draft-btn"
+                                        (click)="discardCurrentDraft()">Discard</button>
+                                </div>
+                                <div class="draft-status-content" *ngIf="hasUnsavedChanges && !showRestoreBanner">
+                                    <i class="ph ph-warning"></i>
+                                    <span>Unsaved</span>
+                                    <button type="button" class="save-draft-btn"
+                                        (click)="saveDraftToStorage()">Save</button>
+                                </div>
+                            </div>
+                            <div class="last-saved-indicator" *ngIf="showLastSavedIndicator && mode === 'create'">
+                                <i class="ph ph-check-circle"></i>
+                                <span>Saved {{ lastSavedAtISO | date: 'h:mm a' }}</span>
+                            </div>
+                            <div class="last-saved-indicator" *ngIf="showLastSavedIndicator && mode === 'edit'">
+                                <i class="ph ph-check-circle"></i>
+                                <span>Saved {{ lastSavedAtISO | date: 'h:mm a' }}</span>
+                            </div>
+                            <div class="autosave-spinner" *ngIf="isSavingDraft && mode === 'create'">
+                                <i class="ph ph-spinner ph-spin"></i> Saving draft...
+                            </div>
 
-                    <div class="last-saved-indicator" *ngIf="showLastSavedIndicator && mode === 'create'">
-                        <i class="ph ph-check-circle"></i>
-                        <span>Saved {{ lastSavedAtISO | date: 'h:mm a' }}</span>
-                    </div>
+                        </div> <!-- End Wrapper -->
 
-                    <div class="last-saved-indicator" *ngIf="showLastSavedIndicator && mode === 'edit'">
-                        <i class="ph ph-check-circle"></i>
-                        <span>Saved {{ lastSavedAtISO | date: 'h:mm a' }}</span>
                     </div>
-
-                    <div class="autosave-spinner" *ngIf="isSavingDraft && mode === 'create'">
-                        <i class="ph ph-spinner ph-spin"></i> Saving draft...
-                    </div>
+                    <button type="button" class="add-section-header-btn"
+                        [disabled]="isQuestionLimitReached || !canAddSections" (click)="addSection()">
+                        <i class="ph ph-plus-circle"></i> Add Section
+                    </button>
                 </div>
-                <button type="button" class="add-section-header-btn"
-                    [disabled]="isQuestionLimitReached || !canAddSections" (click)="addSection()">
-                    <i class="ph ph-plus-circle"></i> Add Section
-                </button>
-            </div>
 
         </div>
     </div>
