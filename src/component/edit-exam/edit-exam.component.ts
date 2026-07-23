@@ -4,6 +4,7 @@ import { CommunicationService } from '../../service/communication/communication.
 import { ExamBuilderComponent } from '../exam-builder/exam-builder.component';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../service/notification.service';
+import { FileExportService } from '../../service/file-export.service'; // <-- Import the new service
 
 @Component({
   selector: 'ga-edit-exam',
@@ -15,7 +16,6 @@ import { NotificationService } from '../../service/notification.service';
       #examBuilder
       mode="edit"
       [initialData]="examData"
-      [draftScopeId]="examId"
       [isSubmitting]="isSubmitting"
       (save)="handleSave($event)"
       (cancel)="handleCancel()">
@@ -28,7 +28,6 @@ import { NotificationService } from '../../service/notification.service';
 })
 export class EditExamComponent implements OnInit, AfterViewInit {
   @ViewChild('examBuilder') examBuilder!: ExamBuilderComponent;
-
   examId: string | null = null;
   examData: any = null;
   isSubmitting = false;
@@ -39,7 +38,8 @@ export class EditExamComponent implements OnInit, AfterViewInit {
     private communicationService: CommunicationService,
     private route: ActivatedRoute,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private fileExportService: FileExportService // <-- Inject it here
   ) { }
 
   ngOnInit() {
@@ -78,9 +78,11 @@ export class EditExamComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error(err);
-        // Draft preserved on failure — user can retry
-        this.notificationService.showError('Failed to update the exam. Your progress has been saved as a draft and will be restored.');
         this.isSubmitting = false;
+        this.notificationService.showError('Failed to update the exam. Downloading a secure backup to your computer.');
+        
+        // --- Call the centralized service ---
+        this.fileExportService.downloadBackupFile(finalPayload, 'edit');
       }
     });
   }

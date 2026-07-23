@@ -4,6 +4,7 @@ import { CommunicationService } from '../../service/communication/communication.
 import { ExamBuilderComponent } from '../exam-builder/exam-builder.component';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../service/notification.service';
+import { FileExportService } from '../../service/file-export.service'; // <-- Import the new service
 
 @Component({
   selector: 'ga-create-exam',
@@ -30,6 +31,7 @@ export class CreateExamComponent implements AfterViewInit {
     private communicationService: CommunicationService,
     private router: Router,
     private notificationService: NotificationService,
+    private fileExportService: FileExportService // <-- Inject it here
   ) {}
 
   handleCancel() {
@@ -48,15 +50,18 @@ export class CreateExamComponent implements AfterViewInit {
       next: () => {
         this.isSubmitting = false;
         this.examBuilder?.onPublishSuccess();
-        this.notificationService.showSuccess('🎉 New exam created and published successfully!');
+        this.notificationService.showSuccess('New exam created and published successfully!');
         setTimeout(() => {
           this.router.navigate(['/exam'], { queryParams: { type: formPayload.examType } });
         }, 250);
       },
       error: (err) => {
         console.error(err);
-        // Draft is preserved on failure — user can retry or navigate away
-        this.notificationService.showError('Failed to publish the exam. Your progress has been saved as a draft and will be restored when you return.');
+        this.isSubmitting = false;
+        this.notificationService.showError('Failed to publish the exam. Downloading a secure backup to your computer.');
+        
+        // --- Call the centralized service ---
+        this.fileExportService.downloadBackupFile(finalPayload, 'create');
       },
     });
   }
