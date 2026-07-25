@@ -11,20 +11,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // CRITICAL FIX: Bypass the interceptor for both login AND refresh endpoints.
-  // This prevents the application from getting stuck in an infinite 401 loop.
+  // BYPASS: Prevent infinite loops by ignoring login and refresh endpoints
   if (req.method === 'OPTIONS' || req.url.includes('/api/auth/admin/login') || req.url.includes('/api/auth/refresh')) {
     return next(req);
   }
 
   const token = authService.getAccessToken();
   let clonedRequest = req;
-
+  
   if (token) {
     clonedRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+      setHeaders: { Authorization: `Bearer ${token}` }
     });
   }
 
@@ -36,29 +33,31 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         if (!isRefreshing) {
           isRefreshing = true;
           refreshTokenSubject.next(null);
-
+          
           return authService.refreshToken().pipe(
-            switchMap((res: any) => {
-              isRefreshing = false;
-              const newToken = res.accessToken || authService.getAccessToken();
-              refreshTokenSubject.next(newToken);
-              
-              // Retry the original request (like the logout API call) with the new token
-              const retryRequest = req.clone({
-                setHeaders: { Authorization: `Bearer ${newToken}` }
-              });
-              return next(retryRequest);
-            }),
+            // FIX: Catch errors HERE so it only triggers if the actual Refresh API fails
             catchError((refreshErr) => {
               isRefreshing = false;
-              // If the refresh endpoint fails, forcefully clear tokens and route to login
               authService.logout();
               router.navigate(['/auth']);
               return throwError(() => refreshErr);
+            }),
+            // If refresh is successful, proceed to retry the original request
+            switchMap((res: any) => {
+              isRefreshing = false;
+              
+              // The new access token is safely extracted
+              const newAccessToken = res.accessToken || authService.getAccessToken();
+              refreshTokenSubject.next(newAccessToken);
+              
+              const retryRequest = req.clone({
+                setHeaders: { Authorization: `Bearer ${newAccessToken}` }
+              });
+              return next(retryRequest);
             })
           );
         } else {
-          // If a refresh is already in progress, queue subsequent requests until it finishes
+          // If a refresh is already in progress, queue subsequent requests
           return refreshTokenSubject.pipe(
             filter(token => token !== null),
             take(1),
