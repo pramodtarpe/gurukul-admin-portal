@@ -36,13 +36,13 @@ export class AuthService {
 
   refreshToken(): Observable<any> {
     const refreshToken = this.getRefreshToken();
-    const userStr = localStorage.getItem('admin_user'); 
+    const userStr = localStorage.getItem('admin_user');
 
     if (!refreshToken || !userStr) {
       this.logout();
       return throwError(() => new Error('Missing token or user data for refresh'));
     }
-    
+
     const user = JSON.parse(userStr);
     const email = user.email;
 
@@ -59,7 +59,22 @@ export class AuthService {
   }
 
   logoutApi(): Observable<any> {
-    return this.http.post<any>(`${environment.apiBase}/api/auth/logout`, {});
+    const refreshToken = this.getRefreshToken();
+    const userStr = localStorage.getItem('admin_user');
+    let email = null;
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        email = user.email;
+      } catch (e) {
+        console.error('Error parsing user data for logout', e);
+      }
+    }
+    const payload = {
+      email: email,
+      refreshToken: refreshToken
+    };
+    return this.http.post<any>(`${environment.apiBase}/api/auth/logout`, payload);
   }
 
   logout(): void {
