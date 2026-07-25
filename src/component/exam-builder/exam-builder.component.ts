@@ -9,7 +9,7 @@ import 'mathlive';
 import { NotificationService } from '../../service/notification.service';
 
 // ============================================================
-// IndexedDB Helpers — Lightweight wrapper (no external deps)
+// IndexedDB Helpers - Lightweight wrapper (no external deps)
 // ============================================================
 
 /** Default IndexedDB name and object store for exam drafts. */
@@ -109,22 +109,19 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   @Input() initialData: any = null;
   @Input() isSubmitting: boolean = false;
   @Input() draftScopeId: string | null = null;
-
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
   examForm!: FormGroup;
   examTypes: string[] = ['FREE', 'FOREST_BHARTI', 'POLICE_BHARTI'];
-
   examTypeTranslations: { [key: string]: string } = {
-    'FREE': 'मोफत चाचणी',
+    'FREE': 'मोफत',
     'FOREST_BHARTI': 'वनरक्षक भरती',
     'POLICE_BHARTI': 'पोलीस भरती'
   };
 
   activeSectionIndex: number = 0;
   activeQuestionIndex: number = 0;
-
   isUploadingDiagram: boolean = false;
 
   // ============================================================
@@ -132,6 +129,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   // ============================================================
   private readonly DRAFT_STORAGE_KEY_PREFIX = 'exam-draft-';
   private draftDebounceTimer: any = null;
+
   /** ISO timestamp of the last *successfully saved* draft. */
   public lastSavedAtISO: string | null = null;
   /** Whether there are local unsaved changes since last save/restore. */
@@ -174,12 +172,14 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   /** Shows the compact draft status bar when the builder has draft activity to surface. */
   get showDraftStatusBar(): boolean {
-    return (this.showRestoreBanner || this.hasUnsavedChanges) && (this.mode === 'create' || this.mode === 'edit');
+    // UPDATED: Only show the draft status bar in create mode
+    return (this.showRestoreBanner || this.hasUnsavedChanges) && this.mode === 'create';
   }
 
   /** Shows the saved-status badge when there is a confirmed save and no draft activity is active. */
   get showLastSavedIndicator(): boolean {
-    return !!this.lastSavedAtISO && !this.showDraftStatusBar;
+    // UPDATED: Only show the saved indicator in create mode
+    return !!this.lastSavedAtISO && !this.showDraftStatusBar && this.mode === 'create';
   }
 
   // ============================================================
@@ -188,9 +188,12 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   /** Serialises the current form state and writes it to IndexedDB. */
   async saveDraftToStorage(): Promise<void> {
+    // UPDATED: Bypass auto-saving completely in edit mode
+    if (this.mode === 'edit') return;
     if (!this.isFormValidForDraft()) return;
 
     this.isSavingDraft = true;
+
     try {
       const draftSavedAt = new Date().toISOString();
       const savePromises = this.draftStorageKeys.map((key) => {
@@ -205,6 +208,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       });
 
       await Promise.all(savePromises);
+
       // Update the "last saved" timestamp
       this.lastSavedAtISO = draftSavedAt;
       this.hasUnsavedChanges = false;
@@ -249,6 +253,9 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   /** Restores a previously saved draft from IndexedDB into the form. Returns `null` if no draft found. */
   async restoreDraftFromStorage(): Promise<{ savedAt: string } | null> {
+    // UPDATED: Prevent restoring any stored drafts during edit mode
+    if (this.mode === 'edit') return null;
+
     try {
       for (const key of this.draftStorageKeys) {
         const record = await draftDb.getDraft(key);
@@ -256,6 +263,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
         const { sections: _, ...restFormValue } = record.formValue || {};
         this.examForm.patchValue(restFormValue);
+
         this.sections.clear();
 
         // Rebuild sections array from stored data
@@ -270,6 +278,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
             });
 
             const questionsArray = sectionGroup.get('questions') as FormArray;
+
             if (section.questions && section.questions.length > 0) {
               section.questions.forEach((question: any) => {
                 const questionGroup = this.fb.group({
@@ -281,9 +290,11 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
                 });
 
                 const optionsArray = questionGroup.get('options') as FormArray;
+
                 if (question.options && question.options.length > 0) {
                   question.options.forEach((opt: string) => optionsArray.push(this.fb.control(opt, Validators.required)));
                 }
+
                 questionsArray.push(questionGroup);
               });
             }
@@ -294,6 +305,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
         // Restore cursor position in the editor UI
         this.activeSectionIndex = record.activeSectionIndex ?? 0;
         this.activeQuestionIndex = record.activeQuestionIndex ?? 0;
+
         this.examForm.updateValueAndValidity();
         this.setActiveQuestion(this.activeSectionIndex, this.activeQuestionIndex);
 
@@ -307,6 +319,12 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   /** Deletes the stored draft from IndexedDB. */
   async clearDraftStorage(): Promise<void> {
+    // UPDATED: Skip clearing logic in edit mode, simply flag changes as false
+    if (this.mode === 'edit') {
+      this.hasUnsavedChanges = false;
+      return;
+    }
+
     try {
       await Promise.all(this.draftStorageKeys.map((key) => draftDb.deleteDraft(key)));
       this.lastSavedAtISO = null;
@@ -326,8 +344,14 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     if (this.draftDebounceTimer) {
       clearTimeout(this.draftDebounceTimer);
     }
+
+    // Still mark as dirty for standard cancel-warnings in edit mode
     this.hasUnsavedChanges = true;
     this.showRestoreBanner = false;
+
+    // UPDATED: Do not trigger the auto-save IndexedDB logic in edit mode
+    if (this.mode === 'edit') return;
+
     this.draftDebounceTimer = setTimeout(() => {
       // Fire-and-forget async save to avoid blocking change detection
       this.saveDraftToStorage();
@@ -335,7 +359,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Single top-level subscription — listens only on the root form.valueChanges.
+   * Single top-level subscription - listens only on the root form.valueChanges.
    * Because Angular's Reactive Forms propagate nested changes up through parent controls,
    * we don't need to subscribe to every individual FormArray/FormControl. One listener is enough.
    */
@@ -394,6 +418,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     // Restore draft asynchronously so the form is ready first.
     // In edit mode, this should happen before the server payload is applied.
     const restoreInfo = await this.restoreDraftFromStorage();
+
     if (restoreInfo) {
       this.showRestoreBanner = true;
       this.lastSavedAtISO = restoreInfo.savedAt;
@@ -418,6 +443,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     }
 
     const restoreInfo = await this.restoreDraftFromStorage();
+
     if (restoreInfo) {
       this.showRestoreBanner = true;
       this.lastSavedAtISO = restoreInfo.savedAt;
@@ -430,7 +456,6 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   // ============================================================
   // Form Initialisation / Population
   // ============================================================
-
   initForm() {
     this.examForm = this.fb.group({
       examId: [''],
@@ -485,6 +510,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
             });
 
             const optionsArray = questionGroup.get('options') as FormArray;
+
             if (question.options) {
               question.options.forEach((opt: string) => optionsArray.push(this.fb.control(opt, Validators.required)));
             }
@@ -494,16 +520,19 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
         this.sections.push(sectionGroup);
       });
     }
+
     this.setActiveQuestion(0, 0);
   }
 
   // ============================================================
   // Form Array Accessors (concise helpers)
   // ============================================================
-
   get sections() { return this.examForm.get('sections') as FormArray; }
+
   getQuestions(sIndex: number) { return this.sections.at(sIndex).get('questions') as FormArray; }
+
   getOptions(sIndex: number, qIndex: number) { return this.getQuestions(sIndex).at(qIndex).get('options') as FormArray; }
+
   getCorrectAnswerControl(sIndex: number, qIndex: number): FormControl {
     return this.getQuestions(sIndex).at(qIndex).get('correctAnswersIndex') as FormControl;
   }
@@ -547,9 +576,12 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   validateTotalQuestions(control: AbstractControl): ValidationErrors | null {
     const total = control.get('totalQuestions')?.value || 0;
     const sections = control.get('sections') as FormArray;
+
     if (!sections) return null;
+
     let acc = 0;
     sections.controls.forEach(sec => acc += (sec.get('sectionTotalQuestions')?.value || 0));
+
     return acc > total ? { questionLimitExceeded: true } : null;
   }
 
@@ -571,6 +603,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       sectionTotalMarks: [null, [Validators.required, Validators.min(1)]],
       questions: this.fb.array([])
     }));
+
     this.addQuestion(this.sections.length - 1);
     this.setActiveQuestion(this.sections.length - 1, 0);
   }
@@ -578,6 +611,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   async discardCurrentDraft(): Promise<void> {
     await this.clearDraftStorage();
     this.showRestoreBanner = false;
+
     if (this.mode === 'create') {
       this.initForm();
       this.setupFormChangeTracking();
@@ -586,6 +620,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   removeSection(sIndex: number) {
     const sectionTitle = this.sections.at(sIndex).get('sectionTitle')?.value || `Section ${sIndex + 1}`;
+
     this.confirmDialogConfig = {
       title: 'Delete Section',
       message: `Are you sure you want to delete "${sectionTitle}"? This action cannot be undone.`,
@@ -608,12 +643,14 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       correctAnswersIndex: [null, [Validators.required, Validators.min(0), Validators.max(3)]],
       options: this.fb.array([this.fb.control('', Validators.required), this.fb.control('', Validators.required), this.fb.control('', Validators.required), this.fb.control('', Validators.required)])
     }));
+
     this.setActiveQuestion(sIndex, this.getQuestions(sIndex).length - 1);
   }
 
   removeQuestion(sIndex: number, qIndex: number) {
     const questions = this.getQuestions(sIndex);
     if (questions.length <= 1) return;
+
     questions.removeAt(qIndex);
     this.setActiveQuestion(sIndex, Math.max(0, qIndex - 1));
   }
@@ -660,6 +697,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
     this.isUploadingDiagram = true;
     this.uploadingQuestionCoords = { s: sIndex, q: qIndex };
+
     const examType = this.examForm.get('examType')?.value || 'FREE';
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
 
@@ -683,6 +721,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   removeDiagram(sIndex: number, qIndex: number) {
     const questionText = this.getQuestions(sIndex).at(qIndex).get('text')?.value || `Question ${qIndex + 1}`;
+
     this.confirmDialogConfig = {
       title: 'Remove Diagram',
       message: `Are you sure you want to remove the diagram from "${questionText}"?`,
@@ -710,13 +749,15 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     this.confirmDialogConfig = null;
   }
 
-  /** Guard for cancel navigation — prompts about unsaved changes or previously saved drafts. */
+  /** Guard for cancel navigation - prompts about unsaved changes or previously saved drafts. */
   handleCancelNavigation(): void {
+    // Note: in edit mode, hasUnsavedChanges correctly triggers this standard prompt, but implies no IndexedDB interaction
     const hasPersistedDraft = !!this.lastSavedAtISO || this.showRestoreBanner || this.hasUnsavedChanges;
 
     if (hasPersistedDraft) {
       const title = 'Discard Unsaved Changes';
       const message = `You have ${this.showRestoreBanner ? 'a restored draft' : 'unsaved work'} on this exam. Do you want to discard it and go back?`;
+
       this.confirmDialogConfig = {
         title,
         message,
@@ -744,6 +785,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   applyFormat(elementId: string, tag: 'b' | 'i' | 'u', control: AbstractControl | null): void {
     if (!control) return;
+
     const element = document.getElementById(elementId) as HTMLInputElement | HTMLTextAreaElement;
     if (!element) return;
 
@@ -751,6 +793,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     const end = element.selectionEnd || 0;
     const text = control.value || '';
     const selectedText = text.substring(start, end);
+
     const openTag = `<${tag}>`;
     const closeTag = `</${tag}>`;
 
@@ -799,8 +842,10 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   insertMathFormula() {
     if (!this.currentMathFormula || !this.mathBuilderTargetCoords) return;
+
     const formula = `$${this.currentMathFormula}$`;
     const { s, q, type, oIndex } = this.mathBuilderTargetCoords;
+
     const control = type === 'question' ? this.getQuestions(s).at(q).get('text') : this.getOptions(s, q).at(oIndex!);
 
     if (control) {
@@ -808,6 +853,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       control.patchValue(current + (current ? ' ' : '') + formula);
       control.markAsDirty();
     }
+
     this.closeMathBuilder();
   }
 
@@ -816,8 +862,10 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   // ============================================================
 
   triggerSubmit() {
-    // Persist final draft before submission attempt so the user can resume if it fails
-    this.saveDraftToStorage();
+    // UPDATED: Persist final draft before submission ONLY for create mode
+    if (this.mode === 'create') {
+      this.saveDraftToStorage();
+    }
 
     if (this.examForm.valid) {
       const formValue = this.examForm.value;
