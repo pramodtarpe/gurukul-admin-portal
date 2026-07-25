@@ -207,9 +207,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
+    background: blue;
+    border: 1px solid blue;
+    color: #fcfcfc;
     font-weight: 700;
     cursor: pointer;
     padding: 0.45rem 0.7rem;
@@ -218,9 +218,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-        background: #fee2e2;
-        color: #991b1b;
-        border-color: #fca5a5;
+        scale: 1.02;
     }
 
     i {

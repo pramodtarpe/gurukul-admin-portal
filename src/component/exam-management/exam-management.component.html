@@ -16,9 +16,19 @@
         </select>
       </span>
 
-      <span class="create-exam-btn">
-        <button class="primary-btn" routerLink="/create-exam"><i class="ph ph-plus"></i> Create New Exam</button>
-      </span>
+      <div style="display: flex; gap: 0.75rem;">
+        <span class="create-exam-btn" *ngIf="hasDraft">
+          <button class="draft-btn" routerLink="/create-exam" [queryParams]="{loadDraft: 'true'}">
+            <i class="ph ph-file-dashed"></i> Resume Draft
+          </button>
+        </span>
+        <span class="create-exam-btn">
+          <button class="primary-btn" (click)="onCreateNewExamClick()" [disabled]="isLoading">
+            <i class="ph ph-plus"></i> Create New Exam
+          </button>
+        </span>
+      </div>
+
     </div>
   </div>
 
@@ -88,5 +98,14 @@
       [examTitle]="selectedExamForAttempts.title" (close)="closeAttemptsModal()">
     </ga-user-attempts>
 
+    <!-- Warning Dialog for Overwriting Drafts -->
+    @if (showDraftWarningDialog) {
+    <ga-confirm-dialog title="Discard Existing Draft?"
+      message="You have an unsaved exam draft. Starting a new exam will permanently delete your existing draft. Do you want to proceed?"
+      confirmText="Delete Draft & Create" cancelText="Cancel" [isConfirmDangerous]="true"
+      (confirmed)="onConfirmDraftDelete()" (cancelled)="onCancelDraftDelete()">
+    </ga-confirm-dialog>
+    }
+    
   </div>
 </div>

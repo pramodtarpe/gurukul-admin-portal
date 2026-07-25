@@ -109,6 +109,7 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   @Input() initialData: any = null;
   @Input() isSubmitting: boolean = false;
   @Input() draftScopeId: string | null = null;
+  @Input() loadDraft: boolean = false;
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -222,7 +223,13 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   /** Checks whether the form has enough data to persist a draft. */
   isFormValidForDraft(): boolean {
     const title = this.examForm.get('title')?.value;
-    return !!(title && this.sections.length > 0);
+    return !!(title && title.trim().length > 0);
+  }
+
+  handleReject(): void {
+    if (this.confirmDialogConfig?.rejectAction) {
+      this.confirmDialogConfig.rejectAction();
+    }
   }
 
   /** Returns true when the submit button should be disabled. */
@@ -389,8 +396,11 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
     message: string;
     confirmText?: string;
     cancelText?: string;
+    rejectText?: string;
+    showReject?: boolean;
     isDangerous?: boolean;
     action: () => void;
+    rejectAction?: () => void;
   } | null = null;
 
   constructor(private fb: FormBuilder, private communicationService: CommunicationService, private notificationService: NotificationService) { }
@@ -410,18 +420,20 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
       this.initForm();
     }
     this.setupFormChangeTracking();
-
     if (this.mode === 'edit' && !this.initialData?.examId) {
       return;
     }
-
-    // Restore draft asynchronously so the form is ready first.
-    // In edit mode, this should happen before the server payload is applied.
-    const restoreInfo = await this.restoreDraftFromStorage();
-
-    if (restoreInfo) {
-      this.showRestoreBanner = true;
-      this.lastSavedAtISO = restoreInfo.savedAt;
+    if (this.mode === 'create') {
+      if (this.loadDraft) {
+        const restoreInfo = await this.restoreDraftFromStorage();
+        if (restoreInfo) {
+          this.showRestoreBanner = true;
+          this.lastSavedAtISO = restoreInfo.savedAt;
+        }
+      } else {
+        // Explicitly wipe the old draft so we start 100% fresh
+        await this.clearDraftStorage();
+      }
     } else if (this.mode === 'edit' && this.initialData) {
       this.populateForm(this.initialData);
     }
@@ -751,21 +763,31 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
 
   /** Guard for cancel navigation - prompts about unsaved changes or previously saved drafts. */
   handleCancelNavigation(): void {
-    // Note: in edit mode, hasUnsavedChanges correctly triggers this standard prompt, but implies no IndexedDB interaction
     const hasPersistedDraft = !!this.lastSavedAtISO || this.showRestoreBanner || this.hasUnsavedChanges;
 
     if (hasPersistedDraft) {
-      const title = 'Discard Unsaved Changes';
-      const message = `You have ${this.showRestoreBanner ? 'a restored draft' : 'unsaved work'} on this exam. Do you want to discard it and go back?`;
-
       this.confirmDialogConfig = {
-        title,
-        message,
-        confirmText: 'Discard & Go Back',
+        title: 'Unsaved Changes',
+        message: `Do you want to save your progress before exiting?`,
+        confirmText: 'Save & Exit',
+        rejectText: 'Discard & Exit',
         cancelText: 'Keep Editing',
-        isDangerous: true,
-        action: () => {
-          this.clearDraftStorage();
+        showReject: true,
+        isDangerous: false, // Save is a positive action
+        action: async () => {
+          if (this.mode === 'create') {
+            if (!this.isFormValidForDraft()) {
+              this.notificationService.showError('An Exam Title is required to save a draft.');
+              return; // Abort exit so they can add a title
+            }
+            await this.saveDraftToStorage();
+          }
+          this.cancel.emit();
+        },
+        rejectAction: async () => {
+          if (this.mode === 'create') {
+            await this.clearDraftStorage();
+          }
           this.cancel.emit();
         }
       };

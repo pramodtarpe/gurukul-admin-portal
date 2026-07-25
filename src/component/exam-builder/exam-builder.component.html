@@ -8,7 +8,7 @@
             <div class="header-left">
                 <button type="button" class="go-back-button" (click)="handleCancelNavigation()">
                     <i class="ph ph-arrow-left"></i>
-                    <span>Cancel</span>
+                    <span>Exit</span>
                 </button>
                 <div class="title-block">
                     <h2>{{ mode === 'create' ? 'Create New Exam' : 'Edit Exam' }}</h2>
@@ -357,8 +357,10 @@
     <ga-confirm-dialog *ngIf="confirmDialogConfig" [title]="confirmDialogConfig.title"
         [message]="confirmDialogConfig.message" [confirmText]="confirmDialogConfig.confirmText || 'Confirm'"
         [cancelText]="confirmDialogConfig.cancelText || 'Cancel'"
+        [showRejectButton]="confirmDialogConfig.showReject || false"
+        [rejectText]="confirmDialogConfig.rejectText || 'Discard'"
         [isConfirmDangerous]="confirmDialogConfig.isDangerous || false" (confirmed)="handleConfirm()"
-        (cancelled)="handleCancel()">
+        (rejected)="handleReject()" (cancelled)="handleCancel()">
     </ga-confirm-dialog>
 
     <div class="modal-backdrop" *ngIf="isMathBuilderOpen" (click)="closeMathBuilder()">

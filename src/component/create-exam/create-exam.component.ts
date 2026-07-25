@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { ExamBuilderComponent } from '../exam-builder/exam-builder.component';
 import { CommonModule } from '@angular/common';
@@ -14,6 +14,7 @@ import { FileExportService } from '../../service/file-export.service'; // <-- Im
     <ga-exam-builder 
       mode="create"
       #examBuilder
+      [loadDraft]="shouldLoadDraft"
       [isSubmitting]="isSubmitting"
       (save)="handleSave($event)"
       (cancel)="handleCancel()">
@@ -24,15 +25,24 @@ export class CreateExamComponent implements AfterViewInit {
   @ViewChild('examBuilder') examBuilder!: ExamBuilderComponent;
 
   isSubmitting = false;
+  shouldLoadDraft = false;
 
   ngAfterViewInit() { /* ViewChild ready */ }
 
   constructor(
     private communicationService: CommunicationService,
     private router: Router,
+    private route: ActivatedRoute,
     private notificationService: NotificationService,
     private fileExportService: FileExportService // <-- Inject it here
-  ) {}
+  ) { }
+
+  ngOnInit() {
+    // Read the URL parameter
+    this.route.queryParams.subscribe(params => {
+      this.shouldLoadDraft = params['loadDraft'] === 'true';
+    });
+  }
 
   handleCancel() {
     this.router.navigate(['/exam']);
@@ -59,7 +69,7 @@ export class CreateExamComponent implements AfterViewInit {
         console.error(err);
         this.isSubmitting = false;
         this.notificationService.showError('Failed to publish the exam. Downloading a secure backup to your computer.');
-        
+
         // --- Call the centralized service ---
         this.fileExportService.downloadBackupFile(finalPayload, 'create');
       },

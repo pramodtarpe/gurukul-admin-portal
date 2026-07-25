@@ -397,3 +397,23 @@ $bg-card: #ffffff;
     }
   }
 }
+
+.draft-btn {
+  background-color: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #d97706;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.925rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: #fef3c7;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+  }
+}

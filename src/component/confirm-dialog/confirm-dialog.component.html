@@ -2,9 +2,9 @@
   <div class="dialog-container" (click)="$event.stopPropagation()">
     <div class="dialog-header">
       @if (isConfirmDangerous) {
-        <i class="ph ph-warning-circle dialog-icon warning"></i>
+      <i class="ph ph-warning-circle dialog-icon warning"></i>
       } @else {
-        <i class="ph ph-info dialog-icon info"></i>
+      <i class="ph ph-info dialog-icon info"></i>
       }
       <h3>{{ title }}</h3>
     </div>
@@ -14,6 +14,9 @@
     </div>
 
     <div class="dialog-footer">
+      <button *ngIf="showRejectButton" class="btn btn-reject" (click)="onReject()">
+        {{ rejectText }}
+      </button>
       <button class="btn btn-cancel" (click)="onCancel()">
         {{ cancelText }}
       </button>

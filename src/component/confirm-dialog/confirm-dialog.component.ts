@@ -14,9 +14,12 @@ export class ConfirmDialogComponent {
   @Input() confirmText = 'Confirm';
   @Input() cancelText = 'Cancel';
   @Input() isConfirmDangerous = false;
+  @Input() showRejectButton = false;
+  @Input() rejectText = 'Discard';
 
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
+  @Output() rejected = new EventEmitter<void>(); // <-- New Output
 
   onConfirm(): void {
     this.confirmed.emit();
@@ -24,5 +27,9 @@ export class ConfirmDialogComponent {
 
   onCancel(): void {
     this.cancelled.emit();
+  }
+
+  onReject(): void {
+    this.rejected.emit();
   }
 }

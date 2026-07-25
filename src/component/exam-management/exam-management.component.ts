@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommunicationService } from '../../service/communication/communication.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../service/notification.service';
 import { UserAttemptsComponent } from '../user-attempts/user-attempts.component';
@@ -35,25 +35,65 @@ export class ExamManagementComponent implements OnInit {
   showAttemptsModal = false;
   selectedExamForAttempts: any = null;
   isOpeningAttemptsFor: string | null = null;
+  hasDraft: boolean = false;
+  showDraftWarningDialog: boolean = false;
 
   constructor(
     private communicationService: CommunicationService,
     private route: ActivatedRoute,
+    private router: Router,
     private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
+    this.checkDraftExists();
     this.route.queryParams.subscribe(params => {
       const typeParam = params['type'];
-
       if (typeParam && this.examTypes.includes(typeParam)) {
         this.selectedExamType = typeParam;
       } else {
         this.selectedExamType = 'FREE';
       }
-
       this.resetPaginationAndLoad();
     });
+  }
+
+  onCreateNewExamClick(): void {
+    if (this.hasDraft) {
+      // Pause and show the warning dialog
+      this.showDraftWarningDialog = true;
+    } else {
+      // No draft exists, proceed straight to a fresh form
+      this.router.navigate(['/create-exam'], { queryParams: { loadDraft: 'false' } });
+    }
+  }
+  onConfirmDraftDelete(): void {
+    this.showDraftWarningDialog = false;
+    // User explicitly agreed to delete the draft and start fresh
+    this.router.navigate(['/create-exam'], { queryParams: { loadDraft: 'false' } });
+  }
+  onCancelDraftDelete(): void {
+    this.showDraftWarningDialog = false;
+  }
+
+  checkDraftExists(): void {
+    try {
+      const request = indexedDB.open('GurukulAdminDB', 1);
+      request.onsuccess = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains('examDrafts')) {
+          this.hasDraft = false;
+          return;
+        }
+        const tx = db.transaction('examDrafts', 'readonly');
+        const getReq = tx.objectStore('examDrafts').get('exam-draft-create');
+        getReq.onsuccess = () => {
+          this.hasDraft = !!getReq.result;
+        };
+      };
+    } catch (e) {
+      console.error('Failed to check IndexedDB for drafts', e);
+    }
   }
 
   onExamTypeChange() {

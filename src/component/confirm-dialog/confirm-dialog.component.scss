@@ -115,7 +115,15 @@ $success-text: #15803d;
     color: $text-main;
   }
 }
-
+.btn-reject {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid transparent;
+  
+  &:hover {
+    background-color: #fecaca;
+  }
+}
 .btn-confirm {
   background-color: $primary-color;
   color: #ffffff;
