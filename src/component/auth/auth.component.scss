@@ -25,6 +25,7 @@ $logo-size: 150px; // Adjust diameter here
   padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  min-width: 480px !important;
   width: 100%;
   max-width: 440px;
 
@@ -208,7 +209,12 @@ button[type="submit"] {
 
 /* --- LOGIN UI STRUCTURAL OVERRIDES --- */
 .auth-card {
-  min-width: 520px !important; /* Widens the card footprint */
+  box-sizing: border-box !important; /* Forces padding to be calculated inside the width */
+  width: 100% !important;
+  max-width: 480px !important; /* 480px total - 80px padding = exactly 400px internal */
+  min-width: 0 !important; /* Wipes out the previous incorrect override */
+}
+button[type="submit"] {
   width: 100%;
 }
 
@@ -324,5 +330,40 @@ button[type="submit"] {
   p {
     max-width: 360px;
     line-height: 1.6;
+  }
+}
+
+/* --- GOOGLE OAUTH UI --- */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: $text-muted;
+  font-size: 0.875rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid $border-color;
+  }
+
+  span {
+    padding: 0 1rem;
+    font-weight: 600;
+  }
+}
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  
+  #googleSignInContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
   }
 }

@@ -58,6 +58,13 @@ export class AuthService {
     );
   }
 
+  googleLogin(token: string): Observable<LoginResponse> {
+    const payload = { idToken: token };
+    return this.http.post<LoginResponse>(`${environment.apiBase}/api/auth/admin/google`, payload).pipe(
+      tap(response => this.handleAuthentication(response))
+    );
+  }
+  
   logoutApi(): Observable<any> {
     const refreshToken = this.getRefreshToken();
     const userStr = localStorage.getItem('admin_user');

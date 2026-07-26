@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../service/auth/auth.service';
 
+declare var google: any;
 type AuthView = 'login' | 'forgot-email' | 'otp-verify' | 'success';
 
 @Component({
@@ -13,10 +14,13 @@ type AuthView = 'login' | 'forgot-email' | 'otp-verify' | 'success';
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss']
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
+
+  private readonly GOOGLE_CLIENT_ID = '734008277602-2kbgora11e7hnjsmrb5o0eivb73v6ujr.apps.googleusercontent.com';
 
   isLoading = false;
   errorMessage = '';
@@ -30,6 +34,56 @@ export class AuthComponent {
 
   otpDigits: string[] = ['', '', '', '', '', ''];
 
+  ngOnInit(): void {
+    this.loadGoogleScript();
+  }
+  // --- NEW: Google Authentication Methods ---
+  private loadGoogleScript(): void {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      this.renderGoogleButton();
+    };
+    document.body.appendChild(script);
+  }
+
+  private renderGoogleButton(): void {
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: this.GOOGLE_CLIENT_ID,
+        callback: this.handleGoogleCredentialResponse.bind(this)
+      });
+      const container = document.getElementById('googleSignInContainer');
+      if (container) {
+        google.accounts.id.renderButton(
+          container,
+          { theme: 'outline', size: 'large', width: 400, shape: 'rectangular' }
+        );
+      }
+    }
+  }
+
+  private handleGoogleCredentialResponse(response: any): void {
+    this.ngZone.run(() => {
+      const token = response.credential;
+
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      this.authService.googleLogin(token).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['']);
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          this.errorMessage = err?.error?.message || 'Google Sign-In failed. Please try again.';
+        }
+      });
+    });
+  }
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
@@ -202,9 +256,14 @@ export class AuthComponent {
     this.errorMessage = '';
     this.emailSentMessage = '';
     this.successMessage = '';
-    // Clear out forms to avoid carrying data back and forth
+
     this.forgotEmailForm.reset();
     this.resetPasswordForm.reset();
     this.otpDigits = ['', '', '', '', '', ''];
+
+    // Wait for Angular's *ngIf to inject the login container back into the DOM, then render the button
+    setTimeout(() => {
+      this.renderGoogleButton();
+    }, 50);
   }
 }
