@@ -883,14 +883,24 @@ export class ExamBuilderComponent implements OnInit, OnChanges {
   // Form Submission
   // ============================================================
 
-  triggerSubmit() {
-    // UPDATED: Persist final draft before submission ONLY for create mode
+triggerSubmit() {
     if (this.mode === 'create') {
       this.saveDraftToStorage();
     }
 
     if (this.examForm.valid) {
-      const formValue = this.examForm.value;
+      
+      const currentTotalQs = this.examForm.get('totalQuestions')?.value;
+      this.examForm.get('totalMarks')?.setValue(currentTotalQs, { emitEvent: false });
+
+      const sectionsArray = this.examForm.get('sections') as FormArray;
+      sectionsArray.controls.forEach(section => {
+        const secQs = section.get('sectionTotalQuestions')?.value;
+        section.get('sectionTotalMarks')?.setValue(secQs, { emitEvent: false });
+      });
+
+      const formValue = this.examForm.getRawValue(); 
+      
       this.save.emit(formValue);
     } else {
       this.examForm.markAllAsTouched();
