@@ -1,10 +1,9 @@
 $maintenance-height: 48px;
-$transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
 
 .maintenance-bar {
   position: fixed;
   bottom: 0;
-  left: var(--sidebar-width, 260px);
+  left: var(--sidebar-rail-width, 76px);
   right: 0;
   height: $maintenance-height;
   background-color: #dc2626;
@@ -15,9 +14,6 @@ $transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0 20px;
   z-index: 9999;
   box-shadow: 0 -4px 16px rgba(220, 38, 38, 0.5), 0 -1px 4px rgba(0, 0, 0, 0.2);
-
-  // Smooth transition when sidebar toggles — matches sidebar collapse speed
-  transition: left 0.3s $transition-curve;
 
   // Top edge highlight line with glow
   &::before {
@@ -195,7 +191,7 @@ $transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
 
 @media (max-width: 768px) {
   .maintenance-bar {
-    left: 0 !important;
+    left: var(--sidebar-rail-width, 68px);
     padding: 0 12px;
     gap: 8px;
 

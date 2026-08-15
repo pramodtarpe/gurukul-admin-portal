@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +15,8 @@ import { finalize } from 'rxjs/operators';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
+  @ViewChild('profileTrigger') private profileTrigger?: ElementRef<HTMLButtonElement>;
+
   private authService = inject(AuthService);
   private communicationService = inject(CommunicationService);
   private router = inject(Router);
@@ -53,14 +55,28 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
+  onDocumentClick(event: MouseEvent): void {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.isDropdownOpen = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isEditModalOpen) {
+      this.closeEditModal();
+      this.profileTrigger?.nativeElement.focus();
+      return;
+    }
+
+    if (this.isDropdownOpen) {
+      this.isDropdownOpen = false;
+      this.profileTrigger?.nativeElement.focus();
     }
   }
 

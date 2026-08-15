@@ -26,6 +26,8 @@ body {
   box-sizing: border-box;
   background-color: var(--bg-main);
   color: var(--text-main);
+  min-height: 100%;
+  overflow-x: hidden;
 }
 
 *,

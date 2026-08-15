@@ -1,79 +1,160 @@
 <header class="admin-header">
   <div class="header-left">
-    <div class="logo-container">
-      <img src="assets/gurukul-logo-round.png" alt="Gurukul Logo" class="app-logo">
-      <h1 class="app-name">गुरुकुल करिअर अकॅडमी, गडचिरोली</h1>
+    <div class="brand-lockup">
+      <img
+        src="assets/gurukul-logo-round.png"
+        alt=""
+        class="app-logo"
+        aria-hidden="true"
+      >
+
+      <div class="brand-copy">
+        <span class="brand-eyebrow">Administration workspace</span>
+        <h1 class="app-name" lang="mr">गुरुकुल करिअर अकॅडमी, गडचिरोली</h1>
+      </div>
     </div>
   </div>
 
   <div class="header-right">
-
     <div class="user-profile-container">
-      
-      <div class="divider"></div>
-      
-      <div class="user-profile-trigger" (click)="toggleDropdown()">
-        <span class="username">{{ profileData?.name || 'Loading...' }}</span>
-        <img [src]="profileData?.profilePictureUrl || 'https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff'" alt="User Avatar" class="avatar">
-        <i class="ph ph-caret-down"></i>
-      </div>
+      <button
+        #profileTrigger
+        class="user-profile-trigger"
+        type="button"
+        aria-haspopup="menu"
+        aria-controls="profile-menu"
+        [attr.aria-expanded]="isDropdownOpen"
+        [attr.aria-label]="isDropdownOpen ? 'Close account menu' : 'Open account menu'"
+        (click)="toggleDropdown()"
+      >
+        <span class="user-copy">
+          <span class="username">{{ profileData?.name || 'Admin' }}</span>
+          <span class="user-role">Administrator</span>
+        </span>
 
-      <div class="profile-dropdown" *ngIf="isDropdownOpen">
-        <div class="dropdown-header">
-          <p class="dropdown-name">{{ profileData?.name || 'Admin User' }}</p>
-          <p class="dropdown-email">
-            <i class="ph ph-envelope-simple"></i>
-            {{ profileData?.email || 'Loading...' }}
-          </p>
-          <p class="dropdown-phone" *ngIf="profileData?.phoneNumber">
-            <i class="ph ph-phone"></i>
-            {{ profileData?.phoneNumber }}
-          </p>
+        <span class="avatar-wrap" aria-hidden="true">
+          <img
+            [src]="profileData?.profilePictureUrl || 'https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff'"
+            alt=""
+            class="avatar"
+          >
+          <span class="status-indicator"></span>
+        </span>
+
+        <i
+          class="ph ph-caret-down"
+          [class.is-open]="isDropdownOpen"
+          aria-hidden="true"
+        ></i>
+      </button>
+
+      <div
+        id="profile-menu"
+        class="profile-dropdown"
+        role="menu"
+        aria-label="Account menu"
+        *ngIf="isDropdownOpen"
+      >
+        <div class="dropdown-header" role="presentation">
+          <div class="dropdown-identity">
+            <img
+              [src]="profileData?.profilePictureUrl || 'https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff'"
+              alt=""
+              class="dropdown-avatar"
+            >
+            <div class="identity-copy">
+              <p class="dropdown-name">{{ profileData?.name || 'Admin User' }}</p>
+              <p class="dropdown-role">Administrator account</p>
+            </div>
+          </div>
+
+          <div class="contact-details">
+            <p class="dropdown-email">
+              <i class="ph ph-envelope-simple" aria-hidden="true"></i>
+              <span>{{ profileData?.email || 'Loading profile...' }}</span>
+            </p>
+            <p class="dropdown-phone" *ngIf="profileData?.phoneNumber">
+              <i class="ph ph-phone" aria-hidden="true"></i>
+              <span>{{ profileData?.phoneNumber }}</span>
+            </p>
+          </div>
         </div>
-        
-        <div class="dropdown-body">
-          <button class="menu-item-btn" (click)="openEditModal()">
-            <i class="ph ph-pencil-simple"></i>
-            <span>Edit Profile</span>
+
+        <div class="dropdown-body" role="presentation">
+          <button class="menu-item-btn" type="button" role="menuitem" (click)="openEditModal()">
+            <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+            <span>Edit profile</span>
           </button>
 
-          <button class="logout-btn" (click)="onLogout()" [disabled]="isLoggingOut">
-            <i class="ph ph-sign-out" *ngIf="!isLoggingOut"></i>
-            <i class="ph ph-spinner ph-spin" *ngIf="isLoggingOut"></i>
-            <span>{{ isLoggingOut ? 'Signing Out...' : 'Sign Out' }}</span>
+          <div class="menu-divider" role="separator"></div>
+
+          <button
+            class="logout-btn"
+            type="button"
+            role="menuitem"
+            (click)="onLogout()"
+            [disabled]="isLoggingOut"
+            [attr.aria-busy]="isLoggingOut"
+          >
+            <i class="ph ph-sign-out" *ngIf="!isLoggingOut" aria-hidden="true"></i>
+            <i class="ph ph-spinner ph-spin" *ngIf="isLoggingOut" aria-hidden="true"></i>
+            <span>{{ isLoggingOut ? 'Signing out...' : 'Sign out' }}</span>
           </button>
         </div>
       </div>
-
     </div>
   </div>
 </header>
 
 <div class="modal-backdrop" *ngIf="isEditModalOpen" (click)="closeEditModal()">
-  <div class="modal-card" (click)="$event.stopPropagation()">
+  <div
+    class="modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="edit-profile-title"
+    (click)="$event.stopPropagation()"
+  >
     <div class="modal-header">
-      <h3>Edit Profile</h3>
-      <button class="close-btn" (click)="closeEditModal()"><i class="ph ph-x"></i></button>
+      <div>
+        <p class="modal-eyebrow">Account settings</p>
+        <h2 id="edit-profile-title">Edit profile</h2>
+      </div>
+      <button class="close-btn" type="button" aria-label="Close edit profile dialog" (click)="closeEditModal()">
+        <i class="ph ph-x" aria-hidden="true"></i>
+      </button>
     </div>
-    
+
     <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
       <div class="modal-body">
         <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" formControlName="name" placeholder="Enter your full name">
+          <label for="profile-name">Full name</label>
+          <input
+            id="profile-name"
+            type="text"
+            formControlName="name"
+            autocomplete="name"
+            placeholder="Enter your full name"
+          >
         </div>
-        
+
         <div class="form-group">
-          <label>Phone Number</label>
-          <input type="text" formControlName="phoneNumber" placeholder="e.g. 9876543210">
+          <label for="profile-phone">Phone number</label>
+          <input
+            id="profile-phone"
+            type="tel"
+            inputmode="tel"
+            formControlName="phoneNumber"
+            autocomplete="tel"
+            placeholder="e.g. 9876543210"
+          >
         </div>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="cancel-btn" (click)="closeEditModal()">Cancel</button>
         <button type="submit" class="save-btn" [disabled]="profileForm.invalid || isUpdatingProfile">
-          <i class="ph ph-spinner ph-spin" *ngIf="isUpdatingProfile"></i>
-          <span>{{ isUpdatingProfile ? 'Saving...' : 'Save Changes' }}</span>
+          <i class="ph ph-spinner ph-spin" *ngIf="isUpdatingProfile" aria-hidden="true"></i>
+          <span>{{ isUpdatingProfile ? 'Saving...' : 'Save changes' }}</span>
         </button>
       </div>
     </form>

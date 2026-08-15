@@ -1,37 +1,51 @@
-/* --- Main Application Layout --- */
+:host {
+  --header-height: 68px;
+  --sidebar-rail-width: 76px;
+  --sidebar-panel-width: 264px;
+
+  display: block;
+  min-height: 100dvh;
+}
+
+/* --- Authenticated application shell --- */
 .top-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: var(--bg-main);
-}
-
-.subnav-container {
-  width: var(--sidebar-width, 260px);
-  flex-shrink: 0;
-  min-height: 100vh;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.main-layout-area {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0; /* Prevents flexbox blowout on smaller screens */
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 92% 4%, rgba(79, 70, 229, 0.055), transparent 28rem),
+    var(--bg-main);
 }
 
 .header-container {
   position: sticky;
   top: 0;
-  z-index: 90;
-  box-shadow: var(--shadow-sm); /* Separates header from scrolling content */
+  z-index: 300;
+  height: var(--header-height);
+}
+
+.app-workspace {
+  display: grid;
+  grid-template-columns: var(--sidebar-rail-width) minmax(0, 1fr);
+  min-height: calc(100dvh - var(--header-height));
+}
+
+/*
+ * The shell always reserves only the compact rail. The expanded navigation
+ * panel overlays the workspace, so toggling it never changes this grid or the
+ * management canvas width.
+ */
+.subnav-container {
+  grid-column: 1;
+  width: var(--sidebar-rail-width);
+  min-width: 0;
 }
 
 .management-container {
-  flex-grow: 1;
-  padding: 2rem; /* Consistent, breathable padding for all child routes */
-  padding-bottom: calc(2rem + 48px); /* Account for fixed maintenance banner */
-  box-sizing: border-box;
-  overflow-x: hidden;
+  grid-column: 2;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(1.25rem, 2.25vw, 2.25rem);
+  padding-bottom: calc(clamp(1.25rem, 2.25vw, 2.25rem) + 48px);
+  overflow-x: clip;
 }
 
 /* --- Auth Screen Canvas --- */
@@ -39,7 +53,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   background-color: var(--bg-main);
+}
+
+@media (max-width: 720px) {
+  :host {
+    --header-height: 60px;
+    --sidebar-rail-width: 68px;
+  }
+
+  .management-container {
+    padding: 1rem;
+    padding-bottom: calc(1rem + 48px);
+  }
 }

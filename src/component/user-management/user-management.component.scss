@@ -6,8 +6,9 @@ $text-muted: #64748b;
 
 .user-management-container {
   padding: 1.5rem;
+  width: 100%;
   max-width: 1200px;
-  min-width: 80vw;
+  min-width: 0;
   margin: 0 auto;
   &.is-resizing {
     user-select: none;

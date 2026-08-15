@@ -1,10 +1,24 @@
-<nav class="sidebar" [class.collapsed]="collapsed">
+<nav
+  id="admin-sidebar-panel"
+  class="sidebar"
+  [class.collapsed]="collapsed"
+  aria-label="Admin navigation"
+>
   <div class="sidebar-header">
-    <button class="collapse-toggle" (click)="toggleCollapse()" type="button" aria-label="Toggle sidebar">
+    <span class="sidebar-heading">Navigation</span>
+    <button
+      class="collapse-toggle"
+      (click)="toggleCollapse()"
+      type="button"
+      aria-controls="admin-sidebar-panel"
+      [attr.aria-expanded]="!collapsed"
+      [attr.aria-label]="collapsed ? 'Expand navigation' : 'Collapse navigation'"
+      [attr.title]="collapsed ? 'Expand navigation' : 'Collapse navigation'"
+    >
       @if (!collapsed) {
-      <i class="ph ph-caret-left"></i>
+        <i class="ph ph-caret-left" aria-hidden="true"></i>
       } @else {
-      <i class="ph ph-caret-right"></i>
+        <i class="ph ph-caret-right" aria-hidden="true"></i>
       }
     </button>
   </div>
@@ -13,56 +27,61 @@
     <div class="nav-section">
       <ul class="nav-list">
         <li class="nav-item">
-          <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-house"></i>
-            <span>Home</span>
+          <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            ariaCurrentWhenActive="page" aria-label="Home" [attr.title]="collapsed ? 'Home' : null">
+            <i class="ph ph-house" aria-hidden="true"></i>
+            <span class="nav-label">Home</span>
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/users" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-users"></i>
-            <span>User Management</span>
+          <a routerLink="/users" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            ariaCurrentWhenActive="page" aria-label="User Management" [attr.title]="collapsed ? 'User Management' : null">
+            <i class="ph ph-users" aria-hidden="true"></i>
+            <span class="nav-label">User Management</span>
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/exam" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-graduation-cap"></i>
-            <span>Exam Management</span>
+          <a routerLink="/exam" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            ariaCurrentWhenActive="page" aria-label="Exam Management" [attr.title]="collapsed ? 'Exam Management' : null">
+            <i class="ph ph-graduation-cap" aria-hidden="true"></i>
+            <span class="nav-label">Exam Management</span>
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/file" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-folder-open"></i>
-            <span>File Management</span>
+          <a routerLink="/file" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            ariaCurrentWhenActive="page" aria-label="File Management" [attr.title]="collapsed ? 'File Management' : null">
+            <i class="ph ph-folder-open" aria-hidden="true"></i>
+            <span class="nav-label">File Management</span>
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/news" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-newspaper"></i>
-            <span>News Management</span>
+          <a routerLink="/news" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            ariaCurrentWhenActive="page" aria-label="News Management" [attr.title]="collapsed ? 'News Management' : null">
+            <i class="ph ph-newspaper" aria-hidden="true"></i>
+            <span class="nav-label">News Management</span>
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/ads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="ph ph-image"></i>
-            <span>Ads Management</span>
+          <a routerLink="/ads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            ariaCurrentWhenActive="page" aria-label="Ads Management" [attr.title]="collapsed ? 'Ads Management' : null">
+            <i class="ph ph-image" aria-hidden="true"></i>
+            <span class="nav-label">Ads Management</span>
           </a>
         </li>
       </ul>
     </div>
   </div>
 
-  <!-- Maintenance Mode - fixed at bottom of sidebar -->
   <div class="maintenance-footer">
-    <hr class="divider" />
     <ul class="nav-list maintenance-section">
       <li class="nav-item">
-        <a routerLink="/maintenance" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="maintenance-nav-link">
-          <i class="ph ph-wrench"></i>
-          <span>Maintenance Mode</span>
+        <a routerLink="/maintenance" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+          ariaCurrentWhenActive="page" aria-label="Maintenance Mode"
+          [attr.title]="collapsed ? 'Maintenance Mode' : null" class="maintenance-nav-link">
+          <i class="ph ph-wrench" aria-hidden="true"></i>
+          <span class="nav-label">Maintenance Mode</span>
         </a>
       </li>
     </ul>
   </div>
-
 </nav>

@@ -1,13 +1,13 @@
 @if (authService.isAuthenticated()) {
   <div class="top-container">
-    <div class="subnav-container">
-      <ga-subnav-menu></ga-subnav-menu>
+    <div class="header-container">
+      <ga-header></ga-header>
     </div>
 
-    <div class="main-layout-area">
-      <div class="header-container">
-        <ga-header></ga-header>
-      </div>
+    <div class="app-workspace">
+      <aside class="subnav-container">
+        <ga-subnav-menu></ga-subnav-menu>
+      </aside>
 
       <main class="management-container">
         <router-outlet></router-outlet>

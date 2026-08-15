@@ -1,5 +1,5 @@
-import { Component, Renderer2, Inject } from '@angular/core';
-import { DOCUMENT, CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -10,16 +10,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./subnav-menu.component.scss']
 })
 export class SubnavMenuComponent {
-  collapsed = false;
-
-  constructor(
-    private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document
-  ) {}
+  collapsed = true;
 
   toggleCollapse(): void {
     this.collapsed = !this.collapsed;
-    const sidebarWidth = this.collapsed ? '72px' : '260px';
-    this.document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
   }
 }
